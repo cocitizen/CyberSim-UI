@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Container } from 'react-bootstrap';
+import { Row, Col, Card, Container } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
 
 import { GameStates } from '../constants';
@@ -7,6 +7,7 @@ import { gameStore } from './GameStore';
 import BPT from './BPT';
 import Systems from './Systems';
 import EventLogs from './EventLogs/EventLogs';
+import PurchasedMitigations from './Projector/PurchasedMitigations';
 
 const Projector = view(() => {
   const { id, state: gameState } = gameStore;
@@ -30,6 +31,20 @@ const Projector = view(() => {
         <div className="my-5 py-5 border-bottom border-primary thick-border">
           <BPT big />
         </div>
+        {gameState !== GameStates.ASSESSMENT && (
+          <Row className="mt-3 mb-4">
+            <Col>
+              <Card>
+                <Card.Header>
+                  <strong>Purchased Budget Items</strong>
+                </Card.Header>
+                <Card.Body>
+                  <PurchasedMitigations />
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        )}
         {gameState === GameStates.ASSESSMENT ? (
           <EventLogs />
         ) : (
