@@ -8,6 +8,7 @@ import EnterGame from './EnterGame';
 import Mitigations from './Mitigations/Mitigations';
 import Simulation from './Simulation/Simulation';
 import Projector from './Projector';
+import AfterActionReview from './AfterActionReview/AfterActionReview';
 import { gameStore } from './GameStore';
 import { useStaticData } from './StaticDataProvider';
 
@@ -36,10 +37,11 @@ const Game = view(() => {
     return <EnterGame />;
   }
 
-  if (
-    queryParams.isProjectorView ||
-    gameState === GameStates.ASSESSMENT
-  ) {
+  if (gameState === GameStates.ASSESSMENT) {
+    return <AfterActionReview />;
+  }
+
+  if (queryParams.isProjectorView) {
     return <Projector />;
   }
 

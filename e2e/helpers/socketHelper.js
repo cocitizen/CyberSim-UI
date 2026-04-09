@@ -172,4 +172,85 @@ async function deliverInjectionToGame(gameId, injectionId) {
   }
 }
 
-module.exports = { setupGame, setupBudgetGame, deliverInjectionToGame };
+/**
+ * Creates and fully runs a game to ASSESSMENT state for AAR testing.
+ *
+ * Flow:
+ *   1. createGame  — PREPARATION state, large prep budget.
+ *   2. (optional) changeMitigation × N — buy skipper mitigations so startSimulation
+ *                    marks those injections as prevented:true.
+ *   3. startSimulation — SIMULATION state; simulation budget resets to $0.
+ *   4. For each step in `steps[]`:
+ *      a. deliverInjection  — if `step.injectionId` is provided.
+ *      b. respondToInjection — if `step.responseIds` is provided (correct response).
+ *      c. nonCorrectRespondToInjection — if `step.nonCorrectResponse` is truthy
+ *         (marks is_response_correct=false, followup stays undelivered).
+ *   5. finishSimulation — ASSESSMENT state.
+ *
+ * @param {string}   gameId
+ * @param {object}   [opts]
+ * @param {string[]} [opts.mitigationsToBuy]         Mitigation IDs bought in prep phase.
+ * @param {Array}    [opts.steps]                     Ordered list of injection/response steps.
+ * @param {string}   [opts.steps[].injectionId]       Injection to deliver.
+ * @param {string[]} [opts.steps[].responseIds]        Response IDs for respondToInjection.
+ * @param {boolean}  [opts.steps[].nonCorrectResponse] If true, emit nonCorrectRespondToInjection.
+ * @param {string}   [opts.steps[].customResponse]     Custom response text for nonCorrect calls.
+ */
+async function setupAARGame(gameId, opts = {}) {
+  const { mitigationsToBuy = [], steps = [] } = opts;
+  const socket = await connectSocket();
+
+  try {
+    await emitWithCallback(
+      socket,
+      'createGame',
+      gameId,
+      100_000, // large prep budget
+      55.0,
+      SCENARIO_SLUG,
+    );
+
+    for (const mitigationId of mitigationsToBuy) {
+      await emitWithCallback(socket, 'changeMitigation', {
+        id: mitigationId,
+        value: true,
+      });
+    }
+
+    await emitWithCallback(socket, 'startSimulation');
+
+    for (const step of steps) {
+      if (step.actionId) {
+        await emitWithCallback(socket, 'performAction', {
+          actionId: step.actionId,
+        });
+        continue;
+      }
+
+      if (step.injectionId) {
+        await emitWithCallback(socket, 'deliverInjection', {
+          injectionId: step.injectionId,
+        });
+      }
+
+      if (step.responseIds && step.responseIds.length > 0) {
+        await emitWithCallback(socket, 'respondToInjection', {
+          injectionId: step.injectionId,
+          responseIds: step.responseIds,
+        });
+      } else if (step.nonCorrectResponse) {
+        await emitWithCallback(socket, 'nonCorrectRespondToInjection', {
+          injectionId: step.injectionId,
+          customResponse: step.customResponse || null,
+        });
+      }
+    }
+
+    // Transition to ASSESSMENT state
+    await emitWithCallback(socket, 'finishSimulation');
+  } finally {
+    socket.disconnect();
+  }
+}
+
+module.exports = { setupGame, setupBudgetGame, deliverInjectionToGame, setupAARGame };
