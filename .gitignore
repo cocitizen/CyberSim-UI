@@ -32,3 +32,6 @@ yarn-error.log*
 # Dev, etc
 .claude
 .vscode
+
+playwright-report
+test-results

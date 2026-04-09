@@ -129,6 +129,19 @@ select.form-control:focus {
   }
 }
 
+.custom-switch.locked-response {
+  opacity: 0.55;
+  .custom-control-label {
+    cursor: not-allowed;
+  }
+}
+
+.locked-response-hint {
+  font-size: 0.8em;
+  font-style: italic;
+  color: #888;
+}
+
 .custom-switch .custom-control-label::before {
   top: 50%;
   transform: translate(0, -50%);
