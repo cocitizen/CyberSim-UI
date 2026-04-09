@@ -102,4 +102,74 @@ async function setupGame(gameId) {
   }
 }
 
-module.exports = { setupGame };
+/**
+ * Creates a game for injection-budget-change tests.
+ *
+ * Flow:
+ *   1. createGame  — game enters PREPARATION state with a large prep budget so
+ *                    mitigations can be purchased.
+ *   2. (optional) changeMitigation × N — buy skipper mitigations in prep phase
+ *                    so startSimulation will mark the corresponding injections as
+ *                    prevented:true.
+ *   3. startSimulation — transitions to SIMULATION state; budget resets to $0.
+ *   4. (optional) deliverInjection × N — deliver the injections needed by the
+ *                    calling test.
+ *
+ * @param {string}   gameId
+ * @param {object}   [opts]
+ * @param {string[]} [opts.mitigationsToBuy]    Mitigation IDs to purchase before sim starts.
+ * @param {string[]} [opts.injectionsToDeliver] Injection IDs to deliver after sim starts.
+ */
+async function setupBudgetGame(gameId, opts = {}) {
+  const { mitigationsToBuy = [], injectionsToDeliver = [] } = opts;
+  const socket = await connectSocket();
+
+  try {
+    await emitWithCallback(
+      socket,
+      'createGame',
+      gameId,
+      100_000, // prep budget — large enough to cover any skipper mitigation cost
+      55.0,
+      SCENARIO_SLUG,
+    );
+
+    for (const mitigationId of mitigationsToBuy) {
+      await emitWithCallback(socket, 'changeMitigation', {
+        id: mitigationId,
+        value: true,
+      });
+    }
+
+    await emitWithCallback(socket, 'startSimulation');
+
+    for (const injectionId of injectionsToDeliver) {
+      await emitWithCallback(socket, 'deliverInjection', { injectionId });
+    }
+  } finally {
+    socket.disconnect();
+  }
+}
+
+/**
+ * Joins an existing game and delivers a single injection via socket.
+ *
+ * Useful inside a test to trigger a budget change while the browser page is
+ * already open, so the reactive BPT update can be observed without a reload.
+ *
+ * @param {string} gameId
+ * @param {string} injectionId
+ */
+async function deliverInjectionToGame(gameId, injectionId) {
+  const socket = await connectSocket();
+
+  try {
+    // joinGame(id, _, __, scenarioSlug, callback) — extra args are ignored.
+    await emitWithCallback(socket, 'joinGame', gameId, null, null, null);
+    await emitWithCallback(socket, 'deliverInjection', { injectionId });
+  } finally {
+    socket.disconnect();
+  }
+}
+
+module.exports = { setupGame, setupBudgetGame, deliverInjectionToGame };

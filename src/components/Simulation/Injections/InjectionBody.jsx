@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import InjectionResponseForm from './InjectionResponseForm';
 import { useStaticData } from '../../StaticDataProvider';
-import { msToMinutesSeconds } from '../../../util';
+import { msToMinutesSeconds, numberToUsd } from '../../../util';
 
 const InjectionBody = view(
   ({
@@ -75,6 +75,19 @@ const InjectionBody = view(
                     ? `${injection.poll_change}%`
                     : '-'}
                 </Col>
+                {injection.budget_change != null && (
+                  <Col
+                    xs={6}
+                    md={2}
+                    className={classNames({
+                      'text-disabled': prevented,
+                    })}
+                  >
+                    <span className="font-weight-bold">Budget: </span>
+                    {numberToUsd(injection.budget_change)}
+                    {prevented && ' (avoided)'}
+                  </Col>
+                )}
                 <Col xs={6} md={2}>
                   <span className="font-weight-bold">Avoided: </span>
                   {prevented ? 'YES' : 'NO'}

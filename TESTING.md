@@ -11,5 +11,5 @@ To start the E2E Tests, issue the following command:
 
 ```bash
 npx playwright install --with-deps # install browser dependencies.
-npx playwright test # use --headed flag, if you want to have a flickery UI screen as well.
+npx playwright test <YOUR_TEST_FILE> # use --headed flag, if you want to have a flickery UI screen as well.
 ```
