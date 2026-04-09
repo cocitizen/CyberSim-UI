@@ -8,6 +8,9 @@
 // Local dev:   localhost             → REACT_APP_SCENARIO_SLUG env var, or 'cso'
 
 export function getScenarioSlug() {
+  if (process.env.REACT_APP_SCENARIO_SLUG) {
+    return process.env.REACT_APP_SCENARIO_SLUG;
+  }
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
 
