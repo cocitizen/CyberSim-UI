@@ -141,7 +141,7 @@ export default function AARFollowupCard({ followup }) {
                 </span>
                 {mitigationResponse.cost != null && (
                   <span className="aar-followup__impact aar-followup__impact--right">
-                    {mitigationResponse.cost > 0 ? '+' : '-'}{' '}
+                    {mitigationResponse.cost > 0 ? '-' : '+'}{' '}
                     {Math.abs(mitigationResponse.cost)} USD
                   </span>
                 )}
