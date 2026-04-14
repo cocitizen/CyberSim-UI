@@ -43,7 +43,9 @@ export default function AARExpandedDetails({ chain }) {
                 <span className="aar-expanded__taken-label">
                   {' '}
                   ✓ purchased
-                  {skipper_mitigation.purchased_at != null
+                  {skipper_mitigation.purchased_in_preparation
+                    ? ' in preparation'
+                    : skipper_mitigation.purchased_at != null
                     ? ` at ${formatMs(skipper_mitigation.purchased_at)}`
                     : ''}
                 </span>
