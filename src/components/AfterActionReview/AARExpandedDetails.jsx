@@ -1,15 +1,20 @@
 import React from 'react';
 
 export default function AARExpandedDetails({ chain }) {
-  const { possible_responses, responses_made, skipper_mitigation } = chain;
+  const { possible_responses, responses_made, skipper_mitigation } =
+    chain;
 
-  const madeIds = new Set((responses_made || []).map((r) => r.response_id));
+  const madeIds = new Set(
+    (responses_made || []).map((r) => r.response_id),
+  );
 
   return (
     <div className="aar-expanded">
       {possible_responses && possible_responses.length > 0 && (
         <div className="aar-expanded__section">
-          <p className="aar-expanded__heading">Actions to prevent event:</p>
+          <p className="aar-expanded__heading">
+            Actions to prevent event:
+          </p>
           <ul className="aar-expanded__list">
             {possible_responses.map((resp) => {
               const taken = madeIds.has(resp.id);
@@ -20,7 +25,10 @@ export default function AARExpandedDetails({ chain }) {
                 >
                   {resp.description}
                   {taken && (
-                    <span className="aar-expanded__taken-label"> action taken</span>
+                    <span className="aar-expanded__taken-label">
+                      {' '}
+                      - action taken
+                    </span>
                   )}
                 </li>
               );
@@ -31,11 +39,15 @@ export default function AARExpandedDetails({ chain }) {
 
       {skipper_mitigation && (
         <div className="aar-expanded__section">
-          <p className="aar-expanded__heading">Policy or tech to prevent worst impacts:</p>
+          <p className="aar-expanded__heading">
+            Policy or tech to prevent worst impacts:
+          </p>
           <ul className="aar-expanded__list">
             <li
               className={
-                skipper_mitigation.purchased ? 'aar-action-taken' : undefined
+                skipper_mitigation.purchased
+                  ? 'aar-action-taken'
+                  : undefined
               }
             >
               {skipper_mitigation.description}
@@ -46,7 +58,9 @@ export default function AARExpandedDetails({ chain }) {
                   {skipper_mitigation.purchased_in_preparation
                     ? ' in preparation'
                     : skipper_mitigation.purchased_at != null
-                    ? ` at ${formatMs(skipper_mitigation.purchased_at)}`
+                    ? ` at ${formatMs(
+                        skipper_mitigation.purchased_at,
+                      )}`
                     : ''}
                 </span>
               )}
@@ -63,5 +77,8 @@ function formatMs(ms) {
   const totalSec = Math.floor(ms / 1000);
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(
+    2,
+    '0',
+  )}`;
 }
