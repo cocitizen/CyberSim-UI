@@ -187,11 +187,10 @@ const Injection = view(
             </Button>
             <Button
               variant="primary"
-              onClick={() =>
-                deliverInjection({
-                  injectionId: injection.id,
-                }) && setShowDeliverConfirmation(false)
-              }
+              onClick={() => {
+                deliverInjection({ injectionId: injection.id });
+                setShowDeliverConfirmation(false);
+              }}
             >
               TRIGGER EFFECTS
             </Button>
