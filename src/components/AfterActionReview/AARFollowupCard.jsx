@@ -26,7 +26,7 @@ function ImpactLabel({ pollChange, budgetChange }) {
   );
 }
 
-export default function AARFollowupCard({ followup }) {
+export default function AARFollowupCard({ followup, parentPrevented }) {
   if (!followup) return null;
 
   const {
@@ -45,6 +45,38 @@ export default function AARFollowupCard({ followup }) {
   const hasMitigation =
     delivered && responses_made && responses_made.length > 0;
   const mitigationResponse = hasMitigation ? responses_made[0] : null;
+
+  // Parent injection was prevented by a budget-item purchase.  The follow-up
+  // never had a chance to trigger, so its own delivered/prevented flags are
+  // both false.  Render it as a blue EVENT PREVENTED card to show that the
+  // entire chain was avoided thanks to the prep-phase purchase.
+  if (parentPrevented) {
+    const time = formatMs(trigger_time);
+    return (
+      <div className="aar-card">
+        <div className="aar-card__header aar-header--prevented">
+          <span className="aar-card__time">{time}</span>
+          <span className="aar-card__header-label">
+            {' '}
+            — EVENT PREVENTED
+          </span>
+          {poll_change != null && poll_change !== 0 && (
+            <span className="aar-followup__impact aar-followup__impact--right">
+              AVOIDED DAMAGE:{' '}
+              {poll_change > 0 ? '+' : ''}
+              {poll_change}%
+            </span>
+          )}
+        </div>
+        <div className="aar-card__body">
+          <p className="aar-card__title">{title}</p>
+          {description && (
+            <p className="aar-card__description">{description}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (prevented) {
     // Green: follow-up avoided

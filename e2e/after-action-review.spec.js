@@ -1,7 +1,7 @@
 /**
  * Playwright test suite — After Action Review
  *
- * Covers TC-1 through TC-10 from docs/testing/after-action-review.md
+ * Covers TC-1 through TC-11 from docs/testing/after-action-review.md
  *
  * Seed: cso@2026-03-19.1
  *
@@ -26,6 +26,7 @@
  *   TC-8  — Expand / collapse parent card
  *   TC-9  — No injections delivered → empty timeline message
  *   TC-10 — Non-existent game ID → error alert
+ *   TC-11 — Skipper mitigation purchase suppresses follow-up injection from timeline
  */
 
 const { test, expect } = require('@playwright/test');
@@ -234,13 +235,12 @@ test('TC-3 — Skipper mitigation purchased in prep renders a BLUE EVENT PREVENT
 
   // The mitigation description must appear in the header label (uppercased)
   // The skipper mitigation description contains "two-factor" or "2FA"
-  await expect(header).toContainText('thanks to');
+  await expect(header).toContainText('via');
 
-  // The card for INJ_1005 must NOT show a red or black header
-  const blackHeaders = page.locator('.aar-header--injected');
-  // Any black card should NOT be for the prevented injection (1005's title contains "Spearphishing" or "Incoming email")
-  // We assert a blue prevented card exists, which is the main invariant.
-  await expect(page.locator('.aar-header--prevented')).toHaveCount(1);
+  // No injected (black) or not-delivered (gray) header should exist for the
+  // prevented injection — the parent is blue and that's the main invariant here.
+  // NOTE: the full chain structure (parent + connector + nested follow-up blue card)
+  // is validated in TC-11.
 
   // await takeScreenshot(page, 'tc3-blue-card-verified');
 });
@@ -673,4 +673,79 @@ test('TC-10 — AAR error shows an error alert', async ({ page }) => {
   await expect(page.locator('.aar-card')).not.toBeAttached();
 
   // await takeScreenshot(page, 'tc10-error-alert-verified');
+});
+
+// ---------------------------------------------------------------------------
+// TC-11 — Skipper mitigation purchase suppresses follow-up injection from timeline
+// ---------------------------------------------------------------------------
+
+test('TC-11 — Buying a skipper mitigation prevents parent injection and shows follow-up as a nested BLUE card', async ({
+  page,
+}) => {
+  const gameId = `pw-aar-tc11-${Date.now()}`;
+  // INJ_1005 (Spearphishing) has followup_injection → INJ_1022 (Strategy leaked).
+  // Purchasing SKIPPER_1005 in prep marks INJ_1005 as prevented:true at startSimulation.
+  // Because the parent is prevented by a budget-item purchase the entire downstream
+  // chain was also avoided — the AAR must display:
+  //
+  //   BLUE card (1005) — EVENT PREVENTED via ...
+  //     │
+  //   [Followup event connector]
+  //     │
+  //   BLUE card (1022) — EVENT PREVENTED + AVOIDED DAMAGE
+  //
+  // INJ_1022 must NOT appear as a separate top-level chain entry.
+  await setupAARGame(gameId, {
+    mitigationsToBuy: [MITIGATIONS.SKIPPER_1005],
+  });
+
+  await loadAARPage(page, gameId);
+
+  // await takeScreenshot(page, 'tc11-skipper-followup-blue');
+
+  // --- Locate the prevented chain by the parent's asset-code in its title ---
+  const preventedChain = page
+    .locator('.aar-event-chain')
+    .filter({
+      has: page.locator('.aar-card__title', { hasText: '(1005)' }),
+    })
+    .first();
+
+  // --- Parent card: BLUE EVENT PREVENTED ---
+  const parentHeader = preventedChain
+    .locator('.aar-card__header.aar-header--prevented')
+    .first();
+  await expect(parentHeader).toBeVisible();
+  await expect(parentHeader).toContainText('EVENT PREVENTED');
+  await expect(parentHeader).toContainText('via');
+
+  // --- Connector: visible, labelled "Followup event" ---
+  const connector = preventedChain.locator('.aar-connector').first();
+  await expect(connector).toBeVisible();
+  await expect(connector).toContainText('Followup event');
+
+  // --- Follow-up card: also BLUE, EVENT PREVENTED + AVOIDED DAMAGE ---
+  // The follow-up is the second .aar-card inside the chain (after the parent card
+  // and the connector).
+  const followupHeader = preventedChain
+    .locator('.aar-card__header.aar-header--prevented')
+    .nth(1);
+  await expect(followupHeader).toBeVisible();
+  await expect(followupHeader).toContainText('EVENT PREVENTED');
+  await expect(followupHeader).toContainText('AVOIDED DAMAGE');
+
+  // --- INJ_1022 must NOT be a separate top-level chain ---
+  // It lives nested inside the 1005 chain; there must be no independent chain
+  // whose title contains "(1022)".
+  const standaloneFollowupChain = page
+    .locator('.aar-event-chain')
+    .filter({
+      has: page.locator('.aar-card__title', { hasText: '(1022)' }),
+    });
+  await expect(standaloneFollowupChain).not.toBeAttached();
+
+  // --- Exactly two prevented headers exist: parent + nested follow-up ---
+  await expect(page.locator('.aar-header--prevented')).toHaveCount(2);
+
+  // await takeScreenshot(page, 'tc11-skipper-followup-blue-verified');
 });

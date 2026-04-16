@@ -137,14 +137,16 @@ The following injections and responses are referenced across the test cases.
 
 - The timeline contains a card for injection **1005** — _"Incoming email (Spearphishing)"_.
 - The card header has a **blue** background (`aar-header--prevented`).
-- The header label reads **EVENT PREVENTED thanks to... IMPLEMENT TWO-FACTOR AUTHENTICATION FOR DIRECTOR** (or similar mitigation description in uppercase).
-- The follow-up injection **1022** — _"Strategy leaked"_ — does **not** appear as a separate top-level entry; it is entirely suppressed from the timeline (its parent was prevented, so the chain connector and follow-up card are omitted).
+- The header label reads **EVENT PREVENTED via IMPLEMENT TWO-FACTOR AUTHENTICATION FOR DIRECTOR** (mitigation description in uppercase).
+- Below the blue parent card, a **"Followup event"** connector is rendered, followed by a second **blue** card for injection **1022** — _"Strategy leaked"_ — with header `EVENT PREVENTED` and an `AVOIDED DAMAGE` impact label.
+- Injection **1022** does **not** appear as a separate top-level chain entry; it lives nested inside the 1005 chain.
 
 **Failure indicators:**
 
 - Card renders with a black header instead of blue.
 - Mitigation name is absent from the header label.
-- The follow-up injection appears as a separate top-level black card.
+- No connector or follow-up card appears below the blue parent.
+- The follow-up (1022) appears as a standalone top-level gray or black card instead of nested blue.
 
 ---
 
@@ -314,6 +316,49 @@ The following injections and responses are referenced across the test cases.
 
 ---
 
+### TC-11 — Skipper mitigation purchase shows parent BLUE and follow-up BLUE nested below it
+
+**Scope:** When a parent injection is prevented by a budget-item purchase _and_ that injection has a `followup_injection`, the AAR must render both cards as blue (`EVENT PREVENTED`) connected by a "Followup event" connector. The follow-up must appear **only** as a nested card inside the parent's chain — never as a standalone top-level entry.
+
+This is the only scenario where a single prep-phase purchase simultaneously prevents a parent injection _and_ its downstream follow-up before the simulation clock even starts.
+
+**Precondition:** In the Preparation phase, purchase the skipper mitigation for injection **1005**:
+  - Mitigation ID: `recwp0KlSovcOxIiI` — _"Implement two-factor authentication for Director"_.
+
+**Steps:**
+
+1. Create a new game.
+2. In the **Preparation** phase, purchase the skipper mitigation for injection **1005** (2FA for Director).
+3. Click **SAVE Items and START Simulation** — `startSimulation` marks injection **1005** as `prevented: true`.
+4. Immediately click **FINISH SIMULATION** without delivering any injections.
+
+**Expected result:**
+
+The chain for injection **1005** renders as:
+
+```
+BLUE card  ← "EVENT PREVENTED via IMPLEMENT TWO-FACTOR AUTHENTICATION FOR DIRECTOR"
+   │
+[Followup event connector]
+   │
+BLUE card  ← "EVENT PREVENTED"  +  "AVOIDED DAMAGE: -3%"  (injection 1022)
+```
+
+- The **parent** card (injection **1005**) has a `aar-header--prevented` header reading `EVENT PREVENTED via ...`.
+- A **"Followup event"** connector (`.aar-connector`) is visible between the two cards.
+- The **follow-up** card (injection **1022** — _"Strategy leaked"_) has a `aar-header--prevented` header reading `EVENT PREVENTED` with an `AVOIDED DAMAGE` impact label.
+- Injection **1022** does **not** appear as a separate top-level chain; it exists only nested inside the 1005 chain.
+- Exactly **two** `aar-header--prevented` elements exist on the page.
+
+**Failure indicators:**
+
+- No connector is rendered below the blue parent card (follow-up silently omitted).
+- The follow-up card renders as gray `NOT REACHED` or is absent entirely.
+- The follow-up appears as a standalone top-level chain.
+- Only one `aar-header--prevented` element exists (follow-up card missing).
+
+---
+
 ### TC-10 — API returns 404 for a non-existent game ID
 
 **Scope:** The `GET /games/:gameId/aar` endpoint returns a 404 when the game does not exist, and the frontend displays the error alert.
@@ -350,3 +395,4 @@ The following injections and responses are referenced across the test cases.
 | TC-8      | Expand/collapse toggle reveals/hides AARExpandedDetails                                         | High     |
 | TC-9      | Game with no delivered injections shows empty-timeline message                                  | Medium   |
 | TC-10     | Non-existent game ID produces a visible error alert                                             | Low      |
+| TC-11     | Skipper mitigation purchase suppresses follow-up injection from timeline entirely               | Critical |

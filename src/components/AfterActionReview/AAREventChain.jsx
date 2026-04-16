@@ -10,7 +10,15 @@ export default function AAREventChain({ chain }) {
   const firstResponse = responses_made && responses_made.length > 0 ? responses_made[0] : null;
   const responseName = firstResponse?.description || custom_response || null;
 
+  // Show the response-gated follow-up only when the parent was actually injected.
   const showFollowup = category === 'injected' && followup;
+
+  // When the parent injection was prevented by a budget-item purchase, its
+  // follow-up must also be shown as prevented (blue card).  The follow-up row
+  // in game_injection will have delivered=false and prevented=false because the
+  // parent chain was cut before the simulation could trigger it — so we cannot
+  // rely on the follow-up's own state here; we use the parent's category instead.
+  const showPreventedFollowup = category === 'prevented' && followup;
 
   return (
     <div className="aar-event-chain">
@@ -23,6 +31,19 @@ export default function AAREventChain({ chain }) {
             responseName={responseName}
           />
           <AARFollowupCard followup={followup} />
+        </>
+      )}
+
+      {showPreventedFollowup && (
+        <>
+          <div className="aar-connector">
+            <div className="aar-connector__chevrons">&#8249;&#8249;</div>
+            <div className="aar-connector__indicator">
+              <span className="aar-connector__text">Followup event</span>
+            </div>
+            <div className="aar-connector__chevrons">&#8249;&#8249;</div>
+          </div>
+          <AARFollowupCard followup={followup} parentPrevented />
         </>
       )}
     </div>
