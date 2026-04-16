@@ -10,8 +10,12 @@ export default function AAREventChain({ chain }) {
   const firstResponse = responses_made && responses_made.length > 0 ? responses_made[0] : null;
   const responseName = firstResponse?.description || custom_response || null;
 
-  // Show the response-gated follow-up only when the parent was actually injected.
+  // Show the response indicator + follow-up card when the parent was injected and has a followup.
   const showFollowup = category === 'injected' && followup;
+
+  // For standalone injected threats (no followup at all), show only the top chevron of the
+  // response indicator — there is no follow-up card below to connect to.
+  const showStandaloneIndicator = category === 'injected' && !followup;
 
   // When the parent injection was prevented by a budget-item purchase, its
   // follow-up must also be shown as prevented (blue card).  The follow-up row
@@ -32,6 +36,14 @@ export default function AAREventChain({ chain }) {
           />
           <AARFollowupCard followup={followup} />
         </>
+      )}
+
+      {showStandaloneIndicator && (
+        <AARResponseIndicator
+          isCorrect={is_response_correct}
+          responseName={responseName}
+          topOnly
+        />
       )}
 
       {showPreventedFollowup && (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BsCheckCircle, BsXCircle } from 'react-icons/bs';
 
-export default function AARResponseIndicator({ isCorrect, responseName, label }) {
+export default function AARResponseIndicator({ isCorrect, responseName, label, topOnly }) {
   const correct = isCorrect === true;
 
   return (
@@ -22,7 +22,7 @@ export default function AARResponseIndicator({ isCorrect, responseName, label })
           <strong>{responseName || 'No response'}</strong>
         </span>
       </div>
-      <div className="aar-connector__chevrons">&#8249;&#8249;</div>
+      {!topOnly && <div className="aar-connector__chevrons">&#8249;&#8249;</div>}
     </div>
   );
 }

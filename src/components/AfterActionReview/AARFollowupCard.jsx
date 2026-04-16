@@ -191,6 +191,20 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
     );
   }
 
-  // Not yet delivered (game ended early) — omit
-  return null;
+  // Not yet delivered (game ended early or not tracked) — show as not-reached
+  const time = formatMs(trigger_time);
+  return (
+    <div className="aar-card">
+      <div className="aar-card__header aar-header--not-delivered">
+        <span className="aar-card__time">{time}</span>
+        <span className="aar-card__header-label"> — NOT REACHED</span>
+      </div>
+      <div className="aar-card__body">
+        <p className="aar-card__title">{title}</p>
+        {description && (
+          <p className="aar-card__description">{description}</p>
+        )}
+      </div>
+    </div>
+  );
 }
