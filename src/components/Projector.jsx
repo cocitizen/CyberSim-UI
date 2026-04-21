@@ -31,6 +31,11 @@ const Projector = view(() => {
         <div className="my-5 py-5 border-bottom border-primary thick-border">
           <BPT big />
         </div>
+        {gameState === GameStates.ASSESSMENT ? (
+          <EventLogs />
+        ) : (
+          <Systems big centerHeader />
+        )}
         {gameState !== GameStates.ASSESSMENT && (
           <Row className="mt-3 mb-4">
             <Col>
@@ -44,11 +49,6 @@ const Projector = view(() => {
               </Card>
             </Col>
           </Row>
-        )}
-        {gameState === GameStates.ASSESSMENT ? (
-          <EventLogs />
-        ) : (
-          <Systems big centerHeader />
         )}
       </Container>
     </>
