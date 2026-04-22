@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AARExpandedDetails from './AARExpandedDetails';
+import { useStaticData } from '../StaticDataProvider';
 
 function formatMs(ms) {
   if (ms == null) return '??:??';
@@ -22,6 +23,7 @@ function parseRecommendations(text) {
 
 export default function AAREventCard({ chain }) {
   const [expanded, setExpanded] = useState(false);
+  const { systems } = useStaticData();
 
   const {
     category,
@@ -31,6 +33,9 @@ export default function AAREventCard({ chain }) {
     description,
     recommendations,
     skipper_mitigation,
+    poll_change,
+    budget_change,
+    systems_to_disable,
   } = chain;
 
   const time = formatMs(
@@ -54,6 +59,16 @@ export default function AAREventCard({ chain }) {
 
   const bullets = parseRecommendations(recommendations);
 
+  const injectedSystemNames =
+    category === 'injected' && systems_to_disable?.length
+      ? systems_to_disable.map((id) => systems[id]?.name ?? id)
+      : [];
+
+  const showImpact =
+    category === 'injected' &&
+    ((poll_change != null && poll_change !== 0) ||
+      (budget_change != null && budget_change !== 0));
+
   return (
     <div className="aar-card">
       <div className={`aar-card__header ${headerClass}`}>
@@ -62,11 +77,34 @@ export default function AAREventCard({ chain }) {
           {' '}
           — {headerLabel}
         </span>
+        {showImpact && (
+          <span className="aar-followup__impact aar-followup__impact--right">
+            {' '}
+            {poll_change != null && poll_change !== 0
+              ? `POLLS: ${poll_change > 0 ? '+' : ''}${poll_change}%`
+              : ''}
+            {poll_change != null &&
+            poll_change !== 0 &&
+            budget_change != null &&
+            budget_change !== 0
+              ? ' / '
+              : ''}
+            {budget_change != null && budget_change !== 0
+              ? `${budget_change > 0 ? '+' : ''}${budget_change} USD`
+              : ''}
+          </span>
+        )}
       </div>
       <div className="aar-card__body">
         <p className="aar-card__title">{title}</p>
         {description && (
           <p className="aar-card__description">{description}</p>
+        )}
+        {injectedSystemNames.length > 0 && (
+          <p className="aar-card__systems-disabled">
+            <strong>Systems disabled:</strong>{' '}
+            {injectedSystemNames.join(', ')}
+          </p>
         )}
         {bullets.length > 0 && (
           <div className="aar-card__takeaways">

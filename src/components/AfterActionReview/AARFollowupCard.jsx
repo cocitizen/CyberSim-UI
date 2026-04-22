@@ -1,5 +1,6 @@
 import React from 'react';
 import { BsCheckCircle } from 'react-icons/bs';
+import { useStaticData } from '../StaticDataProvider';
 
 function formatMs(ms) {
   if (ms == null) return '??:??';
@@ -27,6 +28,8 @@ function ImpactLabel({ pollChange, budgetChange }) {
 }
 
 export default function AARFollowupCard({ followup, parentPrevented }) {
+  const { systems } = useStaticData();
+
   if (!followup) return null;
 
   const {
@@ -39,8 +42,14 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
     trigger_time,
     poll_change,
     budget_change,
+    systems_to_disable,
     responses_made,
   } = followup;
+
+  const disabledSystemNames =
+    systems_to_disable?.length
+      ? systems_to_disable.map((id) => systems[id]?.name ?? id)
+      : [];
 
   const hasMitigation =
     delivered && responses_made && responses_made.length > 0;
@@ -104,6 +113,12 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
           {description && (
             <p className="aar-card__description">{description}</p>
           )}
+          {disabledSystemNames.length > 0 && (
+            <p className="aar-card__systems-disabled">
+              <strong>Systems that would have been disabled:</strong>{' '}
+              {disabledSystemNames.join(', ')}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -130,6 +145,12 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
             <p className="aar-card__title">{title}</p>
             {description && (
               <p className="aar-card__description">{description}</p>
+            )}
+            {disabledSystemNames.length > 0 && (
+              <p className="aar-card__systems-disabled">
+                <strong>Systems disabled:</strong>{' '}
+                {disabledSystemNames.join(', ')}
+              </p>
             )}
           </div>
         </div>
