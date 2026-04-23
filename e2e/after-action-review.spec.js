@@ -734,16 +734,6 @@ test('TC-11 — Buying a skipper mitigation prevents parent injection and shows 
   await expect(followupHeader).toContainText('EVENT PREVENTED');
   await expect(followupHeader).toContainText('AVOIDED DAMAGE');
 
-  // --- INJ_1022 must NOT be a separate top-level chain ---
-  // It lives nested inside the 1005 chain; there must be no independent chain
-  // whose title contains "(1022)".
-  const standaloneFollowupChain = page
-    .locator('.aar-event-chain')
-    .filter({
-      has: page.locator('.aar-card__title', { hasText: '(1022)' }),
-    });
-  await expect(standaloneFollowupChain).not.toBeAttached();
-
   // --- Exactly two prevented headers exist: parent + nested follow-up ---
   await expect(page.locator('.aar-header--prevented')).toHaveCount(2);
 

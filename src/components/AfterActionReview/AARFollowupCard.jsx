@@ -27,7 +27,10 @@ function ImpactLabel({ pollChange, budgetChange }) {
   );
 }
 
-export default function AARFollowupCard({ followup, parentPrevented }) {
+export default function AARFollowupCard({
+  followup,
+  parentPrevented,
+}) {
   const { systems } = useStaticData();
 
   if (!followup) return null;
@@ -44,12 +47,12 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
     budget_change,
     systems_to_disable,
     responses_made,
+    skipper_mitigation,
   } = followup;
 
-  const disabledSystemNames =
-    systems_to_disable?.length
-      ? systems_to_disable.map((id) => systems[id]?.name ?? id)
-      : [];
+  const disabledSystemNames = systems_to_disable?.length
+    ? systems_to_disable.map((id) => systems[id]?.name ?? id)
+    : [];
 
   const hasMitigation =
     delivered && responses_made && responses_made.length > 0;
@@ -71,8 +74,7 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
           </span>
           {poll_change != null && poll_change !== 0 && (
             <span className="aar-followup__impact aar-followup__impact--right">
-              AVOIDED DAMAGE:{' '}
-              {poll_change > 0 ? '+' : ''}
+              AVOIDED DAMAGE: {poll_change > 0 ? '+' : ''}
               {poll_change}%
             </span>
           )}
@@ -96,7 +98,10 @@ export default function AARFollowupCard({ followup, parentPrevented }) {
           <span className="aar-card__time">{time}</span>
           <span className="aar-card__header-label">
             {' '}
-            — EVENT AVOIDED
+            —{' '}
+            {skipper_mitigation?.description
+              ? `EVENT AVOIDED via ${skipper_mitigation.description.toUpperCase()}`
+              : 'EVENT AVOIDED'}
           </span>
           {(poll_change != null || budget_change != null) && (
             <span className="aar-followup__impact aar-followup__impact--right">

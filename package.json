@@ -35,6 +35,10 @@
     }
   },
   "scripts": {
+    "copy_dotenv": "cp .env.example .env",
+    "project:start": "npm i && npm run copy_dotenv && npm run start",
+    "test:init": "npx playwright install",
+    "test:e2e": "npm run test:init && npx playwright test --headed",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
