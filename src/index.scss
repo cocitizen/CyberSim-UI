@@ -496,16 +496,16 @@ select.form-control:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.25rem 0;
+  padding: 0;
   color: #6c757d;
 
   &__chevrons {
-    font-size: 0.75rem;
-    letter-spacing: -0.1em;
-    color: #adb5bd;
+    font-size: 2rem;
+    letter-spacing: -0.45em;
+    color: #495057;
     transform: rotate(90deg);
     line-height: 1;
-    margin: 0.15rem 0;
+    margin: 0.05rem 0;
   }
 
   &__indicator {
