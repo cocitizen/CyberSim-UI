@@ -53,7 +53,7 @@ const AfterActionReview = view(() => {
         {data?.game && (
           <div className="aar-page__summary mt-2">
             <span className="mr-4">
-              Final Budget: <strong>{data.game.budget} USD</strong>
+              Final Budget: <strong>${data.game.budget}</strong>
             </span>
             <span>
               Final Support: <strong>{data.game.poll}%</strong>

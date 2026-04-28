@@ -19,7 +19,7 @@ function ImpactLabel({ pollChange, budgetChange }) {
     parts.push(`POLLS: ${pollChange > 0 ? '+' : ''}${pollChange}%`);
   }
   if (budgetChange != null && budgetChange !== 0) {
-    parts.push(`${budgetChange > 0 ? '+' : ''}${budgetChange} USD`);
+    parts.push(`${budgetChange > 0 ? '+' : ''}$${budgetChange}`);
   }
   if (parts.length === 0) return null;
   return (
@@ -200,7 +200,7 @@ export default function AARFollowupCard({
                 {mitigationResponse.cost != null && (
                   <span className="aar-followup__impact aar-followup__impact--right">
                     {mitigationResponse.cost > 0 ? '-' : '+'}{' '}
-                    {Math.abs(mitigationResponse.cost)} USD
+                    ${Math.abs(mitigationResponse.cost)}
                   </span>
                 )}
               </div>

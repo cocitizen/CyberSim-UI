@@ -90,7 +90,7 @@ export default function AAREventCard({ chain }) {
               ? ' / '
               : ''}
             {budget_change != null && budget_change !== 0
-              ? `${budget_change > 0 ? '+' : ''}${budget_change} USD`
+              ? `${budget_change > 0 ? '+' : ''}$${budget_change}`
               : ''}
           </span>
         )}
