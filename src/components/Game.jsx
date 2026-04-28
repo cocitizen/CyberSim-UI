@@ -18,9 +18,9 @@ const Game = view(() => {
   const { state: gameState, socketConnected } = gameStore;
   const { loading: loadingStaticData } = useStaticData();
 
-   useEffect(() => {
-      gameStore.ensureSocket();
-    }, []);
+  useEffect(() => {
+    gameStore.ensureSocket();
+  }, []);
 
   if (loadingStaticData || !socketConnected) {
     return (
@@ -37,7 +37,7 @@ const Game = view(() => {
     return <EnterGame />;
   }
 
-  if (gameState === GameStates.ASSESSMENT) {
+  if (queryParams.aar && gameState === GameStates.ASSESSMENT) {
     return <AfterActionReview />;
   }
 
@@ -49,7 +49,7 @@ const Game = view(() => {
     return <Mitigations className="mb-5 pb-5" allowSell={true} />;
   }
 
-  if (gameState === GameStates.SIMULATION) {
+  if (gameState === GameStates.SIMULATION || GameStates.ASSESSMENT) {
     return <Simulation />;
   }
 
