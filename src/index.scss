@@ -16,7 +16,7 @@ code {
 }
 
 a {
-  color: inherit !important;
+  color: inherit;
   text-decoration: underline;
 }
 
@@ -484,12 +484,30 @@ select.form-control:focus {
 }
 
 // Header color variants
-.aar-header--injected    { background-color: #222;    color: #fff; }
-.aar-header--prevented   { background-color: #007bff; color: #fff; }
-.aar-header--avoided     { background-color: #28a745; color: #fff; }
-.aar-header--not-avoided { background-color: #dc3545; color: #fff; }
-.aar-header--mitigation  { background-color: #fd7e14; color: #fff; }
-.aar-header--not-delivered { background-color: #adb5bd; color: #fff; }
+.aar-header--injected {
+  background-color: #222;
+  color: #fff;
+}
+.aar-header--prevented {
+  background-color: #007bff;
+  color: #fff;
+}
+.aar-header--avoided {
+  background-color: #28a745;
+  color: #fff;
+}
+.aar-header--not-avoided {
+  background-color: #dc3545;
+  color: #fff;
+}
+.aar-header--mitigation {
+  background-color: #fd7e14;
+  color: #fff;
+}
+.aar-header--not-delivered {
+  background-color: #adb5bd;
+  color: #fff;
+}
 
 // Connector between cards
 .aar-connector {
