@@ -49,7 +49,7 @@ const Game = view(() => {
     return <Mitigations className="mb-5 pb-5" allowSell={true} />;
   }
 
-  if (gameState === GameStates.SIMULATION || GameStates.ASSESSMENT) {
+  if (gameState === GameStates.SIMULATION || gameState === GameStates.ASSESSMENT) {
     return <Simulation />;
   }
 
