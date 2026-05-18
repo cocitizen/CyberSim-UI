@@ -5,6 +5,7 @@ import { view } from '@risingstack/react-easy-state';
 
 import { gameStore } from '../GameStore';
 import AARTimeline from './AARTimeline';
+import AARPrepSection from './AARPrepSection';
 
 const API = process.env.REACT_APP_API_URL;
 
@@ -61,7 +62,21 @@ const AfterActionReview = view(() => {
           </div>
         )}
       </div>
-      <AARTimeline chains={data?.chains || []} />
+      {(() => {
+        const allChains = data?.chains || [];
+        const prepChains = allChains.filter(
+          (c) => c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true,
+        );
+        const gameChains = allChains.filter(
+          (c) => !(c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true),
+        );
+        return (
+          <>
+            <AARPrepSection chains={prepChains} />
+            <AARTimeline chains={gameChains} />
+          </>
+        );
+      })()}
     </Container>
   );
 });

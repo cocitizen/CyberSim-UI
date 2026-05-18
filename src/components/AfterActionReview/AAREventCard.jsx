@@ -13,14 +13,6 @@ function formatMs(ms) {
   )}`;
 }
 
-function parseRecommendations(text) {
-  if (!text) return [];
-  return text
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 export default function AAREventCard({ chain }) {
   const [expanded, setExpanded] = useState(false);
   const { systems } = useStaticData();
@@ -31,7 +23,6 @@ export default function AAREventCard({ chain }) {
     trigger_time,
     title,
     description,
-    recommendations,
     skipper_mitigation,
     poll_change,
     budget_change,
@@ -45,7 +36,7 @@ export default function AAREventCard({ chain }) {
   );
 
   let headerClass = 'aar-header--injected';
-  let headerLabel = 'THREAT INJECTED';
+  let headerLabel = 'EVENT';
 
   if (category === 'prevented') {
     headerClass = 'aar-header--prevented';
@@ -56,8 +47,6 @@ export default function AAREventCard({ chain }) {
     headerClass = 'aar-header--not-delivered';
     headerLabel = 'NOT REACHED';
   }
-
-  const bullets = parseRecommendations(recommendations);
 
   const injectedSystemNames =
     category === 'injected' && systems_to_disable?.length
@@ -72,11 +61,8 @@ export default function AAREventCard({ chain }) {
   return (
     <div className="aar-card">
       <div className={`aar-card__header ${headerClass}`}>
-        <span className="aar-card__time">{time}</span>
-        <span className="aar-card__header-label">
-          {' '}
-          — {headerLabel}
-        </span>
+        <span className="aar-card__time">{time} —</span>
+        <span className="aar-card__header-label">{headerLabel}</span>
         {showImpact && (
           <span className="aar-followup__impact aar-followup__impact--right">
             {' '}
@@ -105,18 +91,6 @@ export default function AAREventCard({ chain }) {
             <strong>Systems disabled:</strong>{' '}
             {injectedSystemNames.join(', ')}
           </p>
-        )}
-        {bullets.length > 0 && (
-          <div className="aar-card__takeaways">
-            <p className="aar-card__takeaways-heading">
-              Key Takeaways:
-            </p>
-            <ul className="aar-card__takeaways-list">
-              {bullets.map((b, i) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-          </div>
         )}
         {expanded && <AARExpandedDetails chain={chain} />}
         <div className="aar-card__footer">

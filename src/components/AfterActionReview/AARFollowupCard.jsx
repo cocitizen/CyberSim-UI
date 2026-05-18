@@ -1,5 +1,5 @@
 import React from 'react';
-import { BsCheckCircle } from 'react-icons/bs';
+import { BsCheckCircle, BsPlusCircle } from 'react-icons/bs';
 import { useStaticData } from '../StaticDataProvider';
 
 function formatMs(ms) {
@@ -67,10 +67,9 @@ export default function AARFollowupCard({
     return (
       <div className="aar-card">
         <div className="aar-card__header aar-header--prevented">
-          <span className="aar-card__time">{time}</span>
+          <span className="aar-card__time">{time} —</span>
           <span className="aar-card__header-label">
-            {' '}
-            — EVENT PREVENTED
+            EVENT PREVENTED
           </span>
           {poll_change != null && poll_change !== 0 && (
             <span className="aar-followup__impact aar-followup__impact--right">
@@ -95,10 +94,8 @@ export default function AARFollowupCard({
     return (
       <div className="aar-card">
         <div className="aar-card__header aar-header--avoided">
-          <span className="aar-card__time">{time}</span>
+          <span className="aar-card__time">{time} —</span>
           <span className="aar-card__header-label">
-            {' '}
-            —{' '}
             {skipper_mitigation?.description
               ? `EVENT AVOIDED via ${skipper_mitigation.description.toUpperCase()}`
               : 'EVENT AVOIDED'}
@@ -136,10 +133,9 @@ export default function AARFollowupCard({
       <>
         <div className="aar-card">
           <div className="aar-card__header aar-header--not-avoided">
-            <span className="aar-card__time">{time}</span>
+            <span className="aar-card__time">{time} —</span>
             <span className="aar-card__header-label">
-              {' '}
-              — FOLLOW UP EVENT
+              FOLLOW UP EVENT
             </span>
             <ImpactLabel
               pollChange={poll_change}
@@ -169,10 +165,10 @@ export default function AARFollowupCard({
               </div>
               <div className="aar-connector__indicator">
                 <span className="aar-connector__icon-badge aar-connector__icon-badge--green">
-                  <BsCheckCircle />
+                  {disabledSystemNames.length > 0 ? <BsPlusCircle /> : <BsCheckCircle />}
                 </span>
                 <span className="aar-connector__text">
-                  Mitigation:{' '}
+                  {disabledSystemNames.length > 0 ? 'System restored' : 'Mitigation'}:{' '}
                   <strong>
                     {(
                       mitigationResponse.description || ''
@@ -191,16 +187,16 @@ export default function AARFollowupCard({
                 <span className="aar-card__time">
                   {formatMs(
                     followup.response_made_at ?? delivered_at,
-                  )}
+                  )}{' '}
+                  —
                 </span>
                 <span className="aar-card__header-label">
-                  {' '}
-                  — THREAT MITIGATION
+                  THREAT MITIGATION
                 </span>
                 {mitigationResponse.cost != null && (
                   <span className="aar-followup__impact aar-followup__impact--right">
-                    {mitigationResponse.cost > 0 ? '-' : '+'}{' '}
-                    ${Math.abs(mitigationResponse.cost)}
+                    {mitigationResponse.cost > 0 ? '-' : '+'} $
+                    {Math.abs(mitigationResponse.cost)}
                   </span>
                 )}
               </div>
@@ -222,8 +218,8 @@ export default function AARFollowupCard({
   return (
     <div className="aar-card">
       <div className="aar-card__header aar-header--not-delivered">
-        <span className="aar-card__time">{time}</span>
-        <span className="aar-card__header-label"> — NOT REACHED</span>
+        <span className="aar-card__time">{time} —</span>
+        <span className="aar-card__header-label">NOT REACHED</span>
       </div>
       <div className="aar-card__body">
         <p className="aar-card__title">{title}</p>

@@ -15,6 +15,10 @@ code {
     monospace;
 }
 
+svg {
+  overflow: initial;
+}
+
 a {
   color: inherit;
   text-decoration: underline;
@@ -378,6 +382,17 @@ select.form-control:focus {
   }
 }
 
+.aar-section-heading {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6c757d;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
 /// Timeline: stacked chains with spacing
 .aar-timeline {
   display: flex;
@@ -390,8 +405,41 @@ select.form-control:focus {
   display: flex;
   flex-direction: column;
 
+  &__location-label {
+    align-self: flex-start;
+    margin-bottom: 0.4rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    &--hq {
+      background-color: #d0e4ff;
+      color: #1a4f99;
+    }
+
+    &--local {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  }
+
   & + & {
-    margin-top: 3.5rem;
+    margin-top: 8rem;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: -4rem;
+      left: -6rem;
+      right: -6rem;
+      height: 1px;
+      background-color: #ced4da;
+    }
   }
 }
 
@@ -419,13 +467,11 @@ select.form-control:focus {
 
   &__time {
     flex-shrink: 0;
+    margin-right: 4px;
   }
 
   &__header-label {
     flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   &__body {
@@ -518,12 +564,12 @@ select.form-control:focus {
   color: #6c757d;
 
   &__chevrons {
-    font-size: 2rem;
-    letter-spacing: -0.45em;
+    font-size: 32px;
+    letter-spacing: -18px;
     color: #495057;
-    transform: rotate(90deg);
+    transform: rotate(270deg) translateX(-5px);
     line-height: 1;
-    margin: 0.05rem 0;
+    margin: 2px 0;
   }
 
   &__indicator {
@@ -549,6 +595,11 @@ select.form-control:focus {
 
     &--red {
       background-color: #dc3545;
+      color: #fff;
+    }
+
+    &--grey {
+      background-color: #adb5bd;
       color: #fff;
     }
   }
