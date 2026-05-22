@@ -1,6 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import {
+  Container,
+  Spinner,
+  Alert,
+  Row,
+  Col,
+  Button,
+  ToggleButtonGroup,
+  ToggleButton,
+} from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
 
 import { gameStore } from '../GameStore';
@@ -9,11 +18,18 @@ import AARPrepSection from './AARPrepSection';
 
 const API = process.env.REACT_APP_API_URL;
 
+export const aarLocations = {
+  HQ: 'hq',
+  Local: 'local',
+};
+
 const AfterActionReview = view(() => {
   const gameId = gameStore.id;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // null = all selected (avoids stale empty array before async data loads)
+  const [filterValue, setFilterValue] = useState(null);
 
   useEffect(() => {
     if (!gameId) return;
@@ -29,6 +45,53 @@ const AfterActionReview = view(() => {
         setLoading(false);
       });
   }, [gameId]);
+
+  const allChains = useMemo(() => data?.chains || [], [data]);
+
+  const availableCategories = useMemo(
+    () => [...new Set(allChains.map((c) => c.handbook_category).filter(Boolean))].sort(),
+    [allChains],
+  );
+
+  const allFilterValues = useMemo(
+    () => [...Object.values(aarLocations), ...availableCategories],
+    [availableCategories],
+  );
+
+  const activeFilter = filterValue ?? allFilterValues;
+
+  const prepChains = useMemo(
+    () =>
+      allChains.filter(
+        (c) => c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true,
+      ),
+    [allChains],
+  );
+
+  const gameChains = useMemo(
+    () =>
+      allChains.filter(
+        (c) => !(c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true),
+      ),
+    [allChains],
+  );
+
+  const passesFilter = useMemo(
+    () => (c) =>
+      (!c.location || activeFilter.includes(c.location)) &&
+      (!c.handbook_category || activeFilter.includes(c.handbook_category)),
+    [activeFilter],
+  );
+
+  const filteredPrepChains = useMemo(
+    () => prepChains.filter(passesFilter),
+    [prepChains, passesFilter],
+  );
+
+  const filteredGameChains = useMemo(
+    () => gameChains.filter(passesFilter),
+    [gameChains, passesFilter],
+  );
 
   if (loading) {
     return (
@@ -62,21 +125,68 @@ const AfterActionReview = view(() => {
           </div>
         )}
       </div>
-      {(() => {
-        const allChains = data?.chains || [];
-        const prepChains = allChains.filter(
-          (c) => c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true,
-        );
-        const gameChains = allChains.filter(
-          (c) => !(c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true),
-        );
-        return (
-          <>
-            <AARPrepSection chains={prepChains} />
-            <AARTimeline chains={gameChains} />
-          </>
-        );
-      })()}
+      <Row className="my-5 align-items-center aar-filter">
+        <Col xs="auto">
+          <h5 className="font-weight-bold mb-0">FILTER:</h5>
+        </Col>
+        <Col xs={2} className="px-1 ml-auto">
+          <Button
+            variant="outline-primary"
+            className="rounded-pill w-100 d-flex justify-content-center"
+            style={{ whiteSpace: 'nowrap' }}
+            type="button"
+            onClick={() => setFilterValue(null)}
+          >
+            SHOW ALL
+          </Button>
+        </Col>
+        <Col xs={2} className="px-1 mr-3">
+          <Button
+            variant="outline-primary"
+            className="rounded-pill w-100 d-flex justify-content-center"
+            type="button"
+            onClick={() => setFilterValue([])}
+          >
+            HIDE ALL
+          </Button>
+        </Col>
+        <Col xs={12} className="mt-2">
+          <ToggleButtonGroup
+            type="checkbox"
+            value={activeFilter}
+            onChange={setFilterValue}
+            className="d-flex log-filter"
+            style={{ zIndex: 0, flexWrap: 'wrap', rowGap: '2px' }}
+          >
+            <ToggleButton
+              value={aarLocations.HQ}
+              variant="outline-primary"
+              className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
+            >
+              HQ
+            </ToggleButton>
+            <ToggleButton
+              value={aarLocations.Local}
+              variant="outline-primary"
+              className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
+            >
+              Local
+            </ToggleButton>
+            {availableCategories.map((cat) => (
+              <ToggleButton
+                key={cat}
+                value={cat}
+                variant="outline-primary"
+                className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
+              >
+                {cat}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Col>
+      </Row>
+      <AARPrepSection chains={filteredPrepChains} />
+      <AARTimeline chains={filteredGameChains} />
     </Container>
   );
 });

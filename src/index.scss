@@ -370,6 +370,26 @@ select.form-control:focus {
 // ---------------------------------------------------------------------------
 
 // Page layout
+.aar-filter {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    background-color: #fff;
+    z-index: -1;
+  }
+}
+
 .aar-page {
   max-width: 780px;
 
@@ -405,16 +425,25 @@ select.form-control:focus {
   display: flex;
   flex-direction: column;
 
-  &__location-label {
-    align-self: flex-start;
+  &__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
     margin-bottom: 0.4rem;
+  }
+
+  &__location-label,
+  &__category-label {
+    align-self: flex-start;
     padding: 0.15rem 0.55rem;
     border-radius: 0.25rem;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
 
+  &__location-label {
     &--hq {
       background-color: #d0e4ff;
       color: #1a4f99;
@@ -424,6 +453,11 @@ select.form-control:focus {
       background-color: #d4edda;
       color: #155724;
     }
+  }
+
+  &__category-label {
+    background-color: #e2e3e5;
+    color: #383d41;
   }
 
   & + & {
@@ -591,6 +625,11 @@ select.form-control:focus {
     &--green {
       background-color: #28a745;
       color: #fff;
+    }
+
+    &--yellow {
+      background-color: #ffc107;
+      color: #212529;
     }
 
     &--red {

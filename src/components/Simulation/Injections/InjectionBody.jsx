@@ -102,19 +102,19 @@ const InjectionBody = view(
                   </span>
                   {injection.asset_code}
                 </Col>
-                {injection.followup_injecion && (
+                {injection.followup_injection && (
                   <Col>
                     <span className="font-weight-bold">
                       Follow up:{' '}
                     </span>
                     {`${msToMinutesSeconds(
-                      injections[injection.followup_injecion]
+                      injections[injection.followup_injection]
                         .trigger_time,
                     )} - ${
-                      injections[injection.followup_injecion].title
+                      injections[injection.followup_injection].title
                     } (${
                       injections[
-                        injection.followup_injecion
+                        injection.followup_injection
                       ].location?.toUpperCase() || 'PARTY'
                     })`}
                   </Col>

@@ -39,9 +39,7 @@ export default function AARFollowupCard({
     title,
     description,
     delivered,
-    delivered_at,
     prevented,
-    prevented_at,
     trigger_time,
     poll_change,
     budget_change,
@@ -90,7 +88,7 @@ export default function AARFollowupCard({
 
   if (prevented) {
     // Green: follow-up avoided
-    const time = formatMs(prevented_at ?? trigger_time);
+    const time = formatMs(trigger_time);
     return (
       <div className="aar-card">
         <div className="aar-card__header aar-header--avoided">
@@ -128,7 +126,7 @@ export default function AARFollowupCard({
 
   if (delivered) {
     // Red: follow-up delivered
-    const time = formatMs(delivered_at ?? trigger_time);
+    const time = formatMs(trigger_time);
     return (
       <>
         <div className="aar-card">
@@ -185,9 +183,7 @@ export default function AARFollowupCard({
             <div className="aar-card">
               <div className="aar-card__header aar-header--mitigation">
                 <span className="aar-card__time">
-                  {formatMs(
-                    followup.response_made_at ?? delivered_at,
-                  )}{' '}
+                  {formatMs(trigger_time)}{' '}
                   —
                 </span>
                 <span className="aar-card__header-label">

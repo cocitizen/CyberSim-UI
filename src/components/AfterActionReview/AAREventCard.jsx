@@ -19,7 +19,6 @@ export default function AAREventCard({ chain }) {
 
   const {
     category,
-    delivered_at,
     trigger_time,
     title,
     description,
@@ -29,11 +28,7 @@ export default function AAREventCard({ chain }) {
     systems_to_disable,
   } = chain;
 
-  const time = formatMs(
-    category === 'injected'
-      ? delivered_at ?? trigger_time
-      : trigger_time,
-  );
+  const time = formatMs(trigger_time);
 
   let headerClass = 'aar-header--injected';
   let headerLabel = 'EVENT';

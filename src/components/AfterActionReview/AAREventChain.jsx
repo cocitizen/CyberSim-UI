@@ -4,11 +4,18 @@ import AARResponseIndicator from './AARResponseIndicator';
 import AARFollowupCard from './AARFollowupCard';
 
 export default function AAREventChain({ chain }) {
-  const { category, followup, responses_made, is_response_correct, custom_response, location } = chain;
+  const { category, followup, responses_made, is_response_correct, response_made_at, custom_response, location } = chain;
 
   // Determine the name of the response made for the connector label
   const firstResponse = responses_made && responses_made.length > 0 ? responses_made[0] : null;
   const responseName = firstResponse?.description || custom_response || null;
+
+  // Response is late if it was made after the follow-up was already delivered
+  const isLate =
+    is_response_correct === true &&
+    response_made_at != null &&
+    followup?.delivered_at != null &&
+    response_made_at > followup.delivered_at;
 
   // Show the response indicator + follow-up card when the parent was injected and has a followup.
   const showFollowup = category === 'injected' && followup;
@@ -24,20 +31,29 @@ export default function AAREventChain({ chain }) {
   const showPreventedFollowup = category === 'prevented' && followup;
 
   const locationLabel = location === 'hq' ? 'HQ' : location === 'local' ? 'Local' : null;
+  const categoryLabel = chain.handbook_category || null;
 
   return (
     <div className="aar-event-chain">
-      {locationLabel && (
-        <span className={`aar-event-chain__location-label aar-event-chain__location-label--${location}`}>
-          {locationLabel}
-        </span>
-      )}
+      <div className="aar-event-chain__labels">
+        {locationLabel && (
+          <span className={`aar-event-chain__location-label aar-event-chain__location-label--${location}`}>
+            {locationLabel}
+          </span>
+        )}
+        {categoryLabel && (
+          <span className="aar-event-chain__category-label">
+            {categoryLabel}
+          </span>
+        )}
+      </div>
       <AAREventCard chain={chain} />
 
       {showFollowup && (
         <>
           <AARResponseIndicator
             isCorrect={is_response_correct}
+            isLate={isLate}
             responseName={responseName}
           />
           <AARFollowupCard followup={followup} />
