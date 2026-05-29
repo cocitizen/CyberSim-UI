@@ -41,7 +41,10 @@ const AfterActionReview = view(() => {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err?.response?.data?.message || 'Failed to load after action review.');
+        setError(
+          err?.response?.data?.message ||
+            'Failed to load after action review.',
+        );
         setLoading(false);
       });
   }, [gameId]);
@@ -49,7 +52,12 @@ const AfterActionReview = view(() => {
   const allChains = useMemo(() => data?.chains || [], [data]);
 
   const availableCategories = useMemo(
-    () => [...new Set(allChains.map((c) => c.handbook_category).filter(Boolean))].sort(),
+    () =>
+      [
+        ...new Set(
+          allChains.map((c) => c.handbook_category).filter(Boolean),
+        ),
+      ].sort(),
     [allChains],
   );
 
@@ -63,7 +71,9 @@ const AfterActionReview = view(() => {
   const prepChains = useMemo(
     () =>
       allChains.filter(
-        (c) => c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true,
+        (c) =>
+          c.category === 'prevented' &&
+          c.skipper_mitigation?.purchased_in_preparation === true,
       ),
     [allChains],
   );
@@ -71,7 +81,11 @@ const AfterActionReview = view(() => {
   const gameChains = useMemo(
     () =>
       allChains.filter(
-        (c) => !(c.category === 'prevented' && c.skipper_mitigation?.purchased_in_preparation === true),
+        (c) =>
+          !(
+            c.category === 'prevented' &&
+            c.skipper_mitigation?.purchased_in_preparation === true
+          ),
       ),
     [allChains],
   );
@@ -79,7 +93,8 @@ const AfterActionReview = view(() => {
   const passesFilter = useMemo(
     () => (c) =>
       (!c.location || activeFilter.includes(c.location)) &&
-      (!c.handbook_category || activeFilter.includes(c.handbook_category)),
+      (!c.handbook_category ||
+        activeFilter.includes(c.handbook_category)),
     [activeFilter],
   );
 
@@ -95,7 +110,10 @@ const AfterActionReview = view(() => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: '60vh' }}
+      >
         <Spinner animation="border" variant="primary" />
       </div>
     );
@@ -125,7 +143,7 @@ const AfterActionReview = view(() => {
           </div>
         )}
       </div>
-      <Row className="my-5 align-items-center aar-filter">
+      <Row className="align-items-center aar-filter">
         <Col xs="auto">
           <h5 className="font-weight-bold mb-0">FILTER:</h5>
         </Col>
