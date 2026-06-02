@@ -15,8 +15,12 @@ code {
     monospace;
 }
 
+svg {
+  overflow: initial;
+}
+
 a {
-  color: inherit !important;
+  color: inherit;
   text-decoration: underline;
 }
 
@@ -127,6 +131,19 @@ select.form-control:focus {
     ~ .custom-control-label::before {
     background-color: rgba(220, 115, 125, 0.7) !important;
   }
+}
+
+.custom-switch.locked-response {
+  opacity: 0.55;
+  .custom-control-label {
+    cursor: not-allowed;
+  }
+}
+
+.locked-response-hint {
+  font-size: 0.8em;
+  font-style: italic;
+  color: #888;
 }
 
 .custom-switch .custom-control-label::before {
@@ -346,4 +363,337 @@ select.form-control:focus {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+// ---------------------------------------------------------------------------
+// After Action Review (AAR)
+// ---------------------------------------------------------------------------
+
+// Page layout
+.aar-filter {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin: 4rem 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    background-color: #fff;
+    z-index: -1;
+  }
+}
+
+.aar-page {
+  max-width: 780px;
+
+  &__title {
+    font-weight: 700;
+  }
+
+  &__summary {
+    font-size: 0.95rem;
+  }
+}
+
+.aar-section-heading {
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6c757d;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 5rem;
+}
+
+.aar-prep-section {
+  margin-bottom: 10rem;
+}
+
+/// Timeline: stacked chains with spacing
+.aar-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Single event chain (parent card + connector + followup)
+.aar-event-chain {
+  display: flex;
+  flex-direction: column;
+
+  &__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  &__location-label,
+  &__category-label {
+    align-self: flex-start;
+    padding: 0.15rem 0.55rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__location-label {
+    &--hq {
+      background-color: #d0e4ff;
+      color: #1a4f99;
+    }
+
+    &--local {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  }
+
+  &__category-label {
+    background-color: #e2e3e5;
+    color: #383d41;
+  }
+
+  & + & {
+    margin-top: 16rem;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: -8rem;
+      left: -6rem;
+      right: -6rem;
+      height: 1px;
+      background-color: #ced4da;
+    }
+  }
+}
+
+// Event card
+.aar-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  &__time {
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
+
+  &__header-label {
+    flex: 1;
+  }
+
+  &__body {
+    padding: 0.9rem 1rem 0.6rem;
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__takeaways {
+    margin-top: 0.5rem;
+  }
+
+  &__takeaways-heading {
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__takeaways-list {
+    padding-left: 1.2rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+
+    li {
+      margin-bottom: 0.15rem;
+    }
+  }
+
+  &__footer {
+    text-align: right;
+    padding: 0.1rem 0;
+  }
+
+  &__expand-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6c757d;
+    font-size: 0.8rem;
+    cursor: pointer;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+// Header color variants
+.aar-header--injected {
+  background-color: #222;
+  color: #fff;
+}
+.aar-header--prevented {
+  background-color: #007bff;
+  color: #fff;
+}
+.aar-header--avoided {
+  background-color: #28a745;
+  color: #fff;
+}
+.aar-header--not-avoided {
+  background-color: #dc3545;
+  color: #fff;
+}
+.aar-header--mitigation {
+  background-color: #fd7e14;
+  color: #fff;
+}
+.aar-header--not-delivered {
+  background-color: #adb5bd;
+  color: #fff;
+}
+
+// Connector between cards
+.aar-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  color: #6c757d;
+
+  &__chevrons {
+    font-size: 32px;
+    letter-spacing: -18px;
+    color: #495057;
+    transform: rotate(270deg) translateX(-5px);
+    line-height: 1;
+    margin: 2px 0;
+  }
+
+  &__indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+
+    &--green {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    &--yellow {
+      background-color: #ffc107;
+      color: #212529;
+    }
+
+    &--red {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    &--grey {
+      background-color: #adb5bd;
+      color: #fff;
+    }
+  }
+
+  &__text {
+    font-size: 0.875rem;
+    color: #495057;
+  }
+}
+
+// Follow-up impact label (right-aligned in header)
+.aar-followup__impact {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 0.8rem;
+
+  &--right {
+    margin-left: auto;
+  }
+}
+
+// Expanded section
+.aar-expanded {
+  border-top: 1px solid #dee2e6;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+
+  &__section {
+    margin-bottom: 0.75rem;
+  }
+
+  &__heading {
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__list {
+    padding-left: 1.2rem;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+
+  &__taken-label {
+    color: #28a745;
+    font-size: 0.8rem;
+  }
+}
+
+// Checkmark prefix for taken actions
+.aar-action-taken {
+  color: #28a745;
 }

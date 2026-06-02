@@ -52,7 +52,10 @@ const BPT = view(({ big }) => {
             {getTextWithSynonyms('Available Budget')}
           </h2>
         )}
-        <h4 className="bpt-item font-weight-normal mb-0">
+        <h4
+          className="bpt-item font-weight-normal mb-0"
+          style={budget < 0 ? { color: 'red' } : undefined}
+        >
           {numberToUsd(budget).replace('$', '$ ')}
         </h4>
       </Col>

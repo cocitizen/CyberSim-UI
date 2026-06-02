@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import InjectionResponseForm from './InjectionResponseForm';
 import { useStaticData } from '../../StaticDataProvider';
-import { msToMinutesSeconds } from '../../../util';
+import { msToMinutesSeconds, numberToUsd } from '../../../util';
 
 const InjectionBody = view(
   ({
@@ -75,6 +75,19 @@ const InjectionBody = view(
                     ? `${injection.poll_change}%`
                     : '-'}
                 </Col>
+                {injection.budget_change != null && (
+                  <Col
+                    xs={6}
+                    md={2}
+                    className={classNames({
+                      'text-disabled': prevented,
+                    })}
+                  >
+                    <span className="font-weight-bold">Budget: </span>
+                    {numberToUsd(injection.budget_change)}
+                    {prevented && ' (avoided)'}
+                  </Col>
+                )}
                 <Col xs={6} md={2}>
                   <span className="font-weight-bold">Avoided: </span>
                   {prevented ? 'YES' : 'NO'}
@@ -89,19 +102,19 @@ const InjectionBody = view(
                   </span>
                   {injection.asset_code}
                 </Col>
-                {injection.followup_injecion && (
+                {injection.followup_injection && (
                   <Col>
                     <span className="font-weight-bold">
                       Follow up:{' '}
                     </span>
                     {`${msToMinutesSeconds(
-                      injections[injection.followup_injecion]
+                      injections[injection.followup_injection]
                         .trigger_time,
                     )} - ${
-                      injections[injection.followup_injecion].title
+                      injections[injection.followup_injection].title
                     } (${
                       injections[
-                        injection.followup_injecion
+                        injection.followup_injection
                       ].location?.toUpperCase() || 'PARTY'
                     })`}
                   </Col>

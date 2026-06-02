@@ -7,17 +7,19 @@ import {
   Nav,
   Modal,
 } from 'react-bootstrap';
-import { FiPlay, FiBarChart2 } from 'react-icons/fi';
+import { FiPlay, FiBarChart2, FiClipboard } from 'react-icons/fi';
 import { AiOutlinePause } from 'react-icons/ai';
 import { view } from '@risingstack/react-easy-state';
 
 import { gameStore } from '../GameStore';
+import { GameStates } from '../../constants';
 import BPT from '../BPT';
 
 const Footer = view(() => {
   const {
     id,
     paused,
+    state: gameState,
     actions: { resumeSimulation, pauseSimulation, finishSimulation },
   } = gameStore;
 
@@ -59,23 +61,25 @@ const Footer = view(() => {
               md={5}
               className="pl-0 pr-md-0 d-flex justify-content-end"
             >
-              <Button
-                variant="outline-primary"
-                className="rounded-pill ml-1 ml-lg-3"
-                type="button"
-                onClick={() => setShowFinishConfirmation(true)}
-              >
-                <h4
-                  className="font-weight-normal mb-0"
-                  style={{ whiteSpace: 'nowrap' }}
+              {gameState !== GameStates.ASSESSMENT && (
+                <Button
+                  variant="outline-primary"
+                  className="rounded-pill ml-1 ml-lg-3"
+                  type="button"
+                  onClick={() => setShowFinishConfirmation(true)}
                 >
-                  FINISH
-                  <span className="d-none d-lg-inline">
-                    {' '}
-                    SIMULATION
-                  </span>
-                </h4>
-              </Button>
+                  <h4
+                    className="font-weight-normal mb-0"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    FINISH
+                    <span className="d-none d-lg-inline">
+                      {' '}
+                      SIMULATION
+                    </span>
+                  </h4>
+                </Button>
+              )}
               <Nav.Link
                 href={`?gameId=${id}&isProjectorView=true`}
                 className="btn btn-outline-primary rounded-pill ml-1 ml-lg-3 d-flex align-items-center projector-button"
@@ -88,6 +92,20 @@ const Footer = view(() => {
                   PROJECTOR
                 </h4>
               </Nav.Link>
+              {gameState === GameStates.ASSESSMENT && (
+                <Nav.Link
+                  href={`?gameId=${id}&aar=true`}
+                  className="btn btn-outline-primary rounded-pill ml-1 ml-lg-3 d-flex align-items-center"
+                  target="_blank"
+                >
+                  <div>
+                    <FiClipboard fontSize="25px" />
+                  </div>
+                  <h4 className="font-weight-normal mb-0 ml-1">
+                    AAR
+                  </h4>
+                </Nav.Link>
+              )}
             </Col>
           </Row>
         </Container>

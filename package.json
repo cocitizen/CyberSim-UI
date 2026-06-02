@@ -7,7 +7,7 @@
     "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "^10.4.7",
     "@testing-library/user-event": "^12.1.0",
-    "axios": "^0.21.1",
+    "axios": "0.21.1",
     "bootstrap": "^4.5.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.19",
@@ -24,6 +24,7 @@
     "node": "22.x"
   },
   "devDependencies": {
+    "@playwright/test": "1.58.2",
     "husky": "^4.2.5",
     "prettier": "^2.0.5",
     "sass": "^1.97.3"
@@ -34,6 +35,10 @@
     }
   },
   "scripts": {
+    "copy_dotenv": "cp .env.example .env",
+    "project:start": "npm i && npm run copy_dotenv && npm run start",
+    "test:init": "npx playwright install",
+    "test:e2e": "npm run test:init && npx playwright test --headed",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Row, Col, Button, Form } from 'react-bootstrap';
 import { view, store } from '@risingstack/react-easy-state';
-import { AiOutlineCheck } from 'react-icons/ai';
+import { AiOutlineCheck, AiOutlineLock } from 'react-icons/ai';
 
 import { gameStore } from '../../GameStore';
 import { useStaticData } from '../../StaticDataProvider';
@@ -13,7 +13,7 @@ const InjectionResponseForm = view(
       actions: { respondToInjection, nonCorrectRespondToInjection },
       mitigations: gameMitigations,
     } = gameStore;
-    const { responses, systems } = useStaticData();
+    const { responses, systems, mitigations } = useStaticData();
 
     const madeResponses = useMemo(
       () =>
@@ -122,14 +122,22 @@ const InjectionResponseForm = view(
       },
     });
 
-    const availableResponses = useMemo(
+    const allResponses = useMemo(
       () =>
-        injection.responses?.filter(
-          ({ required_mitigation: requiredMitigationId }) =>
-            !requiredMitigationId ||
-            gameMitigations[requiredMitigationId],
-        ),
-      [injection, gameMitigations],
+        injection.responses?.map((response) => {
+          const requiredMitigationId = response.required_mitigation;
+          const isLocked =
+            !!requiredMitigationId &&
+            !gameMitigations[requiredMitigationId];
+          return {
+            ...response,
+            isLocked,
+            requiredMitigationName: isLocked
+              ? mitigations[requiredMitigationId]?.description
+              : null,
+          };
+        }),
+      [injection, gameMitigations, mitigations],
     );
 
     return (
@@ -162,20 +170,43 @@ const InjectionResponseForm = view(
           )}
         </Col>
         <Col xs={12} className="mb-3">
-          {availableResponses?.map((response) => (
+          {allResponses?.map((response) => (
             <Form.Check
               type="switch"
-              className="py-1"
+              className={`py-1${
+                response.isLocked ? ' locked-response' : ''
+              }`}
               style={{ width: 'fit-content' }}
               key={`${injection.id}_${response.id}`}
               id={`${injection.id}_${response.id}`}
               label={
                 <span>
+                  {response.isLocked && (
+                    <AiOutlineLock
+                      className="mr-1"
+                      fontSize="14px"
+                      title={`Requires mitigation: ${response.requiredMitigationName}`}
+                    />
+                  )}
                   {response.description} (Cost: $
                   {responses[response.id].cost})
+                  {response.isLocked && (
+                    <span className="locked-response-hint">
+                      {' '}
+                      — Requires: {
+                        response.requiredMitigationName
+                      }{' '}
+                      (Cost: ${''}
+                      {
+                        mitigations[response.required_mitigation]
+                          ?.cost
+                      }
+                      )
+                    </span>
+                  )}
                 </span>
               }
-              disabled={disabled}
+              disabled={disabled || response.isLocked}
               checked={
                 madeResponses
                   ? madeResponses.selectedResponses.has(response.id)

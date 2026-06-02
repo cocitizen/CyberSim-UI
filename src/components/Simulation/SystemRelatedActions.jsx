@@ -107,7 +107,7 @@ const SystemRelatedActions = view(({ location, className }) => {
                     </Row>
                   }
                   name="systemRelatedActions"
-                  disabled={budget < action.cost}
+                  disabled={action.cost > 0 && budget < action.cost}
                   id={action.id}
                   value={action.id}
                 />

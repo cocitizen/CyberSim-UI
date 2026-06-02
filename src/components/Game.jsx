@@ -8,6 +8,7 @@ import EnterGame from './EnterGame';
 import Mitigations from './Mitigations/Mitigations';
 import Simulation from './Simulation/Simulation';
 import Projector from './Projector';
+import AfterActionReview from './AfterActionReview/AfterActionReview';
 import { gameStore } from './GameStore';
 import { useStaticData } from './StaticDataProvider';
 
@@ -17,9 +18,9 @@ const Game = view(() => {
   const { state: gameState, socketConnected } = gameStore;
   const { loading: loadingStaticData } = useStaticData();
 
-   useEffect(() => {
-      gameStore.ensureSocket();
-    }, []);
+  useEffect(() => {
+    gameStore.ensureSocket();
+  }, []);
 
   if (loadingStaticData || !socketConnected) {
     return (
@@ -36,10 +37,11 @@ const Game = view(() => {
     return <EnterGame />;
   }
 
-  if (
-    queryParams.isProjectorView ||
-    gameState === GameStates.ASSESSMENT
-  ) {
+  if (queryParams.aar && gameState === GameStates.ASSESSMENT) {
+    return <AfterActionReview />;
+  }
+
+  if (queryParams.isProjectorView) {
     return <Projector />;
   }
 
@@ -47,7 +49,7 @@ const Game = view(() => {
     return <Mitigations className="mb-5 pb-5" allowSell={true} />;
   }
 
-  if (gameState === GameStates.SIMULATION) {
+  if (gameState === GameStates.SIMULATION || gameState === GameStates.ASSESSMENT) {
     return <Simulation />;
   }
 

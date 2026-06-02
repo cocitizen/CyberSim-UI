@@ -44,7 +44,7 @@ const Header = view(({ activeTab, setActiveTab }) => {
           onClick={() => setActiveTab(SimulationTabs.CAMPAIGN_HQ)}
         >
           <h5 className="my-2">
-            {getLocationNameByType('hq', 'CAMPAIGN HQ').toUpperCase()}
+            {getLocationNameByType('hq', 'HQ').toUpperCase()}
           </h5>
         </Col>
         <Col

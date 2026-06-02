@@ -64,7 +64,7 @@ const EventLogs = view(({ className, asc = true }) => {
       [],
     );
     return _orderBy(
-      [...preventedLogs, ...injectionLogs, ...gameLogs],
+      [...preventedLogs, ...injectionLogs, ...(gameLogs || [])],
       'game_timer',
       asc ? 'asc' : 'desc',
     );

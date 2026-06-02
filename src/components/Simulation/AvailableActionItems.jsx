@@ -110,7 +110,7 @@ const AvailableActionItems = view(({ actionList, role }) => {
                       </Row>
                     }
                     name="actions"
-                    disabled={budget < action.cost}
+                    disabled={action.cost > 0 && budget < action.cost}
                     id={`${role}_${action.id}`}
                     value={action.id}
                   />
