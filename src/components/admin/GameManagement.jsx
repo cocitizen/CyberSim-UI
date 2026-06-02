@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Table,
   Button,
@@ -20,12 +20,6 @@ const STATE_VARIANTS = {
   ASSESSMENT: 'success',
 };
 
-const MODAL_TITLES = {
-  finish: 'Finish game',
-  delete: 'Delete game',
-  advanceTime: 'Advance game time',
-};
-
 export default function GameManagement({ password }) {
   const [games, setGames] = useState([]);
   const [scenarios, setScenarios] = useState([]);
@@ -35,7 +29,7 @@ export default function GameManagement({ password }) {
   const [actionError, setActionError] = useState(null);
 
   // Confirmation modal state
-  const [modal, setModal] = useState(null); // { type: 'finish'|'delete'|'advanceTime', game, minutes? }
+  const [modal, setModal] = useState(null); // { type: 'finish'|'delete', game }
 
   const headers = { 'x-admin-password': password };
 
@@ -71,7 +65,9 @@ export default function GameManagement({ password }) {
       setModal(null);
       fetchGames();
     } catch (err) {
-      setActionError(err?.response?.data?.message || 'Action failed.');
+      setActionError(
+        err?.response?.data?.message || 'Action failed.',
+      );
     }
   };
 
@@ -82,33 +78,10 @@ export default function GameManagement({ password }) {
       setModal(null);
       fetchGames();
     } catch (err) {
-      setActionError(err?.response?.data?.message || 'Action failed.');
+      setActionError(
+        err?.response?.data?.message || 'Action failed.',
+      );
     }
-  };
-
-  const handleAdvanceTime = async () => {
-    setActionError(null);
-    const minutes = Number(modal.minutes);
-    if (!Number.isFinite(minutes) || minutes <= 0) {
-      setActionError('Please enter a positive number of minutes.');
-      return;
-    }
-    try {
-      await axios.get(`${API}/admin/game/advance/${modal.game.id}`, {
-        headers,
-        params: { time: minutes },
-      });
-      setModal(null);
-      fetchGames();
-    } catch (err) {
-      setActionError(err?.response?.data?.message || 'Action failed.');
-    }
-  };
-
-  const ACTION_HANDLERS = {
-    finish: handleFinish,
-    delete: handleDelete,
-    advanceTime: handleAdvanceTime,
   };
 
   return (
@@ -145,9 +118,7 @@ export default function GameManagement({ password }) {
       </Row>
 
       {!password && (
-        <Alert variant="info">
-          Enter admin password above to view and manage games.
-        </Alert>
+        <Alert variant="info">Enter admin password above to view and manage games.</Alert>
       )}
 
       {password && loading && (
@@ -156,7 +127,9 @@ export default function GameManagement({ password }) {
         </div>
       )}
 
-      {password && error && <Alert variant="danger">{error}</Alert>}
+      {password && error && (
+        <Alert variant="danger">{error}</Alert>
+      )}
 
       {password && !loading && !error && (
         <>
@@ -213,27 +186,6 @@ export default function GameManagement({ password }) {
                         Finish
                       </Button>
                       <Button
-                        variant="outline-info"
-                        size="sm"
-                        className="me-1"
-                        disabled={g.state !== 'SIMULATION'}
-                        onClick={() => {
-                          setActionError(null);
-                          setModal({
-                            type: 'advanceTime',
-                            game: g,
-                            minutes: 60,
-                          });
-                        }}
-                        title={
-                          g.state !== 'SIMULATION'
-                            ? 'Game must be in SIMULATION state to advance time'
-                            : 'Advance game clock'
-                        }
-                      >
-                        Advance Time
-                      </Button>
-                      <Button
                         variant="outline-danger"
                         size="sm"
                         onClick={() => {
@@ -253,50 +205,32 @@ export default function GameManagement({ password }) {
       )}
 
       {/* Confirmation modal */}
-      <Modal show={!!modal} onHide={() => setModal(null)} centered>
+      <Modal
+        show={!!modal}
+        onHide={() => setModal(null)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>
-            {modal?.type ? MODAL_TITLES[modal.type] : ''}
+            {modal?.type === 'finish' ? 'Finish game' : 'Delete game'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {modal?.type === 'finish' && (
+          {modal?.type === 'finish' ? (
             <p>
               Force game <code>{modal.game.id}</code> to{' '}
               <strong>ASSESSMENT</strong> state? The game will end immediately.
               Connected players will see the assessment screen on their next
               action.
             </p>
-          )}
-          {modal?.type === 'delete' && (
+          ) : (
             <p>
-              Permanently delete game <code>{modal?.game?.id}</code> and all its
-              logs, injections, and system state? This cannot be undone.
+              Permanently delete game <code>{modal?.game?.id}</code> and all
+              its logs, injections, and system state? This cannot be undone.
             </p>
           )}
-          {modal?.type === 'advanceTime' && (
-            <>
-              <p>
-                Move the in-game clock forward for game{' '}
-                <code>{modal.game.id}</code>. The time jump takes effect
-                immediately and cannot be undone.
-              </p>
-              <Form.Group>
-                <Form.Label>Minutes to advance</Form.Label>
-                <Form.Control
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={modal.minutes}
-                  onChange={(e) =>
-                    setModal({ ...modal, minutes: e.target.value })
-                  }
-                />
-              </Form.Group>
-            </>
-          )}
           {actionError && (
-            <Alert variant="danger" className="mb-0 mt-3">
+            <Alert variant="danger" className="mb-0">
               {actionError}
             </Alert>
           )}
@@ -306,18 +240,10 @@ export default function GameManagement({ password }) {
             Cancel
           </Button>
           <Button
-            variant={
-              modal?.type === 'finish'
-                ? 'warning'
-                : modal?.type === 'advanceTime'
-                  ? 'info'
-                  : 'danger'
-            }
-            onClick={modal?.type ? ACTION_HANDLERS[modal.type] : undefined}
+            variant={modal?.type === 'finish' ? 'warning' : 'danger'}
+            onClick={modal?.type === 'finish' ? handleFinish : handleDelete}
           >
-            {modal?.type === 'finish' && 'Finish game'}
-            {modal?.type === 'delete' && 'Delete game'}
-            {modal?.type === 'advanceTime' && 'Advance time'}
+            {modal?.type === 'finish' ? 'Finish game' : 'Delete game'}
           </Button>
         </Modal.Footer>
       </Modal>
