@@ -174,9 +174,11 @@ export default function AARFollowupCard({
                   </strong>
                 </span>
               </div>
-              <div className="aar-connector__chevrons">
-                &#8249;&#8249;
-              </div>
+              {disabledSystemNames.length === 0 && (
+                <div className="aar-connector__chevrons">
+                  &#8249;&#8249;
+                </div>
+              )}
             </div>
 
             {/* Orange mitigation card — only for non-system-restore mitigations */}
