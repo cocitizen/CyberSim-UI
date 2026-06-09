@@ -179,30 +179,32 @@ export default function AARFollowupCard({
               </div>
             </div>
 
-            {/* Orange mitigation card */}
-            <div className="aar-card">
-              <div className="aar-card__header aar-header--mitigation">
-                <span className="aar-card__time">
-                  {formatMs(trigger_time)}{' '}
-                  —
-                </span>
-                <span className="aar-card__header-label">
-                  THREAT MITIGATION
-                </span>
-                {mitigationResponse.cost != null && (
-                  <span className="aar-followup__impact aar-followup__impact--right">
-                    {mitigationResponse.cost > 0 ? '-' : '+'} $
-                    {Math.abs(mitigationResponse.cost)}
+            {/* Orange mitigation card — only for non-system-restore mitigations */}
+            {disabledSystemNames.length === 0 && (
+              <div className="aar-card">
+                <div className="aar-card__header aar-header--mitigation">
+                  <span className="aar-card__time">
+                    {formatMs(trigger_time)}{' '}
+                    —
                   </span>
-                )}
+                  <span className="aar-card__header-label">
+                    THREAT MITIGATION
+                  </span>
+                  {mitigationResponse.cost != null && (
+                    <span className="aar-followup__impact aar-followup__impact--right">
+                      {mitigationResponse.cost > 0 ? '-' : '+'} $
+                      {Math.abs(mitigationResponse.cost)}
+                    </span>
+                  )}
+                </div>
+                <div className="aar-card__body">
+                  <p className="aar-card__title">
+                    {mitigationResponse.mitigation_description ||
+                      mitigationResponse.description}
+                  </p>
+                </div>
               </div>
-              <div className="aar-card__body">
-                <p className="aar-card__title">
-                  {mitigationResponse.mitigation_description ||
-                    mitigationResponse.description}
-                </p>
-              </div>
-            </div>
+            )}
           </>
         )}
       </>
