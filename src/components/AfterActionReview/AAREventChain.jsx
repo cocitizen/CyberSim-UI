@@ -65,7 +65,8 @@ export default function AAREventChain({ chain }) {
           isCorrect={is_response_correct}
           responseName={responseName}
           topOnly
-          grey
+          grey={!(firstResponse?.systems_to_restore?.length > 0)}
+          label={firstResponse?.systems_to_restore?.length > 0 ? 'System restored' : undefined}
         />
       )}
 
