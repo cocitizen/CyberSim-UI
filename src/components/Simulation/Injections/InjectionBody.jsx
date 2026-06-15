@@ -19,6 +19,11 @@ const InjectionBody = view(
     const { systems, injections, getTextWithSynonyms } =
       useStaticData();
 
+    const recommendations = Array.isArray(injection.recommendations)
+      ? injection.recommendations
+      : [];
+    const hasRecommendations = recommendations.length > 0;
+
     return (
       <div>
         <Card.Body
@@ -27,7 +32,7 @@ const InjectionBody = view(
             bgColor,
             {
               'border-bottom':
-                injection.recommendations ||
+                hasRecommendations ||
                 (!prevented && !isBackground),
             },
           )}
@@ -128,7 +133,7 @@ const InjectionBody = view(
             className={classNames(
               'border-primary injection-body',
               bgColor,
-              { 'border-bottom': injection.recommendations },
+              { 'border-bottom': hasRecommendations },
             )}
           >
             <InjectionResponseForm
@@ -138,7 +143,7 @@ const InjectionBody = view(
             />
           </Card.Body>
         )}
-        {injection.recommendations && (
+        {hasRecommendations && (
           <Card.Body
             className={classNames('injection-body', bgColor)}
           >
@@ -147,7 +152,11 @@ const InjectionBody = view(
                 <span className="font-weight-bold">
                   Security Recommendations:{' '}
                 </span>
-                {injection.recommendations}
+                <ul className="mb-0">
+                  {recommendations.map((recommendation, i) => (
+                    <li key={i}>{recommendation}</li>
+                  ))}
+                </ul>
               </Col>
             </Row>
           </Card.Body>
