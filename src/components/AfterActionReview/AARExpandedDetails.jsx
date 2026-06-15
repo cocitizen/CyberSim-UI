@@ -1,13 +1,5 @@
 import React from 'react';
 
-function parseRecommendations(text) {
-  if (!text) return [];
-  return text
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 export default function AARExpandedDetails({ chain }) {
   const {
     possible_responses,
@@ -17,7 +9,8 @@ export default function AARExpandedDetails({ chain }) {
     followup,
   } = chain;
 
-  const bullets = parseRecommendations(recommendations);
+  // Each event can carry several unitary recommendations; render them as-is.
+  const bullets = Array.isArray(recommendations) ? recommendations : [];
 
   const madeIds = new Set(
     (responses_made || []).map((r) => r.response_id),
