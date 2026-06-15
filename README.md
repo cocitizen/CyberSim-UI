@@ -32,14 +32,6 @@ Example:
 
 ------------------------------------------------------------------------
 
-## Source Code Documentation
-
-For basic source code explanations see the wiki:
-
-https://github.com/cdoten/CyberSim-UI/wiki
-
-------------------------------------------------------------------------
-
 # CyberSim UI Deployment Guide
 
 The CyberSim Game comprises two distinct applications:
@@ -51,48 +43,7 @@ This guide covers deployment of the **React UI application**.
 
 For instructions on deploying the backend application see:
 
-https://github.com/cdoten/CyberSim-Backend#readme
-
-------------------------------------------------------------------------
-
-# Deployment Steps
-
-Main deployment steps:
-
-1.  Set up the S3 bucket for static website hosting
-2.  Set up the CodePipeline
-3.  Set up the CodeBuild project
-
-------------------------------------------------------------------------
-
-## Multi-Scenario Deployments
-
-CyberSim supports running multiple independent scenarios, each as a
-separate deployment pointing at the same codebase.
-
-The active scenario is determined automatically from the hostname
-subdomain:
-
-| Hostname | Scenario slug |
-|---|---|
-| `cso.cybersim.app` | `cso` |
-| `campaign.cybersim.app` | `campaign` |
-| `cybersim.app` (bare domain) | env var fallback |
-| `localhost` | env var fallback |
-
-The scenario slug is passed to the backend when starting or joining a
-game, so the backend can load the correct scenario content.
-
-For local development or bare-domain deployments, set the scenario
-explicitly:
-
-    REACT_APP_SCENARIO_SLUG=cso
-
-If neither the subdomain nor the env var is set, the UI defaults to
-`cso`.
-
-Each scenario requires its own backend deployment with its own Airtable
-base imported into the database. See the Scenario Import section below.
+https://github.com/cocitizen/CyberSim-Backend#readme
 
 ------------------------------------------------------------------------
 
@@ -105,7 +56,7 @@ Environment component names follow this format:
 The backend stores game data in PostgreSQL. Source scenario content is maintained in Airtable and imported into the backend database.
 
 For backend setup and deployment, see:  
-https://github.com/cdoten/CyberSim-Backend
+https://github.com/cocitizen/CyberSim-Backend
 
 ## Technology Stack
 
@@ -129,7 +80,8 @@ REACT_APP_API_URL=http://localhost:3001
 
 ## Multi-Scenario Support
 
-CyberSim supports running multiple scenarios from separate deployments. The active scenario is determined by the hostname:
+CyberSim supports running multiple scenarios from the same codebase and
+backend. The active scenario is determined by the hostname:
 
 | Hostname | Resolved scenario |
 |---|---|
@@ -139,6 +91,13 @@ CyberSim supports running multiple scenarios from separate deployments. The acti
 | `localhost` | env var fallback |
 
 The subdomain is extracted from `window.location.hostname` and passed to the backend when starting or joining a game. The backend uses this slug to load the correct scenario content.
+
+For the full new-scenario checklist, including Airtable, backend
+configuration, DNS, and import/load steps, see:
+
+```
+CyberSim-Backend/docs/scenario-setup.md
+```
 
 For local development or bare-domain deployments, set the scenario explicitly:
 
@@ -225,7 +184,7 @@ This UI is a static React application.
 You have two AWS deployment options:
 
 - **Legacy:** S3 + CodePipeline  
-  `docs/aws-s3-deployment.md`
+  `docs/legacy-aws-s3-deployment.md`
 
 - **Recommended:** AWS Amplify Hosting  
   `docs/aws-amplify-deployment.md`
@@ -238,14 +197,12 @@ REACT_APP_API_URL
 
 is set to the live backend API URL.
 
-## Scenario Import (Airtable → Database)
+## Scenario Setup
 
-After updating scenario content in Airtable, the scenario must be imported into the backend database before running a new game.
-
-The UI triggers the backend endpoint:
+Scenario content is imported or loaded through the backend. For the full
+new-scenario workflow, including Airtable, backend environment variables,
+subdomain setup, import/load steps, and verification, see:
 
 ```
-POST /scenario/import
+CyberSim-Backend/docs/scenario-setup.md
 ```
-
-The backend performs the import into PostgreSQL. See backend documentation for required environment variables and access controls.

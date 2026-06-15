@@ -81,12 +81,8 @@ Example:
 
 #### Scenario Import Trigger
 
-The UI can trigger scenario imports from Airtable using:
-
-    POST /scenario/import
-
-This endpoint instructs the backend to load scenario data into the
-database.
+The UI can trigger the backend admin scenario import flow. That flow
+loads scenario data from Airtable into the database.
 
 ### 2.2 CyberSim Backend
 
@@ -155,7 +151,7 @@ Static scenario / reference data
 
 Administrative
 
-    POST /scenario/import
+    POST /admin/scenarios/import
 
 ### Live gameplay interface
 
@@ -240,7 +236,7 @@ Flow:
 
     Airtable
        │
-    POST /scenario/import
+    Admin scenario import
        │
     CyberSim Backend
        │
@@ -249,7 +245,7 @@ Flow:
 Required environment variables:
 
     AIRTABLE_ACCESS_TOKEN
-    AIRTABLE_BASE_ID
+    AIRTABLE_BASE_IDS
     IMPORT_PASSWORD
 
 ## 5. Local Development Architecture
@@ -313,7 +309,7 @@ Database is reset and reseeded during test runs.
           │
        Airtable
           │
-    POST /scenario/import
+    Admin scenario import
           │
     CyberSim Backend
     (Node / Express / Knex)
