@@ -16,6 +16,8 @@ export default function ScenarioImport({ password }) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [validationError, setValidationError] = useState({});
   const [isLoading, setLoading] = useState(false);
+  const [isValidated, setIsValidated] = useState(false);
+  const [validateCounts, setValidateCounts] = useState(null);
 
   useEffect(() => {
     axios
@@ -46,6 +48,7 @@ export default function ScenarioImport({ password }) {
   const onChange = useCallback(
     (ev) => {
       setIsSuccess(false);
+      setIsValidated(false);
       const { name, value } = ev.target;
       setState((previousState) => ({
         ...previousState,
@@ -100,6 +103,43 @@ export default function ScenarioImport({ password }) {
     [state, password],
   );
 
+  const onValidate = useCallback(async () => {
+    try {
+      setLoading(true);
+      setIsSuccess(false);
+      setIsValidated(false);
+
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_API_URL}/admin/scenarios/validate`,
+        {
+          scenarioSlug: state.scenarioSlug.trim(),
+          password,
+        },
+      );
+
+      setValidationError({});
+      setErrors({});
+      setValidateCounts(data?.counts || null);
+      setIsValidated(true);
+    } catch (err) {
+      const error = err?.response?.data;
+
+      if (error?.validation) {
+        setValidationError(error);
+        setErrors({});
+      } else {
+        if (error) {
+          setErrors(error);
+        }
+        setValidationError({});
+      }
+
+      setIsValidated(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [state, password]);
+
   const noScenariosConfigured =
     !scenariosLoading && availableScenarios.length === 0;
 
@@ -149,7 +189,25 @@ export default function ScenarioImport({ password }) {
           </Form.Group>
 
           <Row className="my-4">
-            <Col>
+            <Col xs={12} md={6}>
+              <Button
+                variant="outline-secondary"
+                className="rounded-pill w-100"
+                type="button"
+                onClick={onValidate}
+                disabled={
+                  !state.scenarioSlug ||
+                  !password ||
+                  isLoading ||
+                  noScenariosConfigured
+                }
+              >
+                <h4 className="font-weight-normal mb-0">
+                  {isLoading ? 'Working…' : 'Validate'}
+                </h4>
+              </Button>
+            </Col>
+            <Col xs={12} md={6}>
               <Button
                 variant="outline-primary"
                 className="rounded-pill w-100"
@@ -182,6 +240,22 @@ export default function ScenarioImport({ password }) {
             <h3 className="text-success text-center">
               Scenario successfully imported from Airtable
             </h3>
+          )}
+
+          {isValidated && (
+            <>
+              <h3 className="text-success text-center">
+                Airtable schema is valid. No changes were made.
+              </h3>
+              {validateCounts && (
+                <p className="text-center text-muted">
+                  Ready to import:{' '}
+                  {Object.entries(validateCounts)
+                    .map(([table, count]) => `${count} ${table}`)
+                    .join(', ')}
+                </p>
+              )}
+            </>
           )}
 
           {Boolean(validationError.errors?.length) && (
