@@ -38,7 +38,7 @@ and three facilitators. Participants are typically not technology
 experts, but are rather average people from civil society, political
 parties and campaigns, or parliament who are interested in raising their
 organizational and individual cybersecurity expertise. The session takes
-place over a frantic 90 minutes, simulating some time-bound event such
+place over a frantic 60 (typically)  minutes, simulating some time-bound event such
 as a political campaign, where the ostensible goal is to, eg, win
 election - but they will be constantly derailed by cybersecurity events
 which will have very real impacts on their campaign.
