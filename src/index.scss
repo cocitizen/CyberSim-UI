@@ -1,13 +1,271 @@
 @import 'variables';
 @import '~bootstrap/scss/bootstrap';
 
+// ---------------------------------------------------------------------------
+// Brand fonts (self-hosted — no network dependency)
+// ---------------------------------------------------------------------------
+@font-face {
+  font-family: 'Exo 2';
+  src: url('./assets/fonts/exo-2-variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900; // variable font: full weight range
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  src: url('./assets/fonts/pt-sans-regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  src: url('./assets/fonts/pt-sans-bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Arimo', sans-serif;
+  font-family: 'PT Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// ---------------------------------------------------------------------------
+// Brand accent layer ("measured port")
+// Building blocks for the CyberSim signature look — thick ink border + hard
+// offset shadow. Defined here, applied SELECTIVELY in later phases (key
+// buttons, hero cards), never globally — this is a dense tool used live.
+// ---------------------------------------------------------------------------
+.border-ink {
+  border: 2px solid $cs-ink !important;
+}
+
+.shadow-hard {
+  box-shadow: 4px 4px 0 $cs-ink !important;
+}
+
+.shadow-hard-cyan {
+  box-shadow: 6px 6px 0 $cs-cyan !important;
+}
+
+// Chunky brand button that "presses down" on hover, per the brand book.
+.btn-brand {
+  border: 2px solid $cs-ink;
+  box-shadow: 4px 4px 0 $cs-ink;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+
+  &:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 $cs-ink !important;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Facilitator design system (light theme)
+// Reusable vocabulary for the Simulation redesign. Additive + inert until a
+// component opts in. `cs-` prefix = CyberSim, avoids any Bootstrap collision.
+// ---------------------------------------------------------------------------
+
+// Surface: a contained content "room" on the Paper background.
+.cs-card {
+  background: #fff;
+  border: 1px solid $cs-line;
+  border-radius: 0.75rem;
+  padding: 1rem 1.125rem;
+}
+
+.cs-section-title {
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: $cs-ink;
+  margin: 0;
+}
+
+// Small-caps metadata label (counts, eyebrows).
+.cs-meta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9a98a6;
+}
+
+// Status pills — FUNCTIONAL colors (game state), soft tint + dark same-family
+// text. Deliberately NOT brand purple, so meaning stays readable.
+.cs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+  white-space: nowrap;
+
+  &--success {
+    color: #1b6b43;
+    background: #e6f4ec;
+  }
+  &--warning {
+    color: #8a6300;
+    background: #fdf3d4;
+  }
+  &--danger {
+    color: #b3261e;
+    background: #fde8e6;
+  }
+  &--brand {
+    color: $cs-purple-dark;
+    background: $cs-purple-soft;
+  }
+}
+
+// Cost / value chip (e.g. "$ 400") — brand-tinted, reads as chrome not status.
+.cs-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $cs-purple-dark;
+  background: $cs-purple-soft;
+  border-radius: 0.375rem;
+  padding: 0.15rem 0.5rem;
+  white-space: nowrap;
+}
+
+// Instrument panel: the always-visible game vitals.
+.cs-metric {
+  &__label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9a98a6;
+    line-height: 1.2;
+  }
+  &__value {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 800;
+    font-size: 1.55rem;
+    line-height: 1.15;
+    color: $cs-ink;
+  }
+  &__value--good {
+    color: #1b6b43;
+  }
+  &__value--warn {
+    color: #8a6300;
+  }
+  &__value--bad {
+    color: #b3261e;
+  }
+}
+
+// Two-level navigation.
+// Primary view tabs: strong, with a brand underline that animates position.
+.cs-tab {
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: $cs-muted;
+  padding: 0.75rem 0.875rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    color: $cs-ink;
+    background: rgba($cs-purple, 0.04);
+  }
+  &.active {
+    color: $cs-purple;
+    font-weight: 700;
+    border-bottom-color: $cs-purple;
+  }
+}
+
+// Secondary jump strip: quieter, clearly subordinate. Active = scroll-spy.
+.cs-jump {
+  font-size: 0.95rem;
+  color: $cs-muted;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: $cs-ink;
+    background: rgba($cs-purple, 0.06);
+  }
+  &.active {
+    color: $cs-purple-dark;
+    background: $cs-purple-soft;
+    font-weight: 700;
+  }
+}
+
+// Simulation header bands (command bar / tab bar / jump strip).
+.cs-commandbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.125rem;
+  background: #fff;
+  border-bottom: 1px solid $cs-line;
+}
+.cs-brand img {
+  height: 2.2rem;
+  width: auto;
+  display: block;
+}
+.cs-gamectx {
+  text-align: right;
+  &__id {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: $cs-ink;
+    line-height: 1.2;
+  }
+  &__scenario {
+    font-size: 0.82rem;
+    color: $cs-muted;
+  }
+}
+.cs-tabbar {
+  display: flex;
+  background: #fff;
+  padding: 0 0.5rem;
+}
+.cs-jump-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.125rem;
+  background: #faf8f3;
+  border-top: 1px solid #ece9f6;
+  white-space: nowrap;
+  overflow-x: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &__label {
+    flex: 0 0 auto;
+    margin-right: 0.15rem;
+  }
+  .cs-jump {
+    flex: 0 0 auto;
+  }
 }
 
 code {
@@ -28,9 +286,10 @@ a {
   text-decoration: none !important;
 }
 
-// Add fixed header height to scrollIntoView
+// Add sticky header height to scrollIntoView (matches the command bar +
+// tab bar + jump strip stack of the redesigned Simulation header).
 *[id] {
-  scroll-margin-top: 110px;
+  scroll-margin-top: var(--sim-header-h, 150px);
 }
 
 label {
@@ -217,7 +476,7 @@ select.form-control:focus {
 
   &-item {
     transition: all 0.2s linear;
-    box-shadow: inset 0px -5px 0px map-get($map: $theme-colors, $key:
+    box-shadow: inset 0px -2px 0px map-get($map: $theme-colors, $key:
           'primary');
     h5 {
       transition: all 0.2s linear;
@@ -232,9 +491,9 @@ select.form-control:focus {
       h5 {
         font-weight: bold;
       }
-      box-shadow: inset 5px 5px 0px
+      box-shadow: inset 3px 3px 0px
           map-get($map: $theme-colors, $key: 'primary'),
-        inset -5px 0px 0px map-get($map: $theme-colors, $key:
+        inset -3px 0px 0px map-get($map: $theme-colors, $key:
               'primary');
     }
 
@@ -251,9 +510,9 @@ select.form-control:focus {
 
     &--big {
       &.active {
-        box-shadow: inset 0px 7px 0px
+        box-shadow: inset 0px 3px 0px
             map-get($map: $theme-colors, $key: 'primary'),
-          inset 0px -7px 0px map-get($map: $theme-colors, $key:
+          inset 0px -3px 0px map-get($map: $theme-colors, $key:
                 'primary');
       }
     }
