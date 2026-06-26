@@ -7,7 +7,7 @@ import { useStaticData } from '../StaticDataProvider';
 import { gameStore } from '../GameStore';
 import { numberToUsd } from '../../util';
 
-const SystemRelatedActions = view(({ location, className }) => {
+const SystemRelatedActions = view(({ location, className, embedded }) => {
   const {
     budget,
     mitigations: gameMitigations,
@@ -62,6 +62,65 @@ const SystemRelatedActions = view(({ location, className }) => {
     [popError, closeError, restoreSystem],
   );
 
+  const actionList = systemRelatedActions.length
+    ? systemRelatedActions.map((action) => (
+        <Form.Check
+          custom
+          required
+          type="radio"
+          className="custom-radio-right"
+          key={action.id}
+          label={
+            <Row className="py-1 select-row align-items-center">
+              <Col xs={10}>
+                {`${
+                  action.description
+                } (Restores:${action.systems_to_restore.map(
+                  (systemId) => ` ${systems[systemId].name}`,
+                )})`}
+              </Col>
+              <Col
+                xs={2}
+                className="justify-content-end d-flex align-items-center"
+              >
+                {numberToUsd(action.cost)}
+              </Col>
+            </Row>
+          }
+          name="systemRelatedActions"
+          disabled={action.cost > 0 && budget < action.cost}
+          id={action.id}
+          value={action.id}
+        />
+      ))
+    : 'No system related action is available.';
+
+  // Embedded: a "System restore" sub-section inside the Technical systems
+  // card (Action Table). No card chrome or big heading of its own.
+  if (embedded) {
+    return (
+      <Form onSubmit={submitAction} noValidate id="system_actions">
+        <div className="cs-subsection">
+          <div className="cs-subsection__head">
+            <h3 className="cs-subsection-title">System restore</h3>
+            <Button
+              variant="outline-primary"
+              className="rounded-pill"
+              type="submit"
+              disabled={!systemRelatedActions.length}
+            >
+              Perform action
+            </Button>
+          </div>
+          <Row>
+            <Col>{actionList}</Col>
+          </Row>
+        </div>
+      </Form>
+    );
+  }
+
+  // Original layout — unchanged — used standalone in the HQ/Local tabs.
   return (
     <Form onSubmit={submitAction} noValidate id="system_actions">
       <Row className={className}>
@@ -80,40 +139,7 @@ const SystemRelatedActions = view(({ location, className }) => {
             PERFORM ACTION
           </Button>
         </Col>
-        <Col>
-          {systemRelatedActions.length
-            ? systemRelatedActions.map((action) => (
-                <Form.Check
-                  custom
-                  required
-                  type="radio"
-                  className="custom-radio-right"
-                  key={action.id}
-                  label={
-                    <Row className="py-1 select-row align-items-center">
-                      <Col xs={10}>
-                        {`${
-                          action.description
-                        } (Restores:${action.systems_to_restore.map(
-                          (systemId) => ` ${systems[systemId].name}`,
-                        )})`}
-                      </Col>
-                      <Col
-                        xs={2}
-                        className="justify-content-end d-flex align-items-center"
-                      >
-                        {numberToUsd(action.cost)}
-                      </Col>
-                    </Row>
-                  }
-                  name="systemRelatedActions"
-                  disabled={action.cost > 0 && budget < action.cost}
-                  id={action.id}
-                  value={action.id}
-                />
-              ))
-            : 'No system related action is available.'}
-        </Col>
+        <Col>{actionList}</Col>
       </Row>
     </Form>
   );

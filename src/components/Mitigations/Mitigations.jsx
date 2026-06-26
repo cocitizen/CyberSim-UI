@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { Container, Row, Col, Button, Nav } from 'react-bootstrap';
-import { FiBarChart2 } from 'react-icons/fi';
+import { FiBarChart2, FiShield } from 'react-icons/fi';
 import { reduce as _reduce, map as _map } from 'lodash';
 import { view } from '@risingstack/react-easy-state';
+import classNames from 'classnames';
 
 import { gameStore } from '../GameStore';
 import { useStaticData } from '../StaticDataProvider';
@@ -75,9 +76,47 @@ const Mitigations = view(
       [toggledMitigations, mitigationsByCategory],
     );
 
+    const categories = _map(mitigationsByCategory, (category, key) => (
+      <MitigationCategory
+        key={key}
+        name={key}
+        mitigations={category}
+        toggledMitigations={toggledMitigations}
+        allocatedBudget={allocatedCategoryBudgets[key]}
+        toggleMitigation={toggleMitigation}
+        budget={budget}
+        isSummary={isLog}
+        allowSell={allowSell}
+      />
+    ));
+
+    // Action Table: a contained "Item inventory" room.
+    if (isInventory) {
+      return (
+        <section
+          className={classNames('cs-card', className)}
+          id="mitigations"
+        >
+          <div className="cs-card__head">
+            <div className="cs-card__heading">
+              <span
+                className="cs-card__icon cs-card__icon--cyan"
+                aria-hidden="true"
+              >
+                <FiShield />
+              </span>
+              <h2 className="cs-section-title">Item inventory</h2>
+            </div>
+          </div>
+          {categories}
+        </section>
+      );
+    }
+
+    // Preparation phase / logs — unchanged.
     return (
       <>
-        {!isLog && !isInventory && (
+        {!isLog && (
           <div
             className="py-3 border-primary border-bottom position-sticky bg-white shadow"
             style={{ top: 0, zIndex: 10 }}
@@ -105,30 +144,9 @@ const Mitigations = view(
           </div>
         )}
         <Container fluid="md" className={className} id="mitigations">
-          {isInventory && (
-            <Row>
-              <Col xs={12}>
-                <h2 className="font-weight-bold mb-1">
-                  {isInventory ? 'ITEM INVENTORY' : 'PURCHASED ITEMS'}
-                </h2>
-              </Col>
-            </Row>
-          )}
-          {_map(mitigationsByCategory, (category, key) => (
-            <MitigationCategory
-              key={key}
-              name={key}
-              mitigations={category}
-              toggledMitigations={toggledMitigations}
-              allocatedBudget={allocatedCategoryBudgets[key]}
-              toggleMitigation={toggleMitigation}
-              budget={budget}
-              isSummary={isLog}
-              allowSell={allowSell}
-            />
-          ))}
+          {categories}
         </Container>
-        {!isLog && !isInventory && (
+        {!isLog && (
           <div
             className="py-3 border-primary border-top position-fixed w-100 bg-white shadow-lg"
             style={{ bottom: 0, zIndex: 10 }}
