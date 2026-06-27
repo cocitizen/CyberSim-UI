@@ -68,6 +68,23 @@ export const gameStore = store({
     });
   },
 
+  // Reset to a "no game" session so the app falls back to the create/join
+  // screen — used when the backend reports the game is gone (stale session).
+  clearGame: () => {
+    gameStore.id = undefined;
+    gameStore.state = undefined;
+    gameStore.paused = undefined;
+    gameStore.budget = undefined;
+    gameStore.poll = undefined;
+    gameStore.logs = undefined;
+    gameStore.systems = {};
+    gameStore.mitigations = {};
+    gameStore.preparationMitigations = {};
+    gameStore.injections = {};
+    gameStore.scenarioSlug = undefined;
+    gameStore.scenarioName = undefined;
+  },
+
   // Socket: create lazily, attach handlers once
   ensureSocket: () => {
     const apiUrl = getApiUrl();
@@ -145,8 +162,17 @@ export const gameStore = store({
     }
 
     const callback = ({ error }) => {
-      if (error) gameStore.popError(error);
-      else if (successInfo) gameStore.popInfo(successInfo);
+      if (error) {
+        gameStore.popError(error);
+        // Backend reports the game is gone (e.g. a stale session after a
+        // reconnect or reset). Clear it so the user lands back on create/join
+        // rather than stranded in a dead game.
+        if (/game not found/i.test(error)) {
+          gameStore.clearGame();
+        }
+      } else if (successInfo) {
+        gameStore.popInfo(successInfo);
+      }
     };
 
     if (params) s.emit(event, params, callback);
@@ -195,47 +221,51 @@ export const gameStore = store({
       gameStore.emitEvent(
         SocketEvents.CHANGEMITIGATION,
         params,
-        ...(showInfo ? ['Item bought'] : []),
+        ...(showInfo ? ['Item purchased'] : []),
       ),
 
     performAction: (params) =>
       gameStore.emitEvent(
         SocketEvents.PERFORMACTION,
         params,
-        'Action Performed',
+        'Action performed',
       ),
 
     performCurveball: (params) =>
       gameStore.emitEvent(
         SocketEvents.PERFORMCURVEBALL,
         params,
-        'Curveball Performed',
+        'Curveball performed',
       ),
 
     restoreSystem: (params) =>
       gameStore.emitEvent(
         SocketEvents.RESTORESYSTEM,
         params,
-        'System Restored',
+        'System restored',
       ),
 
     startSimulation: () => gameStore.emitEvent(SocketEvents.STARTSIMULATION),
 
     deliverInjection: (params) =>
-      gameStore.emitEvent(SocketEvents.DELIVERINJECTION, params, 'Injection delivered'),
+      gameStore.emitEvent(
+        SocketEvents.DELIVERINJECTION,
+        params,
+        'Event delivered',
+      ),
 
     respondToInjection: (params) =>
       gameStore.emitEvent(
         SocketEvents.RESPONDTOINJECTION,
         params,
-        'Response made',
+        'Response saved',
       ),
 
     nonCorrectRespondToInjection: (params) =>
       gameStore.emitEvent(
         SocketEvents.NONCORRECTRESPONDTOINJECTION,
         params,
-        'Response made',
+        'Response saved',
       ),
   },
 });

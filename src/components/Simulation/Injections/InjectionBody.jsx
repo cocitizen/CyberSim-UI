@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
 import classNames from 'classnames';
 
@@ -12,7 +12,6 @@ const InjectionBody = view(
     injection,
     prevented,
     canMakeResponse,
-    bgColor = '',
     gameInjection,
     isBackground,
   }) => {
@@ -25,18 +24,8 @@ const InjectionBody = view(
     const hasRecommendations = recommendations.length > 0;
 
     return (
-      <div>
-        <Card.Body
-          className={classNames(
-            'border-top border-primary injection-body',
-            bgColor,
-            {
-              'border-bottom':
-                hasRecommendations ||
-                (!prevented && !isBackground),
-            },
-          )}
-        >
+      <div className="cs-inject__detail">
+        <div className="cs-inject__detail-section">
           <Row>
             <Col xs={12} className="my-2">
               <span className="font-weight-bold">Description: </span>
@@ -45,33 +34,27 @@ const InjectionBody = view(
             <Col xs={12} className="my-2">
               <Row>
                 <Col xs={6} md={4}>
-                  <span className="font-weight-bold">
-                    Recipient:{' '}
-                  </span>
+                  <span className="font-weight-bold">Recipient: </span>
                   {injection.recipient_role || '-'}
                 </Col>
                 <Col
                   xs={6}
                   md={4}
-                  className={classNames({
-                    'text-disabled': prevented,
-                  })}
+                  className={classNames({ 'text-disabled': prevented })}
                 >
                   <span className="font-weight-bold">
                     Systems disabled:{' '}
                   </span>
                   {injection.systems_to_disable?.length
-                    ? injection.systems_to_disable.map(
-                        (id) => systems[id]?.name || id,
-                      )
+                    ? injection.systems_to_disable
+                        .map((id) => systems[id]?.name || id)
+                        .join(', ')
                     : '-'}
                 </Col>
                 <Col
                   xs={6}
                   md={2}
-                  className={classNames({
-                    'text-disabled': prevented,
-                  })}
+                  className={classNames({ 'text-disabled': prevented })}
                 >
                   <span className="font-weight-bold">
                     {getTextWithSynonyms('Poll')}:{' '}
@@ -95,7 +78,7 @@ const InjectionBody = view(
                 )}
                 <Col xs={6} md={2}>
                   <span className="font-weight-bold">Avoided: </span>
-                  {prevented ? 'YES' : 'NO'}
+                  {prevented ? 'Yes' : 'No'}
                 </Col>
               </Row>
             </Col>
@@ -109,9 +92,7 @@ const InjectionBody = view(
                 </Col>
                 {injection.followup_injection && (
                   <Col>
-                    <span className="font-weight-bold">
-                      Follow up:{' '}
-                    </span>
+                    <span className="font-weight-bold">Follow up: </span>
                     {injections[injection.followup_injection]
                       ? `${msToMinutesSeconds(
                           injections[injection.followup_injection]
@@ -129,39 +110,29 @@ const InjectionBody = view(
               </Row>
             </Col>
           </Row>
-        </Card.Body>
+        </div>
+
         {!prevented && !isBackground && (
-          <Card.Body
-            className={classNames(
-              'border-primary injection-body',
-              bgColor,
-              { 'border-bottom': hasRecommendations },
-            )}
-          >
+          <div className="cs-inject__detail-section">
             <InjectionResponseForm
               injection={injection}
               gameInjection={gameInjection}
               disabled={!canMakeResponse}
             />
-          </Card.Body>
+          </div>
         )}
+
         {hasRecommendations && (
-          <Card.Body
-            className={classNames('injection-body', bgColor)}
-          >
-            <Row>
-              <Col xs={12}>
-                <span className="font-weight-bold">
-                  Security Recommendations:{' '}
-                </span>
-                <ul className="mb-0">
-                  {recommendations.map((recommendation, i) => (
-                    <li key={i}>{recommendation}</li>
-                  ))}
-                </ul>
-              </Col>
-            </Row>
-          </Card.Body>
+          <div className="cs-inject__detail-section">
+            <span className="font-weight-bold">
+              Security recommendations:{' '}
+            </span>
+            <ul className="mb-0">
+              {recommendations.map((recommendation, i) => (
+                <li key={i}>{recommendation}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     );
