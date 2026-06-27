@@ -11,6 +11,7 @@ const BudgetItemLog = ({ game_timer, type, mitigation_id }) => {
     () => mitigations[mitigation_id],
     [mitigations, mitigation_id],
   );
+  const description = mitigation?.description || 'Unknown budget item';
 
   return (
     <Log
@@ -20,16 +21,16 @@ const BudgetItemLog = ({ game_timer, type, mitigation_id }) => {
           <Badge pill variant="secondary" className="py-1 mx-1">
             {type}
           </Badge>
-          {mitigation.category}
+          {mitigation?.category || 'Unknown'}
         </div>
       }
     >
       <Card.Body>
         <Row>
-          <Col xs={10}>{mitigation.description}</Col>
+          <Col xs={10}>{description}</Col>
           <Col xs={2} className="text-right">
             <span className="font-weight-bold">Cost: </span>
-            {numberToUsd(mitigation.cost)}
+            {mitigation ? numberToUsd(mitigation.cost) : 'Unknown'}
           </Col>
         </Row>
       </Card.Body>

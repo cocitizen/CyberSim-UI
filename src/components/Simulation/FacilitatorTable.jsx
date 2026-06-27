@@ -30,7 +30,7 @@ const FacilitatorTable = view(({ activeTab }) => {
         injectionLocation === location || injectionLocation === null,
     ).reduce(
       (acc, injection) => {
-        const gameInjection = gameInjections[injection.id];
+        const gameInjection = gameInjections[injection.id] || {};
         const isBackground = injection.type === 'Background';
         const {
           delivered,
@@ -82,15 +82,12 @@ const FacilitatorTable = view(({ activeTab }) => {
   return (
     <>
       <InjectsAndResponses
-        className="my-5"
+        className="my-4"
         injectionsToResponse={injectionsToResponse}
       />
-      <SystemRelatedActions
-        className="my-5 pb-5"
-        location={location}
-      />
+      <SystemRelatedActions className="my-4" location={location} />
       <ResolvedInjections
-        className="my-5"
+        className="my-4"
         resolvedInjections={resolvedInjections}
       />
     </>

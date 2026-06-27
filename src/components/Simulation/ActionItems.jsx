@@ -15,7 +15,7 @@ const ActionItems = view(({ className, location }) => {
 
   const actionListByRoles = useMemo(() => {
     const actionsWithSystems = _map(actions, (action) => {
-      action.unavailableSystems = action.required_systems.filter(
+      action.unavailableSystems = (action.required_systems || []).filter(
         (system) => !gameSystems[system],
       );
       return action;
@@ -33,7 +33,7 @@ const ActionItems = view(({ className, location }) => {
             ? 'available'
             : 'notAvailable';
 
-        action.roles.forEach((role) => {
+        (action.roles || []).forEach((role) => {
           (result[role] ||
             (result[role] = { available: [], notAvailable: [] }))[
             actionAvailability

@@ -47,6 +47,7 @@ const EventLogSwitch = view(
               game_timer={game_timer}
               type={type}
               response_id={response_id}
+              action_id={action_id}
             />
           );
         case logTypes.CampaignAction:
@@ -66,6 +67,21 @@ const EventLogSwitch = view(
             />
           );
         case logTypes.ThreatInjected:
+          if (!injection) {
+            return (
+              <Log
+                title={
+                  <div className="d-flex align-items-center">
+                    {`${msToMinutesSeconds(game_timer)} -`}{' '}
+                    <Badge pill variant="danger" className="py-1 mx-1">
+                      {type}
+                    </Badge>
+                    Unknown threat
+                  </div>
+                }
+              />
+            );
+          }
           return (
             <Log
               title={
@@ -99,6 +115,21 @@ const EventLogSwitch = view(
             </Log>
           );
         case logTypes.ThreatPrevented:
+          if (!injection) {
+            return (
+              <Log
+                title={
+                  <div className="d-flex align-items-center">
+                    {`${msToMinutesSeconds(game_timer)} -`}
+                    <Badge pill variant="success" className="py-1 mx-1">
+                      {type}
+                    </Badge>
+                    Unknown threat
+                  </div>
+                }
+              />
+            );
+          }
           return (
             <Log
               title={

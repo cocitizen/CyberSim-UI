@@ -102,18 +102,18 @@ const InjectionResponseForm = view(
       },
       get responseCost() {
         return [...formStore.selectedResponses].reduce(
-          (acc, id) => acc + responses[id].cost,
+          (acc, id) => acc + (responses[id]?.cost || 0),
           0,
         );
       },
       get restoredSystems() {
         return [...formStore.selectedResponses].reduce(
           (acc, id) =>
-            responses[id].systems_to_restore?.length
+            responses[id]?.systems_to_restore?.length
               ? [
                   ...acc,
                   ...responses[id].systems_to_restore.map(
-                    (systemId) => systems[systemId].name,
+                    (systemId) => systems[systemId]?.name || systemId,
                   ),
                 ]
               : acc,
@@ -189,7 +189,7 @@ const InjectionResponseForm = view(
                     />
                   )}
                   {response.description} (Cost: $
-                  {responses[response.id].cost})
+                  {responses[response.id]?.cost ?? 'Unknown'})
                   {response.isLocked && (
                     <span className="locked-response-hint">
                       {' '}

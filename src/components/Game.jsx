@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import qs from 'query-string';
 import { view } from '@risingstack/react-easy-state';
-import { Spinner } from 'react-bootstrap';
+import { Alert, Container, Spinner } from 'react-bootstrap';
 
 import { GameStates } from '../constants';
 import EnterGame from './EnterGame';
@@ -15,8 +15,17 @@ import { useStaticData } from './StaticDataProvider';
 const queryParams = qs.parse(window.location.search);
 
 const Game = view(() => {
-  const { state: gameState, socketConnected } = gameStore;
-  const { loading: loadingStaticData } = useStaticData();
+  const {
+    state: gameState,
+    socketConnected,
+    scenarioSlug: gameScenarioSlug,
+    scenarioName: gameScenarioName,
+  } = gameStore;
+  const {
+    loading: loadingStaticData,
+    scenarioSlug,
+    scenarioName,
+  } = useStaticData();
 
   useEffect(() => {
     gameStore.ensureSocket();
@@ -35,6 +44,28 @@ const Game = view(() => {
 
   if (!gameState) {
     return <EnterGame />;
+  }
+
+  if (gameScenarioSlug && gameScenarioSlug !== scenarioSlug) {
+    return (
+      <Container fluid="md" className="mt-5 pt-5">
+        <Alert variant="danger">
+          <Alert.Heading>Scenario mismatch</Alert.Heading>
+          <p>
+            This game belongs to{' '}
+            <strong>
+              {gameScenarioName || gameScenarioSlug}
+            </strong>
+            , but this UI is currently loaded for{' '}
+            <strong>{scenarioName || scenarioSlug}</strong>.
+          </p>
+          <p className="mb-0">
+            Switch the UI/backend local scenario settings or join a game
+            created for the current scenario before continuing.
+          </p>
+        </Alert>
+      </Container>
+    );
   }
 
   if (queryParams.aar && gameState === GameStates.ASSESSMENT) {

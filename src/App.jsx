@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Game from './components/Game';
 import ErrorBox from './components/ErrorBox';
 import InfoBox from './components/InfoBox';
+import ConnectionBanner from './components/ConnectionBanner';
 import AdminApp from './components/admin/AdminApp';
 import { StaticDataProvider } from './components/StaticDataProvider';
 
@@ -17,6 +18,7 @@ const App = view(() => (
       </Routes>
       <ErrorBox />
       <InfoBox />
+      <ConnectionBanner />
     </StaticDataProvider>
   </BrowserRouter>
 ));

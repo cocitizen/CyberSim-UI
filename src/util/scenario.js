@@ -13,7 +13,15 @@ export function getScenarioSlug() {
 
   // Check the length of the URL. If you've got a subdomain, we will assume it is the scenario.
   if (parts.length <= 2 || parts[0] === 'localhost') {
-    return process.env.REACT_APP_SCENARIO_SLUG || 'cso';
+    const slug = process.env.REACT_APP_SCENARIO_SLUG;
+    if (!slug) {
+      console.warn(
+        'React App Scenario Slug not configured; defaulting to "cso". ' +
+          'Set REACT_APP_SCENARIO_SLUG in your .env to match the scenario your backend has loaded.',
+      );
+      return 'cso';
+    }
+    return slug;
   }
 
   return parts[0];

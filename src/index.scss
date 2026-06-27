@@ -114,6 +114,9 @@ body {
   &--cyan {
     color: $cs-cyan; // information / reassurance
   }
+  &--success {
+    color: #1b6b43; // functional "good" (mitigated threats)
+  }
 }
 
 .cs-section-title {
@@ -217,6 +220,84 @@ body {
   }
 }
 
+// Connection-lost banner — ambient alert when the live backend drops.
+// Coral (disruption signal) with the brand's ink bottom border.
+.cs-connection-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: $cs-coral;
+  color: #4a1b0c;
+  border-bottom: 2px solid $cs-ink;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+// Instrument panel: the always-visible game vitals, in the status bar.
+.cs-instrument {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+// Fixed bottom status bar (facilitator). Instrument left, controls right.
+.cs-statusbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
+  background: #fff;
+  border-top: 2px solid $cs-purple;
+  box-shadow: 0 -4px 16px rgba(60, 60, 59, 0.08);
+  padding: 0.7rem 0;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// Chunky neobrutalist button — the brand's hard offset shadow + press-down.
+// Scoped to the status bar, where the bold treatment earns its place. The
+// `.btn.cs-chunky` selector outranks the global `.btn` shadow so the hard
+// shadow wins.
+.btn.cs-chunky {
+  border: 2px solid $cs-ink;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: 4px 4px 0 $cs-ink !important;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+
+  &:hover,
+  &:focus {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 $cs-ink !important;
+  }
+  &:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 $cs-ink !important;
+  }
+}
+
 // Small-caps metadata label (counts, eyebrows).
 .cs-meta {
   font-size: 0.75rem;
@@ -280,7 +361,7 @@ body {
   &__value {
     font-family: 'Exo 2', $font-family-sans-serif;
     font-weight: 800;
-    font-size: 1.55rem;
+    font-size: 1.8rem;
     line-height: 1.15;
     color: $cs-ink;
   }

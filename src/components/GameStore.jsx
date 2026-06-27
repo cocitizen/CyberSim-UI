@@ -15,6 +15,7 @@ function getApiUrl() {
 export const gameStore = store({
   loading: false,
   socketConnected: false,
+  connectionLost: false,
 
   // ERROR
   errorTimer: null,
@@ -83,22 +84,30 @@ export const gameStore = store({
     socket = io(apiUrl, {
       transports: ['polling', 'websocket'],
       reconnection: true,
-      reconnectionAttempts: 5,
+      // Keep retrying indefinitely so a live session self-heals whenever the
+      // backend returns. socket.io uses capped exponential backoff with
+      // jitter, so this retries at most ~every 5s — not a busy loop.
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
       timeout: 5000,
     });
 
     socket.on(SocketEvents.CONNECT, () => {
       gameStore.socketConnected = true;
+      gameStore.connectionLost = false;
     });
 
     socket.on(SocketEvents.CONNECT_ERROR, () => {
       gameStore.socketConnected = false;
+      gameStore.connectionLost = true;
       // Don’t assume we should flip loading here; only specific actions control loading.
-      gameStore.popError(`Backend not reachable at ${apiUrl}`);
+      // The persistent ConnectionBanner surfaces this state.
     });
 
     socket.on(SocketEvents.DISCONNECT, () => {
       gameStore.socketConnected = false;
+      gameStore.connectionLost = true;
     });
 
     socket.on(SocketEvents.GAMEUPDATED, (g) => gameStore.setGame(g));

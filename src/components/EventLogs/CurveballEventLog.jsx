@@ -11,6 +11,7 @@ const CurveballEventLog = ({ game_timer, type, curveball_id }) => {
     curveballs,
     curveball_id,
   ]);
+  const description = curveball?.description || 'Unknown curveball';
 
   return (
     <Log
@@ -24,21 +25,21 @@ const CurveballEventLog = ({ game_timer, type, curveball_id }) => {
           >
             {type}
           </Badge>
-          {curveball.description}
+          {description}
         </div>
       }
     >
       <Card.Body>
         <Row>
-          <Col>{curveball.description}</Col>
-          {!!curveball.poll_change && (
+          <Col>{description}</Col>
+          {!!curveball?.poll_change && (
             <Col xs={2} className="text-right">
               <span className="font-weight-bold">Poll: </span>
               {curveball.poll_change}%
             </Col>
           )}
-          {(!!curveball.budget_change ||
-            curveball.lose_all_budget) && (
+          {(!!curveball?.budget_change ||
+            curveball?.lose_all_budget) && (
             <Col xs={2} className="text-right">
               <span className="font-weight-bold">Budget: </span>
               {curveball.lose_all_budget

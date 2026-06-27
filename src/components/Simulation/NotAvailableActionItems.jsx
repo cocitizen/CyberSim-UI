@@ -17,7 +17,7 @@ const NotAvailableActionItems = ({ systems, actionList, role }) => (
           <span className="cs-action-row__needs">
             <AiOutlineStop className="text-danger" fontSize="18px" />
             {action.unavailableSystems
-              .map((system) => systems[system].name)
+              .map((system) => systems[system]?.name || system)
               .join(', ')}
           </span>
         </div>

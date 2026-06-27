@@ -62,7 +62,7 @@ const InjectionBody = view(
                   </span>
                   {injection.systems_to_disable?.length
                     ? injection.systems_to_disable.map(
-                        (id) => systems[id].name,
+                        (id) => systems[id]?.name || id,
                       )
                     : '-'}
                 </Col>
@@ -112,16 +112,18 @@ const InjectionBody = view(
                     <span className="font-weight-bold">
                       Follow up:{' '}
                     </span>
-                    {`${msToMinutesSeconds(
-                      injections[injection.followup_injection]
-                        .trigger_time,
-                    )} - ${
-                      injections[injection.followup_injection].title
-                    } (${
-                      injections[
-                        injection.followup_injection
-                      ].location?.toUpperCase() || 'PARTY'
-                    })`}
+                    {injections[injection.followup_injection]
+                      ? `${msToMinutesSeconds(
+                          injections[injection.followup_injection]
+                            .trigger_time,
+                        )} - ${
+                          injections[injection.followup_injection].title
+                        } (${
+                          injections[
+                            injection.followup_injection
+                          ].location?.toUpperCase() || 'PARTY'
+                        })`
+                      : 'Unknown follow up'}
                   </Col>
                 )}
               </Row>

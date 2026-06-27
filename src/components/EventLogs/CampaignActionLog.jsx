@@ -11,6 +11,7 @@ const CampaignActionLog = ({ game_timer, type, action_id }) => {
     actions,
     action_id,
   ]);
+  const description = action?.description || 'Unknown campaign action';
 
   return (
     <Log
@@ -20,24 +21,24 @@ const CampaignActionLog = ({ game_timer, type, action_id }) => {
           <Badge pill variant="info" className="py-1 mx-1">
             {type}
           </Badge>
-          {action.description}
+          {description}
         </div>
       }
     >
       <Card.Body>
         <Row>
-          <Col xs={6}>{action.description}</Col>
+          <Col xs={6}>{description}</Col>
           <Col xs={2} className="text-right">
             <span className="font-weight-bold">Cost: </span>
-            {numberToUsd(action.cost)}
+            {action ? numberToUsd(action.cost) : 'Unknown'}
           </Col>
           <Col xs={2} className="text-right">
-            <span className="font-weight-bold">Poll: </span>+
-            {action.poll_increase}%
+            <span className="font-weight-bold">Poll: </span>
+            {action ? `+${action.poll_increase}%` : 'Unknown'}
           </Col>
           <Col xs={2} className="text-right">
             <span className="font-weight-bold">Raise: </span>
-            {numberToUsd(action.budget_increase)}
+            {action ? numberToUsd(action.budget_increase) : 'Unknown'}
           </Col>
         </Row>
       </Card.Body>
