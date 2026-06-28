@@ -294,6 +294,11 @@ body {
     padding-top: 0.75rem;
     border-top: 1px solid $cs-line;
   }
+  // For drawers whose content brings its own padding (e.g. log entries that
+  // pass a Card.Body), keep the recessed look but drop the extra padding.
+  &__detail--flush {
+    padding: 0;
+  }
 }
 
 // Connection-lost banner — ambient alert when the live backend drops.

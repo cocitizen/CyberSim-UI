@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Row, Col, Card, Badge } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 
 import Log from './Log';
+import { logTypeLabels } from './EventLogs';
 import { useStaticData } from '../StaticDataProvider';
 import { msToMinutesSeconds, numberToUsd } from '../../util';
 
@@ -18,13 +19,9 @@ const CurveballEventLog = ({ game_timer, type, curveball_id }) => {
       title={
         <div className="d-flex align-items-center">
           {`${msToMinutesSeconds(game_timer)} -`}
-          <Badge
-            pill
-            variant="warning"
-            className="py-1 mx-1 text-white"
-          >
-            {type}
-          </Badge>
+          <span className="cs-pill cs-pill--warning mx-1">
+            {logTypeLabels[type] || type}
+          </span>
           {description}
         </div>
       }

@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { view } from '@risingstack/react-easy-state';
-import { Badge } from 'react-bootstrap';
 
-import { logTypes } from './EventLogs';
+import { logTypes, logTypeLabels } from './EventLogs';
 import BudgetItemLog from './BudgetItemLog';
 import CampaignActionLog from './CampaignActionLog';
 import CurveballEventLog from './CurveballEventLog';
@@ -30,6 +29,8 @@ const EventLogSwitch = view(
       () => filter[type] || false,
       [filter, type],
     );
+
+    const label = logTypeLabels[type] || type;
 
     const eventLog = useMemo(() => {
       switch (type) {
@@ -73,9 +74,9 @@ const EventLogSwitch = view(
                 title={
                   <div className="d-flex align-items-center">
                     {`${msToMinutesSeconds(game_timer)} -`}{' '}
-                    <Badge pill variant="danger" className="py-1 mx-1">
-                      {type}
-                    </Badge>
+                    <span className="cs-pill cs-pill--danger mx-1">
+                      {label}
+                    </span>
                     Unknown threat
                   </div>
                 }
@@ -87,22 +88,18 @@ const EventLogSwitch = view(
               title={
                 <div className="d-flex align-items-center">
                   {`${msToMinutesSeconds(game_timer)} -`}{' '}
-                  <Badge pill variant="danger" className="py-1 mx-1">
-                    {type}
-                  </Badge>
+                  <span className="cs-pill cs-pill--danger mx-1">
+                    {label}
+                  </span>
                   {`${
                     injection.title
                   } (available from ${msToMinutesSeconds(
                     injection.trigger_time,
                   )})`}
                   {injection.type === 'Background' && (
-                    <Badge
-                      pill
-                      variant="primary"
-                      className="py-1 mx-1"
-                    >
-                      BACKGROUND
-                    </Badge>
+                    <span className="cs-pill cs-pill--muted mx-1">
+                      Background
+                    </span>
                   )}
                 </div>
               }
@@ -121,9 +118,9 @@ const EventLogSwitch = view(
                 title={
                   <div className="d-flex align-items-center">
                     {`${msToMinutesSeconds(game_timer)} -`}
-                    <Badge pill variant="success" className="py-1 mx-1">
-                      {type}
-                    </Badge>
+                    <span className="cs-pill cs-pill--success mx-1">
+                      {label}
+                    </span>
                     Unknown threat
                   </div>
                 }
@@ -135,22 +132,18 @@ const EventLogSwitch = view(
               title={
                 <div className="d-flex align-items-center">
                   {`${msToMinutesSeconds(game_timer)} -`}
-                  <Badge pill variant="success" className="py-1 mx-1">
-                    {type}
-                  </Badge>
+                  <span className="cs-pill cs-pill--success mx-1">
+                    {label}
+                  </span>
                   {`${
                     injection.title
                   } (triggers at ${msToMinutesSeconds(
                     injection.trigger_time,
                   )})`}
                   {injection.type === 'Background' && (
-                    <Badge
-                      pill
-                      variant="primary"
-                      className="py-1 mx-1"
-                    >
-                      BACKGROUND
-                    </Badge>
+                    <span className="cs-pill cs-pill--muted mx-1">
+                      Background
+                    </span>
                   )}
                 </div>
               }
@@ -168,9 +161,9 @@ const EventLogSwitch = view(
               title={
                 <div className="d-flex align-items-center">
                   {`${msToMinutesSeconds(game_timer)} -`}
-                  <Badge pill variant="primary" className="py-1 mx-1">
-                    {type}
-                  </Badge>
+                  <span className="cs-pill cs-pill--brand mx-1">
+                    {label}
+                  </span>
                   {description}
                 </div>
               }
@@ -181,6 +174,7 @@ const EventLogSwitch = view(
       }
     }, [
       type,
+      label,
       game_timer,
       mitigation_id,
       response_id,

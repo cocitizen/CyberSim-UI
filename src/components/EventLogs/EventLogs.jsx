@@ -27,6 +27,20 @@ export const logTypes = {
   CurveballEvent: 'Curveball Event',
 };
 
+// Short display labels for the log types. Keyed by the type VALUE — which is
+// also the backend `game_log.type` and the filter key — so this is purely
+// cosmetic; matching and filtering are unaffected.
+export const logTypeLabels = {
+  [logTypes.Preparations]: 'Prep',
+  [logTypes.BudgetItem]: 'Purchases',
+  [logTypes.SystemRestore]: 'System Restores',
+  [logTypes.CampaignAction]: 'Actions',
+  [logTypes.ThreatInjected]: 'Events',
+  [logTypes.ThreatPrevented]: 'Prevented Threats',
+  [logTypes.GameState]: 'State Changes',
+  [logTypes.CurveballEvent]: 'Curveballs',
+};
+
 const EventLogs = view(({ className, asc = true }) => {
   const { logs: gameLogs, injections: gameInjections } = gameStore;
   const { injections } = useStaticData();
@@ -154,56 +168,56 @@ const EventLogs = view(({ className, asc = true }) => {
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.Preparations}
+          {logTypeLabels[logTypes.Preparations]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.BudgetItem}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.BudgetItem}
+          {logTypeLabels[logTypes.BudgetItem]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.SystemRestore}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.SystemRestore}
+          {logTypeLabels[logTypes.SystemRestore]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.CampaignAction}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.CampaignAction}
+          {logTypeLabels[logTypes.CampaignAction]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.ThreatInjected}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.ThreatInjected}
+          {logTypeLabels[logTypes.ThreatInjected]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.ThreatPrevented}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.ThreatPrevented}
+          {logTypeLabels[logTypes.ThreatPrevented]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.GameState}
           variant="outline-primary"
           className="p-1 d-flex align-items-center justify-content-center rounded"
         >
-          {logTypes.GameState}
+          {logTypeLabels[logTypes.GameState]}
         </ToggleButton>
         <ToggleButton
           value={logTypes.CurveballEvent}
           variant="outline-primary"
           className="p-1 rounded"
         >
-          {logTypes.CurveballEvent}
+          {logTypeLabels[logTypes.CurveballEvent]}
         </ToggleButton>
       </ToggleButtonGroup>
 

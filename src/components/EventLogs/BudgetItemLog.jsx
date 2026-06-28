@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Row, Col, Card, Badge } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 
 import Log from './Log';
+import { logTypeLabels } from './EventLogs';
 import { useStaticData } from '../StaticDataProvider';
 import { msToMinutesSeconds, numberToUsd } from '../../util';
 
@@ -18,9 +19,9 @@ const BudgetItemLog = ({ game_timer, type, mitigation_id }) => {
       title={
         <div className="d-flex align-items-center">
           {`${msToMinutesSeconds(game_timer)} -`}
-          <Badge pill variant="secondary" className="py-1 mx-1">
-            {type}
-          </Badge>
+          <span className="cs-pill cs-pill--muted mx-1">
+            {logTypeLabels[type] || type}
+          </span>
           {mitigation?.category || 'Unknown'}
         </div>
       }
