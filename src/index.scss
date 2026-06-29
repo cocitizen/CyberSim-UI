@@ -1250,3 +1250,355 @@ select.form-control:focus {
 .aar-action-taken {
   color: #28a745;
 }
+
+// ---------------------------------------------------------------------------
+// Projector — dual-theme "situation display" shown to the room.
+// Theme via wrapper class + CSS variables: light defaults, --dark overrides.
+// Type scales with clamp() so it reads on a big screen. Status distinctions
+// use luminance + shape/text, not hue alone (colorblind-safe).
+// ---------------------------------------------------------------------------
+@keyframes projpulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.cs-projector {
+  --pj-bg: #fbfaf7;
+  --pj-panel: #ffffff;
+  --pj-text: #3c3c3b;
+  --pj-muted: #6b6a78;
+  --pj-line: #e2e0ee;
+  --pj-tile: #f1eff7;
+  --pj-good: #1d9e75;
+  --pj-bad: #d23b2f;
+  --pj-win: #b8860b;
+
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pj-bg);
+  color: var(--pj-text);
+  font-family: 'PT Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  &--dark {
+    --pj-bg: #13131d;
+    --pj-panel: #1d1d2b;
+    --pj-text: #f3f2fa;
+    --pj-muted: #a7a5ba;
+    --pj-line: rgba(255, 255, 255, 0.1);
+    --pj-tile: #20202e;
+    --pj-good: #3ddc97;
+    --pj-bad: #ff5b4d;
+    --pj-win: #f2d62e;
+  }
+
+  // Screen-edge alarm whenever any system is down.
+  &--critical {
+    box-shadow: inset 0 0 0 5px rgba(242, 110, 94, 0.5);
+  }
+}
+
+.cs-pj-toggle {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--pj-line);
+  background: var(--pj-tile);
+  color: var(--pj-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cs-pj-banner {
+  background: #ff5b4d;
+  color: #3a0f0a;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  font-size: clamp(1rem, 2.2vw, 1.6rem);
+  animation: projpulse 1.4s ease-in-out infinite;
+}
+
+.cs-pj-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--pj-line);
+}
+.cs-pj-brand {
+  justify-self: start;
+  img {
+    height: clamp(1.7rem, 3.2vw, 2.7rem);
+    width: auto;
+    display: block;
+  }
+}
+.cs-pj-time {
+  justify-self: center;
+  text-align: center;
+  font-family: 'Exo 2', sans-serif;
+  &__label {
+    font-weight: 700;
+    font-size: clamp(0.6rem, 1vw, 0.85rem);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pj-muted);
+  }
+  &__value {
+    font-weight: 800;
+    font-size: clamp(1.7rem, 3.4vw, 3rem);
+    line-height: 1;
+  }
+}
+.cs-pj-title {
+  justify-self: end;
+  text-align: right;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3vw, 2.7rem);
+  line-height: 1.05;
+}
+
+.cs-pj-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2.5rem) 0.5rem;
+  font-family: 'Exo 2', sans-serif;
+}
+.cs-pj-stat {
+  &--right {
+    text-align: right;
+  }
+  &__label {
+    font-weight: 700;
+    font-size: clamp(0.7rem, 1.3vw, 1rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pj-muted);
+  }
+  &__value {
+    font-weight: 800;
+    font-size: clamp(2.4rem, 6vw, 5.5rem);
+    line-height: 1;
+  }
+}
+.cs-pj-support {
+  color: #27cffc;
+  &--below {
+    color: var(--pj-bad);
+  }
+}
+.cs-pj-budget--neg {
+  color: var(--pj-bad);
+}
+
+.cs-pj-barwrap {
+  padding: 0 clamp(1rem, 3vw, 2.5rem);
+}
+.cs-pj-bar {
+  position: relative;
+  height: clamp(16px, 2vw, 26px);
+  margin-top: clamp(1.6rem, 2.6vw, 2.4rem);
+  background: var(--pj-tile);
+  border-radius: 6px;
+
+  &__fill {
+    height: 100%;
+    border-radius: 6px;
+    background: #27cffc;
+    &--below {
+      background: var(--pj-bad);
+    }
+  }
+  &__win {
+    position: absolute;
+    top: -8px;
+    bottom: -6px;
+    width: 3px;
+    background: var(--pj-win);
+    border-radius: 2px;
+  }
+  &__winlabel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 5px);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    color: var(--pj-win);
+    white-space: nowrap;
+  }
+}
+
+.cs-pj-body {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(1.3rem, 3vw, 2.2rem) clamp(1rem, 3vw, 2.5rem) 1rem;
+
+  &--logs {
+    display: block;
+  }
+}
+.cs-pj-h {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.8vw, 1.4rem);
+  letter-spacing: 0.08em;
+  color: var(--pj-muted);
+  margin-bottom: 0.8rem;
+  &--inline {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+}
+.cs-pj-systems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 1vw, 0.9rem);
+}
+.cs-pj-sysgroups {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.6vw, 1.2rem);
+}
+.cs-pj-sysgroup__label {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.78rem, 1.3vw, 1rem);
+  color: var(--pj-text);
+  opacity: 0.85;
+  margin-bottom: 0.45rem;
+}
+.cs-pj-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--pj-tile);
+  border: 1px solid var(--pj-line);
+  border-radius: 9px;
+  padding: clamp(0.5rem, 1vw, 0.9rem) clamp(0.75rem, 1.4vw, 1.2rem);
+  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+
+  &--down {
+    background: rgba(242, 110, 94, 0.16);
+    border-color: var(--pj-bad);
+    color: var(--pj-bad);
+    font-weight: 700;
+    animation: projpulse 1.4s ease-in-out infinite;
+  }
+}
+.cs-pj-dot {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: var(--pj-good);
+  flex-shrink: 0;
+}
+.cs-pj-incidents {
+  border-left: 3px solid var(--pj-bad);
+  padding-left: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cs-pj-incident {
+  font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+  &__time {
+    color: var(--pj-muted);
+  }
+}
+.cs-pj-empty {
+  color: var(--pj-muted);
+  font-style: italic;
+}
+.cs-pj-purchased {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  padding: 0.9rem clamp(1rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--pj-line);
+}
+.cs-pj-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cs-pj-chip {
+  background: var(--pj-tile);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+  font-size: clamp(0.8rem, 1.3vw, 1rem);
+}
+
+// Footer — anchors the bottom of the screen. Pinned to the viewport bottom
+// (margin-top:auto in the flex column) so it's always THE bottom.
+.cs-pj-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--pj-line);
+}
+.cs-pj-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem clamp(1rem, 3vw, 2.5rem);
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+  color: var(--pj-muted);
+}
+.cs-pj-footer__right {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+// Thin time-progress bar along the very bottom edge (elapsed vs final event).
+.cs-pj-progress {
+  height: 9px;
+  background: var(--pj-tile);
+}
+.cs-pj-progress__fill {
+  height: 100%;
+  background: $cs-purple;
+  transition: width 0.6s linear;
+}
+
+// Assessment mode reuses the facilitator EventLogs (cs-* cards). Minimal dark
+// overrides keep it legible on the dark projector — full assessment-view
+// redesign is deferred.
+.cs-projector--dark {
+  .cs-card {
+    background: var(--pj-panel);
+    border-color: var(--pj-line);
+    color: var(--pj-text);
+    box-shadow: none;
+  }
+  .cs-section-title,
+  .cs-inject__title {
+    color: var(--pj-text);
+  }
+  .cs-inject__header {
+    background: var(--pj-panel);
+  }
+}
