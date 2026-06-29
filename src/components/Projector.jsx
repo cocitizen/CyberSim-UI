@@ -11,6 +11,7 @@ import { msToMinutesSeconds, numberToUsd } from '../util';
 import EventLogs from './EventLogs/EventLogs';
 import logo from '../assets/img/cybersim-logo.svg';
 import logoWhite from '../assets/img/cybersim-logo-white.svg';
+import gremlin from '../assets/img/cocitizen-gremlin.png';
 
 // TODO: source the win threshold from the game/scenario definition once that
 // field exists in the backend (see project memory). Stubbed for now — change
@@ -289,7 +290,15 @@ const Projector = view(() => {
 
       <div className="cs-pj-footer">
         <div className="cs-pj-footer__inner">
-          <span>Powered by CoCitizen</span>
+          <span className="cs-pj-footer__brand">
+            <img
+              className="cs-pj-gremlin"
+              src={gremlin}
+              alt=""
+              aria-hidden="true"
+            />
+            Powered by CoCitizen
+          </span>
           <div className="cs-pj-footer__right">
             {scenarioName && <span>Scenario: {scenarioName}</span>}
             <button

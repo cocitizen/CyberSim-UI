@@ -1277,6 +1277,7 @@ select.form-control:focus {
   --pj-good: #1d9e75;
   --pj-bad: #d23b2f;
   --pj-win: #b8860b;
+  --pj-chrome: #f1eff6;
 
   position: relative;
   min-height: 100vh;
@@ -1296,6 +1297,7 @@ select.form-control:focus {
     --pj-good: #3ddc97;
     --pj-bad: #ff5b4d;
     --pj-win: #f2d62e;
+    --pj-chrome: #1b1b29;
   }
 
   // Screen-edge alarm whenever any system is down.
@@ -1339,6 +1341,7 @@ select.form-control:focus {
   align-items: center;
   gap: 1rem;
   padding: 1rem clamp(1rem, 3vw, 2.5rem);
+  background: var(--pj-chrome);
   border-bottom: 1px solid var(--pj-line);
 }
 .cs-pj-brand {
@@ -1555,7 +1558,19 @@ select.form-control:focus {
 // (margin-top:auto in the flex column) so it's always THE bottom.
 .cs-pj-footer {
   margin-top: auto;
+  background: var(--pj-chrome);
   border-top: 1px solid var(--pj-line);
+}
+.cs-pj-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.cs-pj-gremlin {
+  height: 1.6em;
+  width: 1.6em;
+  border-radius: 5px;
+  display: block;
 }
 .cs-pj-footer__inner {
   display: flex;
