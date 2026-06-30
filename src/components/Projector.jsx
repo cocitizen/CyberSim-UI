@@ -161,6 +161,13 @@ const Projector = view(() => {
         <div className="cs-pj-title">{id}</div>
       </div>
 
+      <div className="cs-pj-progress" title="Time elapsed">
+        <div
+          className="cs-pj-progress__fill"
+          style={{ width: `${Math.round(progress * 100)}%` }}
+        />
+      </div>
+
       <div className="cs-pj-hero">
         <div className="cs-pj-stat">
           <div className="cs-pj-stat__label">
@@ -312,12 +319,6 @@ const Projector = view(() => {
               {dark ? <FiSun /> : <FiMoon />}
             </button>
           </div>
-        </div>
-        <div className="cs-pj-progress">
-          <div
-            className="cs-pj-progress__fill"
-            style={{ width: `${Math.round(progress * 100)}%` }}
-          />
         </div>
       </div>
     </div>
