@@ -718,22 +718,12 @@ body {
 // offset shadow. Defined here, applied SELECTIVELY in later phases (key
 // buttons, hero cards), never globally — this is a dense tool used live.
 // ---------------------------------------------------------------------------
-.border-ink {
-  border: 2px solid $cs-ink !important;
-}
-
-.shadow-hard {
-  box-shadow: 4px 4px 0 $cs-ink !important;
-}
-
-.shadow-hard-cyan {
-  box-shadow: 6px 6px 0 $cs-cyan !important;
-}
-
 // Chunky brand button that "presses down" on hover, per the brand book.
-.btn-brand {
+// `.btn.btn-brand` outranks the global `.btn` shadow (see below) so the hard
+// offset shadow wins instead of the default soft one.
+.btn.btn-brand {
   border: 2px solid $cs-ink;
-  box-shadow: 4px 4px 0 $cs-ink;
+  box-shadow: 4px 4px 0 $cs-ink !important;
   transition: transform 140ms ease, box-shadow 140ms ease;
 
   &:hover {
@@ -969,13 +959,6 @@ body {
 .cs-actions {
   padding-left: 1rem;
   margin-bottom: 0.5rem;
-}
-.cs-actions-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.4rem;
 }
 .cs-actions-empty {
   margin: 0.1rem 0 0;
@@ -1706,18 +1689,6 @@ select.form-control:focus {
   border-width: 0.5em !important;
 }
 
-.navigation {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-}
-
-.column-title-ellipsis {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
 // ---------------------------------------------------------------------------
 // After Action Review (AAR)
 // ---------------------------------------------------------------------------
@@ -2068,11 +2039,14 @@ select.form-control:focus {
 }
 
 .cs-projector {
-  --pj-bg: #fbfaf7;
+  // Light theme. Brand-mapped values derive from the SCSS tokens so they can't
+  // drift; functional (good/bad/win) and projector-only tints have no token and
+  // stay literal.
+  --pj-bg: #{$cs-paper};
   --pj-panel: #ffffff;
-  --pj-text: #3c3c3b;
-  --pj-muted: #6b6a78;
-  --pj-line: #e2e0ee;
+  --pj-text: #{$cs-ink};
+  --pj-muted: #{$cs-muted};
+  --pj-line: #{$cs-line};
   --pj-tile: #f1eff7;
   --pj-good: #1d9e75;
   --pj-bad: #d23b2f;
