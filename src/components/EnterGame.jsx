@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
+import { useNavigate } from 'react-router-dom';
 import {
   FiArrowRight,
   FiChevronDown,
@@ -18,8 +19,14 @@ import candidate from '../assets/img/entry/candidate.png';
 import hacker from '../assets/img/entry/hacker.png';
 import fire from '../assets/img/entry/fire.png';
 import newspaper from '../assets/img/entry/newspaper.png';
+import {
+  gameViewPath,
+  isValidGameName,
+  normalizeGameName,
+} from '../util/gameSlug';
 
 const EnterGame = view(() => {
+  const navigate = useNavigate();
   const {
     loading,
     actions: { enterGame },
@@ -29,7 +36,7 @@ const EnterGame = view(() => {
 
   const [entryMode, setEntryMode] = useState('create');
   const [gameId, setGameId] = useState('');
-  const [showGameIdError, setShowGameIdError] = useState(false);
+  const [gameIdError, setGameIdError] = useState('');
   const gameIdInputRef = useRef(null);
 
   const [adjustGameConfig, setAdjustGameConfig] = useState(false);
@@ -134,9 +141,14 @@ const EnterGame = view(() => {
               event.preventDefault();
               event.stopPropagation();
 
-              const normalizedGameId = gameId.trim();
+              const normalizedGameId = normalizeGameName(gameId);
               if (!normalizedGameId) {
-                setShowGameIdError(true);
+                setGameIdError('Enter a game name to continue.');
+                gameIdInputRef.current?.focus();
+                return;
+              }
+              if (!isValidGameName(normalizedGameId)) {
+                setGameIdError('Use letters, numbers, and spaces only.');
                 gameIdInputRef.current?.focus();
                 return;
               }
@@ -151,6 +163,14 @@ const EnterGame = view(() => {
                   initialBudget,
                   initialPollPercentage,
                 }),
+                onSuccess: (game) =>
+                  navigate(
+                    gameViewPath(
+                      game.id || normalizedGameId,
+                      'facilitator',
+                    ),
+                    { replace: true },
+                  ),
               });
             }}
           >
@@ -165,7 +185,7 @@ const EnterGame = view(() => {
                 aria-pressed={entryMode === 'create'}
                 onClick={() => {
                   setEntryMode('create');
-                  setShowGameIdError(false);
+                  setGameIdError('');
                 }}
               >
                 Create a game
@@ -177,7 +197,7 @@ const EnterGame = view(() => {
                 onClick={() => {
                   setEntryMode('join');
                   setAdjustGameConfig(false);
-                  setShowGameIdError(false);
+                  setGameIdError('');
                 }}
               >
                 Join a game
@@ -200,15 +220,15 @@ const EnterGame = view(() => {
                 onChange={(event) => {
                   setGameId(event.target.value);
                   if (event.target.value.trim()) {
-                    setShowGameIdError(false);
+                    setGameIdError('');
                   }
                 }}
                 value={gameId}
                 autoComplete="off"
-                isInvalid={showGameIdError}
+                isInvalid={Boolean(gameIdError)}
               />
               <Form.Control.Feedback type="invalid">
-                Enter a game name to continue.
+                {gameIdError}
               </Form.Control.Feedback>
               <Form.Text>
                 {entryMode === 'create'

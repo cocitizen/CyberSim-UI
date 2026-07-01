@@ -7,6 +7,7 @@ import { view } from '@risingstack/react-easy-state';
 import { gameStore } from '../GameStore';
 import { GameStates } from '../../constants';
 import BPT from '../BPT';
+import { gameViewPath } from '../../util/gameSlug';
 
 const Footer = view(() => {
   const {
@@ -54,7 +55,7 @@ const Footer = view(() => {
               </Button>
             )}
             <Nav.Link
-              href={`?gameId=${id}&isProjectorView=true`}
+              href={gameViewPath(id, 'projector')}
               className="btn btn-light cs-chunky d-flex align-items-center projector-button"
               target="_blank"
             >
@@ -63,7 +64,7 @@ const Footer = view(() => {
             </Nav.Link>
             {gameState === GameStates.ASSESSMENT && (
               <Nav.Link
-                href={`?gameId=${id}&aar=true`}
+                href={gameViewPath(id, 'review')}
                 className="btn btn-light cs-chunky d-flex align-items-center"
                 target="_blank"
               >

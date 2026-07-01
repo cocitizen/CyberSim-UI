@@ -10,6 +10,7 @@ import { useStaticData } from '../StaticDataProvider';
 import MitigationCategory from './MitigationCategory';
 import { numberToUsd } from '../../util';
 import logo from '../../assets/img/cybersim-logo.svg';
+import { gameViewPath } from '../../util/gameSlug';
 
 const Mitigations = view(
   ({
@@ -130,20 +131,58 @@ const Mitigations = view(
     // Preparation phase: the buy-items board, wearing the same command-bar
     // header and instrument status bar as the facilitator Simulation screen.
     return (
-      <>
+      <div className="cs-facilitator">
         <div className="position-sticky simulation-menu bg-white shadow-sm">
           <div className="cs-commandbar">
-            <a href="/" className="cs-brand">
-              <img src={logo} alt="CyberSim" />
-            </a>
-            <div className="cs-gamectx">
-              <div className="cs-gamectx__id">{id}</div>
-              {scenarioName && (
-                <div className="cs-gamectx__scenario">
-                  Scenario · {scenarioName}
+            <Container
+              fluid="md"
+              className="cs-commandbar__inner cs-commandbar__inner--preparation"
+            >
+              <div className="cs-preparation-title">
+                <span>Preparation</span>
+                <strong>Security investments</strong>
+              </div>
+              <div className="cs-commandbar__right">
+                <div className="cs-gamectx">
+                  <div className="cs-gamectx__id">{id}</div>
+                  {scenarioName && (
+                    <div className="cs-gamectx__scenario">
+                      <span>Scenario</span>
+                      <strong>{scenarioName}</strong>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+                <a
+                  href="/"
+                  className="cs-brand cs-brand--lockup"
+                  aria-label="CyberSim home"
+                >
+                  <img src={logo} alt="" />
+                </a>
+              </div>
+            </Container>
+          </div>
+          <div className="cs-budgetbar">
+            <Container fluid="md" className="cs-budgetbar__inner">
+              <div className="cs-budgetbar__metrics">
+                <div className="cs-budgetbar__metric">
+                  <span>{getTextWithSynonyms('Budget Allocated')}</span>
+                  <strong>
+                    {numberToUsd(allocatedCategoryBudgets.sum)}
+                  </strong>
+                </div>
+                <div className="cs-budgetbar__metric">
+                  <span>{getTextWithSynonyms('Remaining Budget')}</span>
+                  <strong
+                    className={classNames({
+                      'cs-budgetbar__value--bad': budget < 0,
+                    })}
+                  >
+                    {numberToUsd(budget)}
+                  </strong>
+                </div>
+              </div>
+            </Container>
           </div>
         </div>
 
@@ -152,29 +191,10 @@ const Mitigations = view(
         </Container>
 
         <div className="cs-statusbar">
-          <Container fluid="md" className="cs-statusbar__inner">
-            <div className="cs-instrument">
-              <div className="cs-metric">
-                <div className="cs-metric__label">
-                  {getTextWithSynonyms('Budget Allocated')}
-                </div>
-                <div className="cs-metric__value">
-                  {numberToUsd(allocatedCategoryBudgets.sum)}
-                </div>
-              </div>
-              <div className="cs-metric">
-                <div className="cs-metric__label">
-                  {getTextWithSynonyms('Remaining Budget')}
-                </div>
-                <div
-                  className={classNames('cs-metric__value', {
-                    'cs-metric__value--bad': budget < 0,
-                  })}
-                >
-                  {numberToUsd(budget)}
-                </div>
-              </div>
-            </div>
+          <Container
+            fluid="md"
+            className="cs-statusbar__inner cs-statusbar__inner--actions"
+          >
             <div className="cs-statusbar__controls">
               <Button
                 variant="primary"
@@ -186,7 +206,7 @@ const Mitigations = view(
                 Save items &amp; start simulation
               </Button>
               <Nav.Link
-                href={`?gameId=${id}&isProjectorView=true`}
+                href={gameViewPath(id, 'projector')}
                 className="btn btn-light cs-chunky d-flex align-items-center projector-button"
                 target="_blank"
               >
@@ -196,7 +216,7 @@ const Mitigations = view(
             </div>
           </Container>
         </div>
-      </>
+      </div>
     );
   },
 );

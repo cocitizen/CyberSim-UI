@@ -5,11 +5,6 @@
 
 jest.mock('socket.io-client');
 jest.mock('../util/scenario', () => ({ getScenarioSlug: jest.fn(() => 'cso') }));
-jest.mock('query-string', () => ({
-  parse: jest.fn(() => ({})),
-  stringify: jest.fn(() => ''),
-}));
-
 describe('GameStore socket handlers', () => {
   let mockSocket;
   let gameStore;
@@ -84,6 +79,25 @@ describe('GameStore socket handlers', () => {
       expect(gameStore.setGame).toHaveBeenCalledWith(fakeGame);
     });
 
+    it('calls onSuccess with the backend game', () => {
+      const onSuccess = jest.fn();
+      gameStore.actions.enterGame({
+        eventType: 'joinGame',
+        gameId: 'game-456',
+        onSuccess,
+      });
+
+      const fakeGame = {
+        id: 'game-456',
+        systems: [],
+        mitigations: [],
+        injections: [],
+      };
+      getEmitCallback()({ error: null, game: fakeGame });
+
+      expect(onSuccess).toHaveBeenCalledWith(fakeGame);
+    });
+
     it('resets loading to false after success', () => {
       gameStore.actions.enterGame({ eventType: 'joinGame', gameId: 'game-456' });
       expect(gameStore.loading).toBe(true);
@@ -99,6 +113,19 @@ describe('GameStore socket handlers', () => {
 
       getEmitCallback()({ error: 'Bad game ID' });
       expect(gameStore.loading).toBe(false);
+    });
+
+    it('calls onError when joining fails', () => {
+      const onError = jest.fn();
+      gameStore.actions.enterGame({
+        eventType: 'joinGame',
+        gameId: 'missing game',
+        onError,
+      });
+
+      getEmitCallback()({ error: 'Game not found' });
+
+      expect(onError).toHaveBeenCalledWith('Game not found');
     });
 
     it('saves gameId to localStorage when rememberGameId is true', () => {

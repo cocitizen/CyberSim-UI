@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { view } from '@risingstack/react-easy-state';
+import { Container } from 'react-bootstrap';
 
 import { SimulationTabs } from '../../constants';
 import { gameStore } from '../GameStore';
@@ -97,10 +98,9 @@ const Header = view(({ activeTab, setActiveTab }) => {
   const localName = getLocationNameByType('local', 'Local');
 
   const tabs = [
-    { key: SimulationTabs.ACTION_TABLE, label: 'Action table' },
-    { key: SimulationTabs.CAMPAIGN_HQ, label: hqName },
-    { key: SimulationTabs.LOCAL_BRANCH, label: localName },
-    { key: SimulationTabs.LOGS_AND_THREATS, label: 'Event logs' },
+    { key: SimulationTabs.ACTION_TABLE, label: 'Actions' },
+    { key: SimulationTabs.EVENTS, label: 'Events' },
+    { key: SimulationTabs.LOGS_AND_THREATS, label: 'Logs' },
   ];
 
   const facilitatorJumps = [
@@ -117,8 +117,7 @@ const Header = view(({ activeTab, setActiveTab }) => {
       { id: '#systems', label: 'Technical systems' },
       { id: '#curveball', label: 'Curveball events' },
     ],
-    [SimulationTabs.CAMPAIGN_HQ]: facilitatorJumps,
-    [SimulationTabs.LOCAL_BRANCH]: facilitatorJumps,
+    [SimulationTabs.EVENTS]: facilitatorJumps,
     [SimulationTabs.LOGS_AND_THREATS]: [
       { id: '#threats', label: 'Threats' },
       { id: '#logs', label: 'Event log' },
@@ -137,46 +136,62 @@ const Header = view(({ activeTab, setActiveTab }) => {
       className="position-sticky simulation-menu bg-white shadow-sm"
     >
       <div className="cs-commandbar">
-        <a href="/" className="cs-brand">
-          <img src={logo} alt="CyberSim" />
-        </a>
-        <div className="cs-gamectx">
-          <div className="cs-gamectx__id">{id}</div>
-          {scenarioName && (
-            <div className="cs-gamectx__scenario">
-              Scenario · {scenarioName}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="cs-tabbar">
-        {tabs.map((t) => (
-          <div
-            key={t.key}
-            className={classNames('cs-tab', {
-              active: activeTab === t.key,
-            })}
-            onClick={() => setActiveTab(t.key)}
-          >
-            {t.label}
+        <Container fluid="md" className="cs-commandbar__inner">
+          <div className="cs-navcluster">
+            <span className="cs-navcluster__label">Facilitator</span>
+            <nav className="cs-tabbar" aria-label="Facilitator views">
+              {tabs.map((t) => (
+                <button
+                  type="button"
+                  key={t.key}
+                  className={classNames('cs-tab', {
+                    active: activeTab === t.key,
+                  })}
+                  aria-current={activeTab === t.key ? 'page' : undefined}
+                  onClick={() => setActiveTab(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </nav>
           </div>
-        ))}
+
+          <div className="cs-commandbar__right">
+            <div className="cs-gamectx">
+              <div className="cs-gamectx__id">{id}</div>
+              {scenarioName && (
+                <div className="cs-gamectx__scenario">
+                  <span>Scenario</span>
+                  <strong>{scenarioName}</strong>
+                </div>
+              )}
+            </div>
+            <a
+              href="/"
+              className="cs-brand cs-brand--lockup"
+              aria-label="CyberSim home"
+            >
+              <img src={logo} alt="" />
+            </a>
+          </div>
+        </Container>
       </div>
 
       <div className="cs-jump-strip">
-        <span className="cs-meta cs-jump-strip__label">Jump to</span>
-        {jumps.map((j) => (
-          <span
-            key={j.id}
-            className={classNames('cs-jump', {
-              active: activeJump === j.id,
-            })}
-            onClick={() => jumpTo(j.id)}
-          >
-            {j.label}
-          </span>
-        ))}
+        <Container fluid="md" className="cs-jump-strip__inner">
+          <span className="cs-meta cs-jump-strip__label">Jump to</span>
+          {jumps.map((j) => (
+            <span
+              key={j.id}
+              className={classNames('cs-jump', {
+                active: activeJump === j.id,
+              })}
+              onClick={() => jumpTo(j.id)}
+            >
+              {j.label}
+            </span>
+          ))}
+        </Container>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import EventLogs from './EventLogs/EventLogs';
 import logo from '../assets/img/cybersim-logo.svg';
 import logoWhite from '../assets/img/cybersim-logo-white.svg';
 import gremlin from '../assets/img/cocitizen-gremlin.png';
+import { gameViewPath } from '../util/gameSlug';
 
 // TODO: source the win threshold from the game/scenario definition once that
 // field exists in the backend (see project memory). Stubbed for now — change
@@ -25,7 +26,6 @@ const Projector = view(() => {
     poll,
     budget,
     systems: gameSystems,
-    injections: gameInjections,
     mitigations: gameMitigations,
   } = gameStore;
   const {
@@ -33,7 +33,6 @@ const Projector = view(() => {
     injections,
     mitigations: staticMitigations,
     getTextWithSynonyms,
-    getLocationNameByType,
     scenarioName,
   } = useStaticData();
 
@@ -68,39 +67,9 @@ const Projector = view(() => {
     [systems, gameSystems],
   );
 
-  // Group systems by their hq/local/party (shared) type, like the facilitator
-  // tabs. Empty groups are dropped.
-  const systemGroups = useMemo(() => {
-    const all = Object.values(systems || {});
-    const byType = (t) => all.filter((s) => s.type === t);
-    return [
-      { key: 'hq', label: getLocationNameByType('hq', 'HQ'), list: byType('hq') },
-      {
-        key: 'local',
-        label: getLocationNameByType('local', 'Local'),
-        list: byType('local'),
-      },
-      { key: 'party', label: 'Shared', list: byType('party') },
-    ].filter((group) => group.list.length);
-  }, [systems, getLocationNameByType]);
-
-  // Incidents: only what the table knows — delivered events with a negative
-  // consequence (system disabled, or support/budget loss), newest first.
-  const incidents = useMemo(
-    () =>
-      Object.values(gameInjections || {})
-        .filter((gi) => gi.delivered)
-        .map((gi) => ({ gi, inj: injections[gi.injection_id] }))
-        .filter(
-          ({ inj }) =>
-            inj &&
-            (inj.systems_to_disable?.length ||
-              (inj.poll_change && inj.poll_change < 0) ||
-              (inj.budget_change && inj.budget_change < 0)),
-        )
-        .sort((a, b) => (b.gi.delivered_at || 0) - (a.gi.delivered_at || 0))
-        .slice(0, 5),
-    [gameInjections, injections],
+  const systemList = useMemo(
+    () => Object.values(systems || {}),
+    [systems],
   );
 
   const purchased = useMemo(
@@ -151,7 +120,10 @@ const Projector = view(() => {
       )}
 
       <div className="cs-pj-header">
-        <a className="cs-pj-brand" href="/">
+        <a
+          className="cs-pj-brand"
+          href={gameViewPath(id, 'facilitator')}
+        >
           <img src={dark ? logoWhite : logo} alt="CyberSim" />
         </a>
         <div className="cs-pj-time">
@@ -219,80 +191,50 @@ const Projector = view(() => {
           <EventLogs />
         </div>
       ) : (
-        <>
-          <div className="cs-pj-body">
-            <div>
-              <div className="cs-pj-h">Technical systems</div>
-              <div className="cs-pj-sysgroups">
-                {systemGroups.map((group) => (
-                  <div key={group.key}>
-                    <div className="cs-pj-sysgroup__label">
-                      {group.label}
-                    </div>
-                    <div className="cs-pj-systems">
-                      {group.list.map((sys) => {
-                        const up = gameSystems[sys.id];
-                        return (
-                          <div
-                            key={sys.id}
-                            className={classNames('cs-pj-tile', {
-                              'cs-pj-tile--down': !up,
-                            })}
-                          >
-                            {up ? (
-                              <span className="cs-pj-dot" />
-                            ) : (
-                              <span aria-hidden="true">⚠</span>
-                            )}
-                            {sys.name}
-                            {!up && ' · DOWN'}
-                          </div>
-                        );
+        <div className="cs-pj-body">
+          <section className="cs-pj-section">
+            <div className="cs-pj-h">Technical systems</div>
+            <div className="cs-pj-systems">
+              {systemList.map((sys) => {
+                const up = gameSystems[sys.id];
+                return (
+                  <div
+                    key={sys.id}
+                    className={classNames('cs-pj-tile', {
+                      'cs-pj-tile--down': !up,
+                    })}
+                  >
+                    <span
+                      className={classNames('cs-pj-dot', {
+                        'cs-pj-dot--down': !up,
                       })}
-                    </div>
+                      aria-hidden="true"
+                    />
+                    <span>{sys.name}</span>
+                    {!up && (
+                      <strong className="cs-pj-tile__status">Down</strong>
+                    )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-            <div>
-              <div className="cs-pj-h">Incidents</div>
-              {incidents.length ? (
-                <div className="cs-pj-incidents">
-                  {incidents.map(({ gi, inj }) => (
-                    <div
-                      key={gi.injection_id}
-                      className="cs-pj-incident"
-                    >
-                      <span className="cs-pj-incident__time">
-                        {msToMinutesSeconds(gi.delivered_at || 0)}
-                      </span>{' '}
-                      {inj.title}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="cs-pj-empty">No incidents yet.</div>
-              )}
-            </div>
-          </div>
+          </section>
 
-          <div className="cs-pj-purchased">
-            <span className="cs-pj-h cs-pj-h--inline">
-              Purchased items
-            </span>
+          <section className="cs-pj-section cs-pj-section--purchased">
+            <div className="cs-pj-h">Purchased items</div>
             {purchased.length ? (
               <div className="cs-pj-chips">
                 {purchased.map((m) => (
-                  <span key={m.id} className="cs-pj-chip">
+                  <div key={m.id} className="cs-pj-chip">
                     {m.description}
-                  </span>
+                  </div>
                 ))}
               </div>
             ) : (
               <span className="cs-pj-empty">None yet.</span>
             )}
-          </div>
-        </>
+          </section>
+        </div>
       )}
 
       <div className="cs-pj-footer">
@@ -308,6 +250,12 @@ const Projector = view(() => {
           </span>
           <div className="cs-pj-footer__right">
             {scenarioName && <span>Scenario: {scenarioName}</span>}
+            <a
+              className="cs-pj-facilitator-link"
+              href={gameViewPath(id, 'facilitator')}
+            >
+              Facilitator view ↗
+            </a>
             <button
               type="button"
               className="cs-pj-toggle"

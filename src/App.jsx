@@ -14,6 +14,18 @@ const App = view(() => (
     <StaticDataProvider>
       <Routes>
         <Route path="/" element={<Game />} />
+        <Route
+          path="games/:gameSlug/facilitator"
+          element={<Game view="facilitator" />}
+        />
+        <Route
+          path="games/:gameSlug/projector"
+          element={<Game view="projector" />}
+        />
+        <Route
+          path="games/:gameSlug/review"
+          element={<Game view="review" />}
+        />
         <Route path="admin/*" element={<AdminApp />} />
       </Routes>
       <ErrorBox />

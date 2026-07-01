@@ -738,6 +738,21 @@ body {
 // component opts in. `cs-` prefix = CyberSim, avoids any Bootstrap collision.
 // ---------------------------------------------------------------------------
 
+.cs-facilitator {
+  // Bootstrap's historical 0.9rem baseline is too small for sustained use
+  // while facilitating. Scope the more readable baseline to operational
+  // screens so the front door and projector retain their own type systems.
+  font-size: 1rem;
+
+  .cs-gamectx__scenario,
+  .cs-catcard__foot,
+  .cs-actions-empty,
+  .cs-action-row__meta,
+  .cs-action-row__status {
+    font-size: 0.875rem;
+  }
+}
+
 // Surface: a contained content "room" on the Paper background.
 // Modest SOFT shadow lifts the room off the paper and evokes the brand's
 // depth — without the hard offset shadow, which is reserved for hero accents.
@@ -1135,6 +1150,9 @@ body {
     gap: 0.75rem;
     flex-shrink: 0;
   }
+  &__inner--actions {
+    justify-content: flex-end;
+  }
 }
 
 // Chunky neobrutalist button — the brand's hard offset shadow + press-down.
@@ -1177,10 +1195,11 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
+  line-height: 1.15;
   border-radius: 999px;
-  padding: 0.18rem 0.7rem;
+  padding: 0.14rem 0.7rem;
   white-space: nowrap;
 
   &--success {
@@ -1202,6 +1221,11 @@ body {
   &--muted {
     color: $cs-muted;
     background: #efeef3;
+  }
+  &--location {
+    color: darken($cs-cyan, 38%);
+    background: rgba($cs-cyan, 0.16);
+    border: 1px solid rgba($cs-cyan, 0.32);
   }
 }
 
@@ -1245,27 +1269,33 @@ body {
 }
 
 // Two-level navigation.
-// Primary view tabs: strong, with a brand underline that animates position.
+// Primary view tabs: large command-bar controls with a filled active state.
 .cs-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
   font-family: 'Exo 2', $font-family-sans-serif;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  line-height: 1;
   color: $cs-muted;
-  padding: 0.75rem 0.875rem;
+  padding: 0.7rem clamp(0.85rem, 1.5vw, 1.25rem);
   cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s ease, border-color 0.15s ease,
-    background-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
     color: $cs-ink;
-    background: rgba($cs-purple, 0.04);
+    background: rgba($cs-purple, 0.07);
   }
   &.active {
-    color: $cs-purple;
-    font-weight: 700;
-    border-bottom-color: $cs-purple;
+    color: #fff;
+    background: $cs-purple;
+  }
+  &:focus-visible {
+    outline: 3px solid rgba($cs-cyan, 0.55);
+    outline-offset: 2px;
   }
 }
 
@@ -1291,44 +1321,247 @@ body {
 
 // Simulation header bands (command bar / tab bar / jump strip).
 .cs-commandbar {
+  padding: 0;
+  background: #fff;
+  border-bottom: 1px solid $cs-line;
+}
+.cs-commandbar__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 1.125rem;
-  background: #fff;
-  border-bottom: 1px solid $cs-line;
+  gap: 1rem;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+.cs-commandbar__inner--preparation {
+  min-height: 4.4rem;
+}
+.cs-preparation-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  span {
+    margin-bottom: 0.3rem;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: $cs-muted;
+  }
+
+  strong {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: clamp(1.35rem, 2vw, 1.7rem);
+    line-height: 1;
+    color: $cs-ink;
+  }
+}
+.cs-budgetbar {
+  border-top: 1px solid $cs-line;
+  background: linear-gradient(
+    90deg,
+    rgba($cs-purple, 0.08),
+    rgba($cs-cyan, 0.08)
+  );
+}
+.cs-budgetbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+.cs-budgetbar__metrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(3rem, 8vw, 7rem);
+  width: min(100%, 32rem);
+}
+.cs-budgetbar__metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  span {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $cs-muted;
+  }
+
+  strong {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.35rem);
+    line-height: 1;
+    color: $cs-purple-dark;
+  }
+}
+.cs-budgetbar__value--bad {
+  color: #b3261e !important;
+}
+.cs-navcluster {
+  min-width: 0;
+
+  &__label {
+    display: block;
+    margin: 0 0 0.3rem 0.35rem;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: $cs-muted;
+  }
+}
+.cs-commandbar__right {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  min-width: 0;
 }
 .cs-brand img {
   height: 2.2rem;
   width: auto;
   display: block;
 }
+.cs-brand--lockup {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.4rem;
+
+  img {
+    width: auto;
+    height: clamp(2.35rem, 3.4vw, 3rem);
+    object-fit: contain;
+  }
+
+  &:hover {
+    background: $cs-purple-soft;
+  }
+}
 .cs-gamectx {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.8rem, 1.4vw, 1.25rem);
+  min-width: 0;
   text-align: right;
   &__id {
+    display: flex;
+    align-items: center;
+    max-width: min(32vw, 24rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-family: 'Exo 2', $font-family-sans-serif;
-    font-weight: 700;
-    font-size: 1.05rem;
+    font-weight: 800;
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
     color: $cs-ink;
-    line-height: 1.2;
+    line-height: 1;
   }
   &__scenario {
-    font-size: 0.82rem;
-    color: $cs-muted;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: clamp(0.8rem, 1.4vw, 1.25rem);
+    border-left: 1px solid $cs-line;
+    text-align: left;
+    line-height: 1.1;
+
+    span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: $cs-muted;
+    }
+
+    strong {
+      margin-top: 0.2rem;
+      font-family: 'Exo 2', $font-family-sans-serif;
+      font-size: 1rem;
+      color: $cs-ink;
+    }
   }
 }
 .cs-tabbar {
   display: flex;
-  background: #fff;
-  padding: 0 0.5rem;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  border: 1px solid rgba($cs-purple, 0.1);
+  border-radius: 0.65rem;
+  background: rgba($cs-purple, 0.055);
+}
+
+@media (max-width: 700px) {
+  .cs-tabbar {
+    gap: 0.15rem;
+  }
+
+  .cs-tab {
+    padding: 0.65rem 0.6rem;
+    font-size: 1rem;
+  }
+
+  .cs-gamectx__scenario {
+    display: none;
+  }
+
+  .cs-brand--lockup img {
+    height: 2.2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .cs-commandbar__inner {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .cs-tabbar {
+    width: 100%;
+  }
+
+  .cs-commandbar__right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .cs-gamectx__id {
+    max-width: 100%;
+  }
+
+  .cs-budgetbar__metrics {
+    width: 100%;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .cs-budgetbar__metric:first-child {
+    align-items: flex-start;
+  }
 }
 .cs-jump-strip {
+  background: linear-gradient(
+    90deg,
+    rgba($cs-purple, 0.045),
+    rgba($cs-cyan, 0.055)
+  );
+  border-top: 1px solid #ece9f6;
+}
+.cs-jump-strip__inner {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.5rem 1.125rem;
-  background: #faf8f3;
-  border-top: 1px solid #ece9f6;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   white-space: nowrap;
   overflow-x: auto;
   &::-webkit-scrollbar {
@@ -2228,13 +2461,17 @@ select.form-control:focus {
 
 .cs-pj-body {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: minmax(0, 3fr) minmax(18rem, 2fr);
   gap: clamp(1rem, 3vw, 2.5rem);
   padding: clamp(1.3rem, 3vw, 2.2rem) clamp(1rem, 3vw, 2.5rem) 1rem;
 
   &--logs {
     display: block;
   }
+}
+.cs-pj-section--purchased {
+  padding-left: clamp(1rem, 2vw, 2rem);
+  border-left: 1px solid var(--pj-line);
 }
 .cs-pj-h {
   font-family: 'Exo 2', sans-serif;
@@ -2249,32 +2486,23 @@ select.form-control:focus {
   }
 }
 .cs-pj-systems {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.5rem, 1vw, 0.9rem);
-}
-.cs-pj-sysgroups {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.7rem, 1.6vw, 1.2rem);
-}
-.cs-pj-sysgroup__label {
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 700;
-  font-size: clamp(0.78rem, 1.3vw, 1rem);
-  color: var(--pj-text);
-  opacity: 0.85;
-  margin-bottom: 0.45rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1.2vw, 1rem);
 }
 .cs-pj-tile {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: clamp(0.65rem, 1vw, 0.9rem);
+  min-width: 0;
   background: var(--pj-tile);
   border: 1px solid var(--pj-line);
-  border-radius: 9px;
-  padding: clamp(0.5rem, 1vw, 0.9rem) clamp(0.75rem, 1.4vw, 1.2rem);
-  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+  border-radius: 11px;
+  padding: clamp(0.75rem, 1.25vw, 1.1rem)
+    clamp(0.9rem, 1.5vw, 1.35rem);
+  font-size: clamp(1.15rem, 1.9vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.15;
 
   &--down {
     background: rgba(242, 110, 94, 0.16);
@@ -2284,48 +2512,111 @@ select.form-control:focus {
     animation: projpulse 1.4s ease-in-out infinite;
   }
 }
+.cs-pj-tile__status {
+  margin-left: auto;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.65em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .cs-pj-dot {
-  width: 0.7em;
-  height: 0.7em;
+  width: clamp(1rem, 1.5vw, 1.35rem);
+  height: clamp(1rem, 1.5vw, 1.35rem);
   border-radius: 50%;
   background: var(--pj-good);
   flex-shrink: 0;
-}
-.cs-pj-incidents {
-  border-left: 3px solid var(--pj-bad);
-  padding-left: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.cs-pj-incident {
-  font-size: clamp(0.85rem, 1.5vw, 1.15rem);
-  &__time {
-    color: var(--pj-muted);
+  box-shadow:
+    0 0 0 4px rgba(61, 220, 151, 0.12),
+    0 0 12px rgba(61, 220, 151, 0.45);
+
+  &--down {
+    background: var(--pj-bad);
+    box-shadow:
+      0 0 0 4px rgba(255, 91, 77, 0.14),
+      0 0 14px rgba(255, 91, 77, 0.65);
   }
 }
 .cs-pj-empty {
   color: var(--pj-muted);
   font-style: italic;
 }
-.cs-pj-purchased {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-  padding: 0.9rem clamp(1rem, 3vw, 2.5rem);
-  border-top: 1px solid var(--pj-line);
-}
 .cs-pj-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: grid;
+  gap: clamp(0.55rem, 1vw, 0.85rem);
 }
 .cs-pj-chip {
   background: var(--pj-tile);
-  border-radius: 6px;
-  padding: 0.4rem 0.7rem;
-  font-size: clamp(0.8rem, 1.3vw, 1rem);
+  border: 1px solid var(--pj-line);
+  border-radius: 9px;
+  padding: clamp(0.65rem, 1vw, 0.9rem)
+    clamp(0.8rem, 1.2vw, 1.1rem);
+  font-size: clamp(1rem, 1.45vw, 1.25rem);
+  line-height: 1.2;
+}
+
+@media (max-width: 850px) {
+  .cs-pj-body {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-pj-section--purchased {
+    padding-top: 1.2rem;
+    padding-left: 0;
+    border-top: 1px solid var(--pj-line);
+    border-left: 0;
+  }
+}
+
+@media (min-width: 851px) and (max-height: 800px) {
+  .cs-pj-header {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .cs-pj-hero {
+    padding-top: 0.75rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .cs-pj-stat__value {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+  }
+
+  .cs-pj-bar {
+    margin-top: 1.35rem;
+  }
+
+  .cs-pj-body {
+    gap: 1.25rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .cs-pj-h {
+    margin-bottom: 0.55rem;
+  }
+
+  .cs-pj-systems {
+    gap: 0.45rem 0.7rem;
+  }
+
+  .cs-pj-tile {
+    padding: 0.55rem 0.8rem;
+  }
+
+  .cs-pj-chips {
+    gap: 0.45rem;
+  }
+
+  .cs-pj-chip {
+    padding: 0.5rem 0.7rem;
+  }
+
+  .cs-pj-footer__inner {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    font-size: 1rem;
+  }
 }
 
 // Footer — anchors the bottom of the screen. Pinned to the viewport bottom
@@ -2361,6 +2652,18 @@ select.form-control:focus {
   display: flex;
   align-items: center;
   gap: 0.9rem;
+}
+
+.cs-pj-facilitator-link {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: inherit;
+    text-decoration: underline;
+  }
 }
 // Thin time-progress bar along the very bottom edge (elapsed vs final event).
 .cs-pj-progress {

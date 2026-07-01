@@ -1,5 +1,6 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import Game from './Game';
 import { gameStore } from './GameStore';
@@ -15,10 +16,6 @@ jest.mock('./AfterActionReview/AfterActionReview', () => () => (
 jest.mock('./StaticDataProvider', () => ({
   useStaticData: jest.fn(),
 }));
-jest.mock('query-string', () => ({
-  parse: jest.fn(() => ({})),
-}));
-
 const { useStaticData } = require('./StaticDataProvider');
 
 describe('Game scenario mismatch guard', () => {
@@ -45,7 +42,11 @@ describe('Game scenario mismatch guard', () => {
   });
 
   it('shows an explicit alert instead of rendering gameplay when game and UI scenarios differ', () => {
-    render(<Game />);
+    render(
+      <MemoryRouter>
+        <Game />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText(/scenario mismatch/i)).toBeTruthy();
     expect(screen.getByText('City Scenario')).toBeTruthy();

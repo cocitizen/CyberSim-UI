@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { store } from '@risingstack/react-easy-state';
 import io from 'socket.io-client';
 import { keyBy as _keyBy } from 'lodash';
@@ -186,6 +185,8 @@ export const gameStore = store({
       rememberGameId,
       initialBudget = 6000,
       initialPollPercentage = 55,
+      onSuccess,
+      onError,
     }) => {
       const s = gameStore.ensureSocket();
       if (!s) return;
@@ -205,8 +206,10 @@ export const gameStore = store({
             gameStore.setGame(game);
             if (rememberGameId) localStorage.setItem('gameId', gameId);
             else localStorage.removeItem('gameId');
+            if (onSuccess) onSuccess(game);
           } else {
             gameStore.popError(error);
+            if (onError) onError(error);
           }
           gameStore.loading = false;
         },
@@ -269,38 +272,3 @@ export const gameStore = store({
       ),
   },
 });
-
-// AUTO JOIN GAME FROM QUERY PARAMS
-const { gameId: gameIdFromQuery, ...newParams } = qs.parse(
-  window.location.search,
-);
-
-if (gameIdFromQuery) {
-  const s = gameStore.ensureSocket();
-  if (!s) {
-    gameStore.loading = false;
-  } else {
-    gameStore.loading = true;
-    s.emit(
-      SocketEvents.JOINGAME,
-      gameIdFromQuery,
-      null,
-      null,
-      getScenarioSlug(),
-      ({ error, game }) => {
-        if (!error) {
-          gameStore.setGame(game);
-          window.history.replaceState(
-            null,
-            null,
-            `?${qs.stringify(newParams)}`,
-          );
-          localStorage.setItem('gameId', gameIdFromQuery);
-        } else {
-          gameStore.popError(error);
-        }
-        gameStore.loading = false;
-      },
-    );
-  }
-}

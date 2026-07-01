@@ -7,6 +7,7 @@ import { Accordion, Form, Modal, Button } from 'react-bootstrap';
 import InjectionBody from './InjectionBody';
 import { gameStore } from '../../GameStore';
 import { msToMinutesSeconds } from '../../../util';
+import { useStaticData } from '../../StaticDataProvider';
 
 const Injection = view(
   ({
@@ -28,6 +29,13 @@ const Injection = view(
     const {
       actions: { deliverInjection },
     } = gameStore;
+    const { getLocationNameByType } = useStaticData();
+    const locationLabel = injection.location
+      ? getLocationNameByType(
+          injection.location,
+          injection.location.toUpperCase(),
+        )
+      : 'Shared';
 
     // State shows via a left-accent bar + subtle tint on the row itself,
     // rather than a nested colored card.
@@ -54,6 +62,9 @@ const Injection = view(
               }`}
             </span>
             <div className="cs-inject__meta">
+              <span className="cs-pill cs-pill--location">
+                {locationLabel}
+              </span>
               {canMakeResponse && (
                 <span className="cs-pill cs-pill--brand">
                   Needs response
@@ -87,13 +98,7 @@ const Injection = view(
                   )}
                   style={{ width: 'fit-content' }}
                   id={injection.id}
-                  label={
-                    isBackground ? (
-                      <span>Activate background event:</span>
-                    ) : (
-                      <span>Delivered to table (trigger effects):</span>
-                    )
-                  }
+                  label={<span>Trigger Effects</span>}
                   checked={delivered}
                   disabled={delivered}
                   onChange={(e) =>

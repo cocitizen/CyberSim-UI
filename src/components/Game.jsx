@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
-import qs from 'query-string';
+import React, { useEffect, useRef } from 'react';
 import { view } from '@risingstack/react-easy-state';
 import { Alert, Container, Spinner } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { GameStates } from '../constants';
+import { GameStates, SocketEvents } from '../constants';
 import EnterGame from './EnterGame';
 import Mitigations from './Mitigations/Mitigations';
 import Simulation from './Simulation/Simulation';
@@ -11,11 +11,14 @@ import Projector from './Projector';
 import AfterActionReview from './AfterActionReview/AfterActionReview';
 import { gameStore } from './GameStore';
 import { useStaticData } from './StaticDataProvider';
+import { gameSlugToGameName } from '../util/gameSlug';
 
-const queryParams = qs.parse(window.location.search);
-
-const Game = view(() => {
+const Game = view(({ view: gameView = 'facilitator' }) => {
+  const { gameSlug } = useParams();
+  const navigate = useNavigate();
+  const joinAttempt = useRef(null);
   const {
+    id: loadedGameId,
     state: gameState,
     socketConnected,
     scenarioSlug: gameScenarioSlug,
@@ -31,7 +34,34 @@ const Game = view(() => {
     gameStore.ensureSocket();
   }, []);
 
-  if (loadingStaticData || !socketConnected) {
+  useEffect(() => {
+    if (!gameSlug || !socketConnected) return;
+
+    const gameName = gameSlugToGameName(gameSlug);
+    if (loadedGameId === gameName || joinAttempt.current === gameName) {
+      return;
+    }
+
+    joinAttempt.current = gameName;
+    gameStore.actions.enterGame({
+      eventType: SocketEvents.JOINGAME,
+      gameId: gameName,
+      onError: () => navigate('/', { replace: true }),
+    });
+  }, [
+    gameSlug,
+    loadedGameId,
+    navigate,
+    socketConnected,
+  ]);
+
+  const routeGameName = gameSlug
+    ? gameSlugToGameName(gameSlug)
+    : null;
+  const joiningRouteGame =
+    routeGameName && loadedGameId !== routeGameName;
+
+  if (loadingStaticData || !socketConnected || joiningRouteGame) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -68,11 +98,11 @@ const Game = view(() => {
     );
   }
 
-  if (queryParams.aar && gameState === GameStates.ASSESSMENT) {
+  if (gameView === 'review' && gameState === GameStates.ASSESSMENT) {
     return <AfterActionReview />;
   }
 
-  if (queryParams.isProjectorView) {
+  if (gameView === 'projector') {
     return <Projector />;
   }
 
