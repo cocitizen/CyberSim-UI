@@ -116,7 +116,12 @@ const MitigationCategory = ({
         })}
         key={mitigation.id}
       >
-        <span className="cs-buy-row__name">{mitigation.description}</span>
+        <span
+          className="cs-buy-row__name"
+          title={mitigation.description}
+        >
+          {mitigation.description}
+        </span>
         <span className="cs-chip">{numberToUsd(mitigation.cost)}</span>
         {isSummary ? (
           <span aria-hidden="true">

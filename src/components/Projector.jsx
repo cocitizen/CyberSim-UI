@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { view } from '@risingstack/react-easy-state';
 import classNames from 'classnames';
-import { FiSun, FiMoon } from 'react-icons/fi';
+import { FiAlertTriangle, FiSun, FiMoon } from 'react-icons/fi';
 
 import { GameStates } from '../constants';
 import { gameStore } from './GameStore';
@@ -204,12 +204,14 @@ const Projector = view(() => {
                       'cs-pj-tile--down': !up,
                     })}
                   >
-                    <span
-                      className={classNames('cs-pj-dot', {
-                        'cs-pj-dot--down': !up,
-                      })}
-                      aria-hidden="true"
-                    />
+                    {up ? (
+                      <span className="cs-pj-dot" aria-hidden="true" />
+                    ) : (
+                      <FiAlertTriangle
+                        className="cs-pj-alert"
+                        aria-hidden="true"
+                      />
+                    )}
                     <span>{sys.name}</span>
                     {!up && (
                       <strong className="cs-pj-tile__status">Down</strong>
@@ -223,9 +225,13 @@ const Projector = view(() => {
           <section className="cs-pj-section cs-pj-section--purchased">
             <div className="cs-pj-h">Purchased items</div>
             {purchased.length ? (
-              <div className="cs-pj-chips">
+              <div className="cs-pj-inventory">
                 {purchased.map((m) => (
-                  <div key={m.id} className="cs-pj-chip">
+                  <div
+                    key={m.id}
+                    className="cs-pj-inventory__item"
+                    title={m.description}
+                  >
                     {m.description}
                   </div>
                 ))}
