@@ -6,7 +6,13 @@ import { FiBell } from 'react-icons/fi';
 import Injection from './Injection';
 
 const InjectsAndResponses = view(
-  ({ className, injectionsToResponse }) => (
+  ({
+    className,
+    injectionsToResponse,
+    filterOptions = [],
+    activeFilter,
+    onFilterChange,
+  }) => (
     <section className={classNames('cs-card', className)} id="injects">
       <div className="cs-card__head">
         <div className="cs-card__heading">
@@ -15,6 +21,28 @@ const InjectsAndResponses = view(
           </span>
           <h2 className="cs-section-title">Events &amp; responses</h2>
         </div>
+        {filterOptions.length > 0 && (
+          <div
+            className="cs-segmented"
+            role="group"
+            aria-label="Filter events by location"
+          >
+            {filterOptions.map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                type="button"
+                className={classNames('cs-segmented__btn', {
+                  'cs-segmented__btn--active': activeFilter === key,
+                })}
+                aria-pressed={activeFilter === key}
+                onClick={() => onFilterChange(key)}
+              >
+                {Icon && <Icon aria-hidden="true" />}
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {injectionsToResponse.length ? (
         injectionsToResponse.map(

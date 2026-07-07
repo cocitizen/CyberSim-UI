@@ -1018,6 +1018,42 @@ body {
   }
 }
 
+// Segmented control — e.g. the events feed's location filter (All / HQ / Local).
+.cs-segmented {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  border-radius: 0.5rem;
+  background: $cs-purple-soft;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 0;
+    border-radius: 0.35rem;
+    padding: 0.25rem 0.7rem;
+    background: transparent;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: $cs-muted;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 120ms ease, color 120ms ease;
+
+    &:hover {
+      color: $cs-purple-dark;
+    }
+    &--active {
+      background: #fff;
+      color: $cs-purple-dark;
+      box-shadow: 0 1px 3px rgba($cs-ink, 0.14);
+    }
+  }
+}
+
 // Injection event — a flat, expandable row inside its room (no nested card).
 // State reads via a left-accent bar + subtle tint, never a colored box.
 .cs-inject {
