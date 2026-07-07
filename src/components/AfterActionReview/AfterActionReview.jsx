@@ -1,18 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import {
-  Container,
-  Spinner,
-  Alert,
-  Row,
-  Col,
-  Button,
-  ToggleButtonGroup,
-  ToggleButton,
-} from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
+import classNames from 'classnames';
+import { FiSun, FiMoon } from 'react-icons/fi';
+import { BsBuilding, BsHouseDoor } from 'react-icons/bs';
 
 import { gameStore } from '../GameStore';
+import { useStaticData } from '../StaticDataProvider';
+import { numberToUsd } from '../../util';
 import AARTimeline from './AARTimeline';
 import AARPrepSection from './AARPrepSection';
 
@@ -25,11 +21,25 @@ export const aarLocations = {
 
 const AfterActionReview = view(() => {
   const gameId = gameStore.id;
+  const { getLocationNameByType } = useStaticData();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // null = all selected (avoids stale empty array before async data loads)
-  const [filterValue, setFilterValue] = useState(null);
+  // Two independent facets. Everything starts on; a chip toggles its group off.
+  const [hiddenLocations, setHiddenLocations] = useState([]);
+  const [hiddenCategories, setHiddenCategories] = useState([]);
+
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('aarTheme') || 'dark',
+  );
+  const dark = theme === 'dark';
+  const toggleTheme = () =>
+    setTheme((current) => {
+      const next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('aarTheme', next);
+      return next;
+    });
 
   useEffect(() => {
     if (!gameId) return;
@@ -61,13 +71,6 @@ const AfterActionReview = view(() => {
     [allChains],
   );
 
-  const allFilterValues = useMemo(
-    () => [...Object.values(aarLocations), ...availableCategories],
-    [availableCategories],
-  );
-
-  const activeFilter = filterValue ?? allFilterValues;
-
   const prepChains = useMemo(
     () =>
       allChains.filter(
@@ -92,10 +95,10 @@ const AfterActionReview = view(() => {
 
   const passesFilter = useMemo(
     () => (c) =>
-      (!c.location || activeFilter.includes(c.location)) &&
+      (!c.location || !hiddenLocations.includes(c.location)) &&
       (!c.handbook_category ||
-        activeFilter.includes(c.handbook_category)),
-    [activeFilter],
+        !hiddenCategories.includes(c.handbook_category)),
+    [hiddenLocations, hiddenCategories],
   );
 
   const filteredPrepChains = useMemo(
@@ -108,104 +111,153 @@ const AfterActionReview = view(() => {
     [gameChains, passesFilter],
   );
 
+  const toggleValue = (setter) => (value) =>
+    setter((current) =>
+      current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value],
+    );
+  const toggleLocation = toggleValue(setHiddenLocations);
+  const toggleCategory = toggleValue(setHiddenCategories);
+  const clearFilters = () => {
+    setHiddenLocations([]);
+    setHiddenCategories([]);
+  };
+  const hasFilters =
+    hiddenLocations.length > 0 || hiddenCategories.length > 0;
+
+  const locationChips = [
+    {
+      value: aarLocations.HQ,
+      label: getLocationNameByType('hq', 'HQ'),
+      Icon: BsBuilding,
+    },
+    {
+      value: aarLocations.Local,
+      label: getLocationNameByType('local', 'Local'),
+      Icon: BsHouseDoor,
+    },
+  ];
+
+  let content;
   if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: '60vh' }}
-      >
+    content = (
+      <div className="cs-aar__state">
         <Spinner animation="border" variant="primary" />
       </div>
     );
-  }
+  } else if (error) {
+    content = (
+      <div className="cs-aar__state">
+        <p className="text-danger">{error}</p>
+      </div>
+    );
+  } else {
+    content = (
+      <>
+        <div className="cs-aar__filter">
+          <div className="cs-aar__facet">
+            <span className="cs-aar__filter-label">Location</span>
+            {locationChips.map(({ value, label, Icon }) => (
+              <button
+                key={value}
+                type="button"
+                className={classNames('cs-aar-chip', {
+                  'cs-aar-chip--on': !hiddenLocations.includes(value),
+                })}
+                aria-pressed={!hiddenLocations.includes(value)}
+                onClick={() => toggleLocation(value)}
+              >
+                <Icon aria-hidden="true" />
+                {label}
+              </button>
+            ))}
+          </div>
+          {availableCategories.length > 0 && (
+            <div className="cs-aar__facet">
+              <span className="cs-aar__filter-label">Focus area</span>
+              {availableCategories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={classNames('cs-aar-chip', {
+                    'cs-aar-chip--on': !hiddenCategories.includes(cat),
+                  })}
+                  aria-pressed={!hiddenCategories.includes(cat)}
+                  onClick={() => toggleCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+          {hasFilters && (
+            <button
+              type="button"
+              className="cs-aar-textbtn cs-aar__filter-clear"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
 
-  if (error) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger">{error}</Alert>
-      </Container>
+        <AARPrepSection chains={filteredPrepChains} />
+        <AARTimeline
+          chains={filteredGameChains}
+          hasEvents={gameChains.length > 0}
+          onClearFilters={clearFilters}
+        />
+      </>
     );
   }
 
   return (
-    <Container className="aar-page py-4">
-      <div className="aar-page__header mb-4">
-        <h2 className="aar-page__title">After Action Review</h2>
-        <p className="text-muted mb-0">Game ID: {gameId}</p>
-        {data?.game && (
-          <div className="aar-page__summary mt-2">
-            <span className="mr-4">
-              Final Budget: <strong>${data.game.budget}</strong>
-            </span>
-            <span>
-              Final Support: <strong>{data.game.poll}%</strong>
-            </span>
+    <div
+      className={classNames(
+        'cs-aar',
+        dark ? 'cs-aar--dark' : 'cs-aar--light',
+      )}
+    >
+      <div className="cs-aar__inner">
+        <header className="cs-aar__top">
+          <div>
+            <div className="cs-aar__eyebrow">After action review</div>
+            <h1 className="cs-aar__title">Debrief</h1>
+            <div className="cs-aar__gameid">Game {gameId}</div>
           </div>
-        )}
+          {data?.game && (
+            <div className="cs-aar__readouts">
+              <div className="cs-aar-stat">
+                <div className="cs-aar-stat__label">Final budget</div>
+                <div
+                  className={classNames('cs-aar-stat__value', {
+                    'cs-aar-stat__value--bad': data.game.budget < 0,
+                  })}
+                >
+                  {numberToUsd(data.game.budget)}
+                </div>
+              </div>
+              <div className="cs-aar-stat">
+                <div className="cs-aar-stat__label">Final support</div>
+                <div className="cs-aar-stat__value">{data.game.poll}%</div>
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            className="cs-aar__toggle"
+            onClick={toggleTheme}
+            aria-label={
+              dark ? 'Switch to light theme' : 'Switch to dark theme'
+            }
+          >
+            {dark ? <FiSun /> : <FiMoon />}
+          </button>
+        </header>
+        {content}
       </div>
-      <Row className="align-items-center aar-filter">
-        <Col xs="auto">
-          <h5 className="font-weight-bold mb-0">FILTER:</h5>
-        </Col>
-        <Col xs={2} className="px-1 ml-auto">
-          <Button
-            variant="outline-primary"
-            className="rounded-pill w-100 d-flex justify-content-center"
-            style={{ whiteSpace: 'nowrap' }}
-            type="button"
-            onClick={() => setFilterValue(null)}
-          >
-            SHOW ALL
-          </Button>
-        </Col>
-        <Col xs={2} className="px-1 mr-3">
-          <Button
-            variant="outline-primary"
-            className="rounded-pill w-100 d-flex justify-content-center"
-            type="button"
-            onClick={() => setFilterValue([])}
-          >
-            HIDE ALL
-          </Button>
-        </Col>
-        <Col xs={12} className="mt-2">
-          <ToggleButtonGroup
-            type="checkbox"
-            value={activeFilter}
-            onChange={setFilterValue}
-            className="d-flex log-filter"
-            style={{ zIndex: 0, flexWrap: 'wrap', rowGap: '2px' }}
-          >
-            <ToggleButton
-              value={aarLocations.HQ}
-              variant="outline-primary"
-              className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
-            >
-              HQ
-            </ToggleButton>
-            <ToggleButton
-              value={aarLocations.Local}
-              variant="outline-primary"
-              className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
-            >
-              Local
-            </ToggleButton>
-            {availableCategories.map((cat) => (
-              <ToggleButton
-                key={cat}
-                value={cat}
-                variant="outline-primary"
-                className="p-1 d-flex align-items-center justify-content-center mr-1 rounded"
-              >
-                {cat}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Col>
-      </Row>
-      <AARPrepSection chains={filteredPrepChains} />
-      <AARTimeline chains={filteredGameChains} />
-    </Container>
+    </div>
   );
 });
 

@@ -31,16 +31,16 @@ export default function AAREventCard({ chain }) {
   const time = formatMs(trigger_time);
 
   let headerClass = 'aar-header--injected';
-  let headerLabel = 'EVENT';
+  let headerLabel = 'Event';
 
   if (category === 'prevented') {
     headerClass = 'aar-header--prevented';
     headerLabel = skipper_mitigation?.description
-      ? `EVENT PREVENTED via ${skipper_mitigation.description.toUpperCase()}`
-      : 'EVENT PREVENTED';
+      ? `Prevented — ${skipper_mitigation.description}`
+      : 'Prevented';
   } else if (category === 'not_delivered') {
     headerClass = 'aar-header--not-delivered';
-    headerLabel = 'NOT REACHED';
+    headerLabel = 'Not reached';
   }
 
   const injectedSystemNames =
@@ -62,7 +62,7 @@ export default function AAREventCard({ chain }) {
           <span className="aar-followup__impact aar-followup__impact--right">
             {' '}
             {poll_change != null && poll_change !== 0
-              ? `POLLS: ${poll_change > 0 ? '+' : ''}${poll_change}%`
+              ? `Support ${poll_change > 0 ? '+' : ''}${poll_change}%`
               : ''}
             {poll_change != null &&
             poll_change !== 0 &&
@@ -93,7 +93,7 @@ export default function AAREventCard({ chain }) {
             className="aar-card__expand-toggle"
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? '− Collapse' : '+ Expand'}
+            {expanded ? 'Hide details' : 'Show details'}
           </button>
         </div>
       </div>

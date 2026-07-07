@@ -1992,62 +1992,240 @@ select.form-control:focus {
 // ---------------------------------------------------------------------------
 
 // Page layout
-.aar-filter {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  margin: 4rem 0;
+// ---------------------------------------------------------------------------
+// After Action Review — dual-theme debrief shown to the room (dark default +
+// light), same family as the projector. Theme via wrapper class + CSS vars.
+// Two colour languages survive the reskin: OUTCOME bands (what happened) and
+// functional RESPONSE badges (green/amber/red, always paired with icon+label).
+// ---------------------------------------------------------------------------
+.cs-aar {
+  --aar-bg: #{$cs-paper};
+  --aar-text: #{$cs-ink};
+  --aar-muted: #{$cs-muted};
+  --aar-line: #{$cs-line};
+  --aar-card: #ffffff;
+  --aar-card-line: #{$cs-line};
+  --aar-recess: #f1eff7;
+  --aar-chrome: #f1eff6;
+  --aar-band-injected: #3c3c3b;
+  --aar-band-prevented: #{$cs-purple};
+  --aar-band-avoided: #1d9e75;
+  --aar-band-hit: #d23b2f;
+  --aar-band-mitigation: #c9791f;
+  --aar-band-none: #8a8a99;
 
-  &::before {
-    content: '';
-    position: absolute;
+  min-height: 100vh;
+  background: var(--aar-bg);
+  color: var(--aar-text);
+  font-family: 'PT Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  &--dark {
+    --aar-bg: #14141f;
+    --aar-text: #f3f2fb;
+    --aar-muted: #a6a4bd;
+    --aar-line: #2c2c3e;
+    --aar-card: #1e1e2b;
+    --aar-card-line: #303044;
+    --aar-recess: #191924;
+    --aar-chrome: #1b1b29;
+    --aar-band-injected: #565569;
+    --aar-band-prevented: #6f60f5;
+    --aar-band-avoided: #23b184;
+    --aar-band-hit: #e5544a;
+    --aar-band-mitigation: #d8912f;
+    --aar-band-none: #6b6b7d;
+  }
+
+  &__inner {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  &__eyebrow {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: $cs-purple;
+  }
+  &__title {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0.1rem 0 0.2rem;
+  }
+  &__gameid {
+    color: var(--aar-muted);
+    font-size: 0.9rem;
+  }
+  &__readouts {
+    margin-left: auto;
+    display: flex;
+    gap: 1.75rem;
+  }
+  &__toggle {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--aar-line);
+    background: var(--aar-chrome);
+    color: var(--aar-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  &__state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+  }
+
+  &__filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    position: sticky;
     top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100vw;
-    background-color: #fff;
-    z-index: -1;
+    z-index: 10;
+    padding: 0.6rem 0;
+    margin-bottom: 1.75rem;
+    background: var(--aar-bg);
+    border-bottom: 1px solid var(--aar-line);
+  }
+  &__facet {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  &__filter-label {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 800;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--aar-muted);
+  }
+  &__filter-clear {
+    margin-left: auto;
   }
 }
 
-.aar-page {
-  max-width: 780px;
+.cs-aar-stat {
+  text-align: right;
 
-  &__title {
+  &__label {
+    font-family: 'Exo 2', $font-family-sans-serif;
     font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--aar-muted);
   }
+  &__value {
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--aar-text);
 
-  &__summary {
-    font-size: 0.95rem;
+    &--bad {
+      color: var(--aar-band-hit);
+    }
+  }
+}
+
+.cs-aar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--aar-line);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  background: transparent;
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--aar-muted);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+
+  &--on {
+    background: $cs-purple;
+    border-color: $cs-purple;
+    color: #fff;
+  }
+}
+
+.cs-aar-textbtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: $cs-purple;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cs-aar-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.14rem 0.55rem;
+  border-radius: 0.35rem;
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  background: var(--aar-recess);
+  color: var(--aar-muted);
+
+  &--loc {
+    background: rgba($cs-purple, 0.14);
+    color: var(--aar-text);
   }
 }
 
 .aar-section-heading {
+  font-family: 'Exo 2', $font-family-sans-serif;
   font-weight: 700;
-  font-size: 1.125rem;
-  letter-spacing: 0.06em;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #6c757d;
-  border-bottom: 1px solid #dee2e6;
+  color: var(--aar-muted);
+  border-bottom: 1px solid var(--aar-line);
   padding-bottom: 0.5rem;
-  margin-bottom: 5rem;
+  margin: 0 0 1.5rem;
 }
 
 .aar-prep-section {
-  margin-bottom: 10rem;
+  margin-bottom: 3.5rem;
 }
 
-/// Timeline: stacked chains with spacing
 .aar-timeline {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-// Single event chain (parent card + connector + followup)
 .aar-event-chain {
   display: flex;
   flex-direction: column;
@@ -2056,79 +2234,43 @@ select.form-control:focus {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
-    margin-bottom: 0.4rem;
-  }
-
-  &__location-label,
-  &__category-label {
-    align-self: flex-start;
-    padding: 0.15rem 0.55rem;
-    border-radius: 0.25rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  &__location-label {
-    &--hq {
-      background-color: #d0e4ff;
-      color: #1a4f99;
-    }
-
-    &--local {
-      background-color: #d4edda;
-      color: #155724;
-    }
-  }
-
-  &__category-label {
-    background-color: #e2e3e5;
-    color: #383d41;
+    margin-bottom: 0.45rem;
   }
 
   & + & {
-    margin-top: 16rem;
-    position: relative;
-
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      top: -8rem;
-      left: -6rem;
-      right: -6rem;
-      height: 1px;
-      background-color: #ced4da;
-    }
+    margin-top: 2.25rem;
+    padding-top: 2.25rem;
+    border-top: 1px solid var(--aar-line);
   }
 }
 
 // Event card
 .aar-card {
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--aar-card-line);
   border-radius: 0.5rem;
   overflow: hidden;
-  background: #fff;
+  background: var(--aar-card);
   transition: box-shadow 0.15s;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   }
 
   &__header {
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
   }
 
   &__time {
     flex-shrink: 0;
-    margin-right: 4px;
+    opacity: 0.85;
   }
 
   &__header-label {
@@ -2136,101 +2278,81 @@ select.form-control:focus {
   }
 
   &__body {
-    padding: 0.9rem 1rem 0.6rem;
+    padding: 0.85rem 1rem 0.55rem;
   }
 
   &__title {
+    font-family: 'Exo 2', $font-family-sans-serif;
     font-weight: 700;
     font-size: 1rem;
     margin-bottom: 0.25rem;
+    color: var(--aar-text);
   }
 
   &__description {
-    color: #6c757d;
-    font-size: 0.875rem;
+    color: var(--aar-muted);
+    font-size: 0.9rem;
     margin-bottom: 0.5rem;
   }
 
-  &__takeaways {
-    margin-top: 0.5rem;
-  }
-
-  &__takeaways-heading {
-    font-weight: 700;
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-  }
-
-  &__takeaways-list {
-    padding-left: 1.2rem;
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-
-    li {
-      margin-bottom: 0.15rem;
-    }
+  &__systems-disabled {
+    color: var(--aar-text);
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
   }
 
   &__footer {
     text-align: right;
-    padding: 0.1rem 0;
+    padding: 0.1rem 0 0;
   }
 
   &__expand-toggle {
     background: none;
     border: none;
     padding: 0;
-    color: #6c757d;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-weight: 700;
+    color: $cs-purple;
     font-size: 0.8rem;
     cursor: pointer;
 
     &:hover {
-      color: #333;
+      text-decoration: underline;
     }
   }
 }
 
-// Header color variants
+// Outcome band colours (what happened) — themed, always with light text.
 .aar-header--injected {
-  background-color: #222;
-  color: #fff;
+  background: var(--aar-band-injected);
 }
 .aar-header--prevented {
-  background-color: #007bff;
-  color: #fff;
+  background: var(--aar-band-prevented);
 }
 .aar-header--avoided {
-  background-color: #28a745;
-  color: #fff;
+  background: var(--aar-band-avoided);
 }
 .aar-header--not-avoided {
-  background-color: #dc3545;
-  color: #fff;
+  background: var(--aar-band-hit);
 }
 .aar-header--mitigation {
-  background-color: #fd7e14;
-  color: #fff;
+  background: var(--aar-band-mitigation);
 }
 .aar-header--not-delivered {
-  background-color: #adb5bd;
-  color: #fff;
+  background: var(--aar-band-none);
 }
 
-// Connector between cards
+// Connector between cards — carries the functional response badge.
 .aar-connector {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0;
-  color: #6c757d;
+  padding: 0.5rem 0;
+  color: var(--aar-muted);
 
+  // The old rotated «« chevrons are replaced by the badge + spacing.
   &__chevrons {
-    font-size: 32px;
-    letter-spacing: -18px;
-    color: #495057;
-    transform: rotate(270deg) translateX(-5px);
-    line-height: 1;
-    margin: 2px 0;
+    display: none;
   }
 
   &__indicator {
@@ -2246,40 +2368,37 @@ select.form-control:focus {
     width: 1.75rem;
     height: 1.75rem;
     border-radius: 50%;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     flex-shrink: 0;
+    color: #fff;
 
     &--green {
-      background-color: #28a745;
-      color: #fff;
+      background: #1d9e75;
     }
-
     &--yellow {
-      background-color: #ffc107;
-      color: #212529;
+      background: #e0a32a;
+      color: #23200f;
     }
-
     &--red {
-      background-color: #dc3545;
-      color: #fff;
+      background: #d23b2f;
     }
-
     &--grey {
-      background-color: #adb5bd;
-      color: #fff;
+      background: var(--aar-band-none);
     }
   }
 
   &__text {
-    font-size: 0.875rem;
-    color: #495057;
+    font-family: 'Exo 2', $font-family-sans-serif;
+    font-size: 0.85rem;
+    color: var(--aar-text);
   }
 }
 
-// Follow-up impact label (right-aligned in header)
+// Follow-up impact label (right-aligned in header).
 .aar-followup__impact {
   margin-left: auto;
-  font-weight: 700;
+  font-family: 'Exo 2', $font-family-sans-serif;
+  font-weight: 800;
   font-size: 0.8rem;
 
   &--right {
@@ -2287,37 +2406,42 @@ select.form-control:focus {
   }
 }
 
-// Expanded section
+// Expanded detail section.
 .aar-expanded {
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--aar-line);
   margin-top: 0.6rem;
-  padding-top: 0.6rem;
+  padding-top: 0.7rem;
 
   &__section {
     margin-bottom: 0.75rem;
   }
 
   &__heading {
+    font-family: 'Exo 2', $font-family-sans-serif;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     margin-bottom: 0.25rem;
+    color: var(--aar-text);
   }
 
   &__list {
     padding-left: 1.2rem;
     font-size: 0.875rem;
     margin-bottom: 0;
+    color: var(--aar-muted);
   }
 
   &__taken-label {
-    color: #28a745;
+    color: #1d9e75;
     font-size: 0.8rem;
+    font-weight: 700;
   }
 }
 
-// Checkmark prefix for taken actions
+// Actions that were actually taken.
 .aar-action-taken {
-  color: #28a745;
+  color: var(--aar-text);
+  font-weight: 700;
 }
 
 // ---------------------------------------------------------------------------

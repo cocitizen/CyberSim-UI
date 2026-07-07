@@ -16,7 +16,7 @@ function formatMs(ms) {
 function ImpactLabel({ pollChange, budgetChange }) {
   const parts = [];
   if (pollChange != null && pollChange !== 0) {
-    parts.push(`POLLS: ${pollChange > 0 ? '+' : ''}${pollChange}%`);
+    parts.push(`Support ${pollChange > 0 ? '+' : ''}${pollChange}%`);
   }
   if (budgetChange != null && budgetChange !== 0) {
     parts.push(`${budgetChange > 0 ? '+' : ''}$${budgetChange}`);
@@ -66,12 +66,10 @@ export default function AARFollowupCard({
       <div className="aar-card">
         <div className="aar-card__header aar-header--prevented">
           <span className="aar-card__time">{time} —</span>
-          <span className="aar-card__header-label">
-            EVENT PREVENTED
-          </span>
+          <span className="aar-card__header-label">Prevented</span>
           {poll_change != null && poll_change !== 0 && (
             <span className="aar-followup__impact aar-followup__impact--right">
-              AVOIDED DAMAGE: {poll_change > 0 ? '+' : ''}
+              Avoided {poll_change > 0 ? '+' : ''}
               {poll_change}%
             </span>
           )}
@@ -95,14 +93,14 @@ export default function AARFollowupCard({
           <span className="aar-card__time">{time} —</span>
           <span className="aar-card__header-label">
             {skipper_mitigation?.description
-              ? `EVENT AVOIDED via ${skipper_mitigation.description.toUpperCase()}`
-              : 'EVENT AVOIDED'}
+              ? `Avoided — ${skipper_mitigation.description}`
+              : 'Avoided'}
           </span>
           {(poll_change != null || budget_change != null) && (
             <span className="aar-followup__impact aar-followup__impact--right">
               {poll_change != null &&
                 poll_change !== 0 &&
-                `AVOIDED DAMAGE: ${
+                `Avoided ${
                   poll_change > 0 ? '+' : ''
                 }${poll_change}%`}
             </span>
@@ -132,9 +130,7 @@ export default function AARFollowupCard({
         <div className="aar-card">
           <div className="aar-card__header aar-header--not-avoided">
             <span className="aar-card__time">{time} —</span>
-            <span className="aar-card__header-label">
-              FOLLOW UP EVENT
-            </span>
+            <span className="aar-card__header-label">Follow-up</span>
             <ImpactLabel
               pollChange={poll_change}
               budgetChange={budget_change}
@@ -168,9 +164,7 @@ export default function AARFollowupCard({
                 <span className="aar-connector__text">
                   {disabledSystemNames.length > 0 ? 'System restored' : 'Mitigation'}:{' '}
                   <strong>
-                    {(
-                      mitigationResponse.description || ''
-                    ).toUpperCase()}
+                    {mitigationResponse.description || ''}
                   </strong>
                 </span>
               </div>
@@ -190,7 +184,7 @@ export default function AARFollowupCard({
                     —
                   </span>
                   <span className="aar-card__header-label">
-                    THREAT MITIGATION
+                    Mitigation
                   </span>
                   {mitigationResponse.cost != null && (
                     <span className="aar-followup__impact aar-followup__impact--right">
@@ -219,7 +213,7 @@ export default function AARFollowupCard({
     <div className="aar-card">
       <div className="aar-card__header aar-header--not-delivered">
         <span className="aar-card__time">{time} —</span>
-        <span className="aar-card__header-label">NOT REACHED</span>
+        <span className="aar-card__header-label">Not reached</span>
       </div>
       <div className="aar-card__body">
         <p className="aar-card__title">{title}</p>
