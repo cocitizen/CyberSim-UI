@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { reduce as _reduce, map as _map } from 'lodash';
 import { view } from '@risingstack/react-easy-state';
 import classNames from 'classnames';
-import { FiBriefcase, FiMapPin } from 'react-icons/fi';
+import { BsBuilding, BsHouseDoor } from 'react-icons/bs';
 
 import AvailableActionItems from './AvailableActionItems';
 import NotAvailableActionItems from './NotAvailableActionItems';
@@ -54,7 +54,7 @@ const ActionItems = view(({ className, location }) => {
   const title = isLocal
     ? `${locationName} actions`
     : `${locationName} actions & security`;
-  const Icon = isLocal ? FiMapPin : FiBriefcase;
+  const Icon = isLocal ? BsHouseDoor : BsBuilding;
 
   return (
     <section

@@ -2,12 +2,23 @@ import React, { useMemo, useState } from 'react';
 import { view } from '@risingstack/react-easy-state';
 import classNames from 'classnames';
 import { AiOutlineDown } from 'react-icons/ai';
+import { FiUsers } from 'react-icons/fi';
+import { BsBuilding, BsHouseDoor } from 'react-icons/bs';
 import { Accordion, Form, Modal, Button } from 'react-bootstrap';
 
 import InjectionBody from './InjectionBody';
 import { gameStore } from '../../GameStore';
 import { msToMinutesSeconds } from '../../../util';
 import { useStaticData } from '../../StaticDataProvider';
+
+// A distinct icon + luminance-separated badge per location type, so HQ vs
+// local vs shared cluster at a glance while scanning the left rail — by shape
+// and tone, not by reading the (sometimes similar) location names.
+const LOCATION_META = {
+  hq: { Icon: BsBuilding, cls: 'cs-inject__loc--hq' },
+  local: { Icon: BsHouseDoor, cls: 'cs-inject__loc--local' },
+};
+const SHARED_LOCATION = { Icon: FiUsers, cls: 'cs-inject__loc--shared' };
 
 const Injection = view(
   ({
@@ -36,6 +47,8 @@ const Injection = view(
           injection.location.toUpperCase(),
         )
       : 'Shared';
+    const loc = LOCATION_META[injection.location] || SHARED_LOCATION;
+    const LocationIcon = loc.Icon;
 
     // State shows via a left-accent bar + subtle tint on the row itself,
     // rather than a nested colored card.
@@ -56,6 +69,12 @@ const Injection = view(
             className="cs-inject__header"
             onClick={() => setOpen((o) => !o)}
           >
+            <span
+              className={classNames('cs-inject__loc', loc.cls)}
+              aria-hidden="true"
+            >
+              <LocationIcon />
+            </span>
             <span className="cs-inject__title">
               {`${msToMinutesSeconds(injection.trigger_time)} - ${
                 injection.title
