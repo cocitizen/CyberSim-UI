@@ -1,96 +1,104 @@
-import React, { useMemo } from 'react';
-import { filter as _filter } from 'lodash';
+import React, { useMemo, useState } from 'react';
 import { view } from '@risingstack/react-easy-state';
+import { BsBuilding, BsHouseDoor } from 'react-icons/bs';
+import { FiLayers } from 'react-icons/fi';
 
 import SystemRelatedActions from './SystemRelatedActions';
 import ResolvedInjections from './Injections/ResolvedInjections';
 import InjectsAndResponses from './Injections/InjectsAndResponses';
-import { SimulationTabs } from '../../constants';
 import { gameStore } from '../GameStore';
 import { useStaticData } from '../StaticDataProvider';
 import useTimeTaken from '../../hooks/useTimeTaken';
+import { partitionFacilitatorEvents } from '../../util/facilitatorEvents';
 
-const FacilitatorTable = view(({ activeTab }) => {
-  const location = useMemo(() => {
-    if (activeTab === SimulationTabs.CAMPAIGN_HQ) {
-      return 'hq';
-    }
-    return 'local';
-  }, [activeTab]);
+// Persisted per-client (this is a display preference, not shared game state):
+// with two facilitators each can scope the live events feed to their location.
+const FILTER_KEY = 'eventsLocationFilter';
 
+const FacilitatorTable = view(() => {
   const { injections: gameInjections } = gameStore;
-  const { injections } = useStaticData();
+  const { injections, getLocationNameByType } = useStaticData();
   const timeTaken = useTimeTaken();
 
-  const { injectionsToResponse, resolvedInjections } = useMemo(() => {
-    let injectionToDeliverFound = false;
-    return _filter(
-      injections,
-      ({ location: injectionLocation }) =>
-        injectionLocation === location || injectionLocation === null,
-    ).reduce(
-      (acc, injection) => {
-        const gameInjection = gameInjections[injection.id];
-        const isBackground = injection.type === 'Background';
-        const {
-          delivered,
-          prevented,
-          response_made_at: responseMadeAt,
-        } = gameInjection;
-        const upcoming = timeTaken < injection.trigger_time;
-        const resolved =
-          timeTaken > injection.trigger_time &&
-          (responseMadeAt ||
-            prevented ||
-            (isBackground && delivered));
-        const canMakeResponse =
-          !responseMadeAt && delivered && !isBackground;
-        const canDeliver =
-          !upcoming &&
-          !delivered &&
-          !injectionToDeliverFound &&
-          !prevented;
-        if (canDeliver) {
-          injectionToDeliverFound = true;
-        }
-        const injectionWithParams = {
-          injection,
-          upcoming: timeTaken < injection.trigger_time,
-          resolved,
-          canDeliver,
-          canMakeResponse,
-          delivered,
-          gameInjection,
-          prevented,
-          isBackground,
-          isDanger:
-            !canDeliver &&
-            !canMakeResponse &&
-            injection.trigger_time - timeTaken < 180000,
-        };
-        if (resolved) {
-          acc.resolvedInjections.push(injectionWithParams);
-        } else {
-          acc.injectionsToResponse.push(injectionWithParams);
-        }
-        return acc;
-      },
-      { injectionsToResponse: [], resolvedInjections: [] },
+  const [locationFilter, setLocationFilter] = useState(
+    () => localStorage.getItem(FILTER_KEY) || 'all',
+  );
+  const changeFilter = (value) => {
+    setLocationFilter(value);
+    localStorage.setItem(FILTER_KEY, value);
+  };
+
+  const { injectionsToResponse, resolvedInjections } = useMemo(
+    () =>
+      partitionFacilitatorEvents({
+        injections,
+        gameInjections,
+        timeTaken,
+      }),
+    [injections, gameInjections, timeTaken],
+  );
+
+  // Which specific locations actually have events. Only offer the filter when
+  // there are at least two to choose between — a single-location scenario has
+  // nothing to separate.
+  const presentLocations = useMemo(() => {
+    const set = new Set();
+    Object.values(injections || {}).forEach((injection) => {
+      if (injection.location) set.add(injection.location);
+    });
+    return set;
+  }, [injections]);
+
+  const filterOptions = useMemo(() => {
+    if (presentLocations.size < 2) return [];
+    const options = [{ key: 'all', label: 'All', Icon: FiLayers }];
+    if (presentLocations.has('hq')) {
+      options.push({
+        key: 'hq',
+        label: getLocationNameByType('hq', 'HQ'),
+        Icon: BsBuilding,
+      });
+    }
+    if (presentLocations.has('local')) {
+      options.push({
+        key: 'local',
+        label: getLocationNameByType('local', 'Local'),
+        Icon: BsHouseDoor,
+      });
+    }
+    return options;
+  }, [presentLocations, getLocationNameByType]);
+
+  // Guard a stale persisted value (e.g. switching to a scenario without that
+  // location) by falling back to "all".
+  const activeFilter =
+    locationFilter !== 'all' && !presentLocations.has(locationFilter)
+      ? 'all'
+      : locationFilter;
+
+  // Only the live events feed is filtered — System Restore and Resolved stay
+  // full. Shared (no-location) events show under every location, matching the
+  // pre-merge two-tab behaviour.
+  const visibleInjectionsToResponse = useMemo(() => {
+    if (activeFilter === 'all') return injectionsToResponse;
+    return injectionsToResponse.filter(
+      ({ injection }) =>
+        injection.location === activeFilter || !injection.location,
     );
-  }, [injections, location, gameInjections, timeTaken]);
+  }, [injectionsToResponse, activeFilter]);
 
   return (
     <>
       <InjectsAndResponses
-        className="my-5"
-        injectionsToResponse={injectionsToResponse}
+        className="my-4"
+        injectionsToResponse={visibleInjectionsToResponse}
+        filterOptions={filterOptions}
+        activeFilter={activeFilter}
+        onFilterChange={changeFilter}
       />
-      <SystemRelatedActions
-        className="my-5 pb-5"
-        location={location}
-      />
+      <SystemRelatedActions className="my-4" />
       <ResolvedInjections
-        className="my-5"
+        className="my-4"
         resolvedInjections={resolvedInjections}
       />
     </>

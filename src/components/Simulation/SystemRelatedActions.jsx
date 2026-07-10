@@ -1,13 +1,15 @@
 import React, { useMemo, useCallback } from 'react';
-import { Row, Col, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { filter as _filter } from 'lodash';
 import { view } from '@risingstack/react-easy-state';
+import classNames from 'classnames';
+import { FiServer } from 'react-icons/fi';
 
 import { useStaticData } from '../StaticDataProvider';
 import { gameStore } from '../GameStore';
 import { numberToUsd } from '../../util';
 
-const SystemRelatedActions = view(({ location, className }) => {
+const SystemRelatedActions = view(({ location, className, embedded }) => {
   const {
     budget,
     mitigations: gameMitigations,
@@ -33,8 +35,8 @@ const SystemRelatedActions = view(({ location, className }) => {
             (key) =>
               !gameSystems[key] &&
               (!location ||
-                systems[key].type === 'party' ||
-                systems[key].type === location),
+                systems[key]?.type === 'party' ||
+                systems[key]?.type === location),
           ) &&
           // required mitigation met
           (!requiredMitigationId ||
@@ -62,60 +64,85 @@ const SystemRelatedActions = view(({ location, className }) => {
     [popError, closeError, restoreSystem],
   );
 
-  return (
-    <Form onSubmit={submitAction} noValidate id="system_actions">
-      <Row className={className}>
-        <Col xs={9}>
-          <h2 className="font-weight-bold">
-            ACTIONS RELATED TO TECHNICAL SYSTEMS:
-          </h2>
-        </Col>
-        <Col xs={3}>
+  const actionList = systemRelatedActions.length ? (
+    systemRelatedActions.map((action) => (
+      <Form.Check
+        custom
+        required
+        type="radio"
+        key={action.id}
+        label={
+          <span className="cs-action-row cs-action-row--selectable">
+            <span className="cs-action-row__name">
+              {action.description}
+            </span>
+            <span className="cs-action-row__meta">
+              Restores:{' '}
+              {action.systems_to_restore
+                .map((systemId) => systems[systemId]?.name || systemId)
+                .join(', ')}{' '}
+              · {numberToUsd(action.cost)}
+            </span>
+          </span>
+        }
+        name="systemRelatedActions"
+        disabled={action.cost > 0 && budget < action.cost}
+        id={action.id}
+        value={action.id}
+      />
+    ))
+  ) : (
+    <p className="cs-actions-empty">
+      No system related action is available.
+    </p>
+  );
+
+  // Embedded: a "System restore" sub-section inside the Technical systems
+  // card (Action Table). No card chrome or big heading of its own.
+  if (embedded) {
+    return (
+      <Form onSubmit={submitAction} noValidate id="system_actions">
+        <div className="cs-subsection">
+          <h3 className="cs-subsection-title mb-2">System restore</h3>
+          {actionList}
           <Button
             variant="outline-primary"
-            className="rounded-pill w-100"
+            size="sm"
+            className="rounded-pill cs-perform mt-2"
             type="submit"
             disabled={!systemRelatedActions.length}
           >
-            PERFORM ACTION
+            Perform action
           </Button>
-        </Col>
-        <Col>
-          {systemRelatedActions.length
-            ? systemRelatedActions.map((action) => (
-                <Form.Check
-                  custom
-                  required
-                  type="radio"
-                  className="custom-radio-right"
-                  key={action.id}
-                  label={
-                    <Row className="py-1 select-row align-items-center">
-                      <Col xs={10}>
-                        {`${
-                          action.description
-                        } (Restores:${action.systems_to_restore.map(
-                          (systemId) => ` ${systems[systemId].name}`,
-                        )})`}
-                      </Col>
-                      <Col
-                        xs={2}
-                        className="justify-content-end d-flex align-items-center"
-                      >
-                        {numberToUsd(action.cost)}
-                      </Col>
-                    </Row>
-                  }
-                  name="systemRelatedActions"
-                  disabled={action.cost > 0 && budget < action.cost}
-                  id={action.id}
-                  value={action.id}
-                />
-              ))
-            : 'No system related action is available.'}
-        </Col>
-      </Row>
-    </Form>
+        </div>
+      </Form>
+    );
+  }
+
+  // Standalone room — used in the HQ/Local facilitator tabs.
+  return (
+    <section className={classNames('cs-card', className)} id="system_actions">
+      <Form onSubmit={submitAction} noValidate>
+        <div className="cs-card__head">
+          <div className="cs-card__heading">
+            <span className="cs-card__icon" aria-hidden="true">
+              <FiServer />
+            </span>
+            <h2 className="cs-section-title">System restore</h2>
+          </div>
+        </div>
+        {actionList}
+        <Button
+          variant="outline-primary"
+          size="sm"
+          className="rounded-pill cs-perform mt-2"
+          type="submit"
+          disabled={!systemRelatedActions.length}
+        >
+          Perform action
+        </Button>
+      </Form>
+    </section>
   );
 });
 

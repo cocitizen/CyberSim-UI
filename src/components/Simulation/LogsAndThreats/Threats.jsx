@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Row, Col, Spinner, Card } from 'react-bootstrap';
+import { Row, Col, Spinner } from 'react-bootstrap';
 import { reduce as _reduce } from 'lodash';
 import { AiOutlineCheck, AiOutlineClose } from 'react-icons/ai';
+import { FiShield, FiAlertTriangle } from 'react-icons/fi';
 import { view } from '@risingstack/react-easy-state';
 
 import { gameStore } from '../../GameStore';
@@ -21,126 +22,101 @@ const Threats = view(({ className }) => {
               acc,
               { trigger_time: triggerTime, title, id, location },
             ) => {
-              if (gameInjections[id].prevented) {
-                acc.notThreats.push({
-                  desc:
-                    msToMinutesSeconds(triggerTime) +
-                    ' - ' +
-                    (title || id),
-                  location: location?.toUpperCase() || 'PARTY',
-                });
-                return acc;
-              }
-              acc.threats.push({
+              const entry = {
                 desc:
-                  msToMinutesSeconds(triggerTime) +
-                  ' - ' +
-                  (title || id),
+                  msToMinutesSeconds(triggerTime) + ' - ' + (title || id),
                 location: location?.toUpperCase() || 'PARTY',
-              });
+              };
+              if (gameInjections[id]?.prevented) {
+                acc.notThreats.push(entry);
+              } else {
+                acc.threats.push(entry);
+              }
               return acc;
             },
-            {
-              threats: [],
-              notThreats: [],
-            },
+            { threats: [], notThreats: [] },
           )
-        : {
-            threats: [],
-            notThreats: [],
-          },
+        : { threats: [], notThreats: [] },
     [gameInjections, injections],
   );
 
   return (
     <Row className={className} id="threats">
       <Col lg={6} className="mb-4 mb-lg-0">
-        <Card
-          className="h-100 border-primary threats"
-          style={{ borderRadius: '1rem' }}
-        >
-          <Card.Header
-            as="h3"
-            className="border-primary bg-white"
-            style={{ borderRadius: '1rem 1rem 0 0' }}
-          >
-            MITIGATED THREATS:
-          </Card.Header>
-          <Card.Body className="pb-3 threats-body">
-            {notThreats.length > 0
-              ? notThreats.map(({ desc, location }, i) => (
-                  <Row
-                    key={i}
-                    className="d-flex align-items-center py-1 justify-content-between select-row"
-                  >
-                    <Col xs={10}>
-                      <AiOutlineCheck
-                        className="mr-2"
-                        fontSize="20px"
-                      />
-                      {desc}
-                    </Col>
-                    <Col
-                      xs={2}
-                      className="text-right"
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      {location}
-                    </Col>
-                  </Row>
-                ))
-              : 'No threat mitigated.'}
-            {!injections && (
-              <Col xs={12} className="d-flex justify-content-center">
-                <Spinner animation="border" />
-              </Col>
+        <section className="cs-card h-100">
+          <div className="cs-card__head">
+            <div className="cs-card__heading">
+              <span
+                className="cs-card__icon cs-card__icon--success"
+                aria-hidden="true"
+              >
+                <FiShield />
+              </span>
+              <h3 className="cs-section-title">Mitigated threats</h3>
+            </div>
+          </div>
+          <div className="threats-body">
+            {notThreats.length > 0 ? (
+              notThreats.map(({ desc, location }, i) => (
+                <div className="cs-action-row" key={i}>
+                  <span className="cs-action-row__name">
+                    <AiOutlineCheck
+                      className="text-success mr-2"
+                      fontSize="18px"
+                    />
+                    {desc}
+                  </span>
+                  <span className="cs-action-row__meta">{location}</span>
+                </div>
+              ))
+            ) : (
+              <p className="cs-actions-empty">No threat mitigated.</p>
             )}
-          </Card.Body>
-        </Card>
+            {!injections && (
+              <div className="d-flex justify-content-center">
+                <Spinner animation="border" />
+              </div>
+            )}
+          </div>
+        </section>
       </Col>
       <Col lg={6}>
-        <Card
-          className="h-100 border-primary threats"
-          style={{ borderRadius: '1rem' }}
-        >
-          <Card.Header
-            as="h3"
-            className="border-primary bg-white"
-            style={{ borderRadius: '1rem 1rem 0 0' }}
-          >
-            NOT MITIGATED THREATS:
-          </Card.Header>
-          <Card.Body className="pb-3 threats-body">
-            {threats.length > 0
-              ? threats.map(({ desc, location }, i) => (
-                  <Row
-                    key={i}
-                    className="d-flex align-items-center py-1 justify-content-between select-row"
-                  >
-                    <Col xs={10}>
-                      <AiOutlineClose
-                        className="mr-2"
-                        fontSize="20px"
-                      />
-                      {desc}
-                    </Col>
-                    <Col
-                      xs={2}
-                      className="text-right"
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      {location}
-                    </Col>
-                  </Row>
-                ))
-              : 'Every threat mitigated.'}
-            {!injections && (
-              <Col xs={12} className="d-flex justify-content-center">
-                <Spinner animation="border" />
-              </Col>
+        <section className="cs-card h-100">
+          <div className="cs-card__head">
+            <div className="cs-card__heading">
+              <span
+                className="cs-card__icon cs-card__icon--coral"
+                aria-hidden="true"
+              >
+                <FiAlertTriangle />
+              </span>
+              <h3 className="cs-section-title">Not mitigated threats</h3>
+            </div>
+          </div>
+          <div className="threats-body">
+            {threats.length > 0 ? (
+              threats.map(({ desc, location }, i) => (
+                <div className="cs-action-row" key={i}>
+                  <span className="cs-action-row__name">
+                    <AiOutlineClose
+                      className="text-danger mr-2"
+                      fontSize="18px"
+                    />
+                    {desc}
+                  </span>
+                  <span className="cs-action-row__meta">{location}</span>
+                </div>
+              ))
+            ) : (
+              <p className="cs-actions-empty">Every threat mitigated.</p>
             )}
-          </Card.Body>
-        </Card>
+            {!injections && (
+              <div className="d-flex justify-content-center">
+                <Spinner animation="border" />
+              </div>
+            )}
+          </div>
+        </section>
       </Col>
     </Row>
   );

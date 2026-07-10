@@ -1,6 +1,8 @@
 import React, { useRef, useCallback } from 'react';
-import { Row, Col, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { map as _map } from 'lodash';
+import classNames from 'classnames';
+import { FiZap } from 'react-icons/fi';
 
 import { useStaticData } from '../../StaticDataProvider';
 import { gameStore } from '../../GameStore';
@@ -37,71 +39,73 @@ const Curveballs = ({ className }) => {
   );
 
   return (
-    <Form
-      onSubmit={submitCurveball}
-      noValidate
-      ref={formRef}
-      id="curveball"
-    >
-      <Row className={className}>
-        <Col xs={9}>
-          <h2 className="font-weight-bold">CURVEBALL EVENTS</h2>
-        </Col>
-        <Col xs={3}>
-          <Button
-            variant="outline-primary"
-            className="rounded-pill w-100"
-            type="submit"
-          >
-            TRIGGER EVENT
-          </Button>
-        </Col>
-        <Col>
-          {_map(curveballs, (curveball) => (
+    <section className={classNames('cs-card', className)} id="curveball">
+      <Form onSubmit={submitCurveball} noValidate ref={formRef}>
+        <div className="cs-card__head">
+          <div className="cs-card__heading">
+            <span
+              className="cs-card__icon cs-card__icon--coral"
+              aria-hidden="true"
+            >
+              <FiZap />
+            </span>
+            <h2 className="cs-section-title">Curveball events</h2>
+          </div>
+        </div>
+        {_map(curveballs, (curveball) => {
+          const meta = [];
+          if (curveball.budget_change || curveball.lose_all_budget) {
+            meta.push(
+              `${getTextWithSynonyms('Budget')}: ${
+                curveball.lose_all_budget
+                  ? 'Party loses all its money'
+                  : `${
+                      curveball.budget_change > 0 ? '+' : ''
+                    }${numberToUsd(curveball.budget_change)}`
+              }`,
+            );
+          }
+          if (curveball.poll_change) {
+            meta.push(
+              `${getTextWithSynonyms('Poll')}: ${
+                curveball.poll_change > 0 ? '+' : ''
+              }${curveball.poll_change}%`,
+            );
+          }
+          return (
             <Form.Check
               custom
               required
               type="radio"
-              className="custom-radio-right"
               key={curveball.id}
               label={
-                <Row className="py-1 select-row align-items-center">
-                  <Col xs={7}>{curveball.description}</Col>
-                  <Col className="text-right">
-                    {curveball.budget_change ||
-                    curveball.lose_all_budget
-                      ? `${getTextWithSynonyms('Budget')}: ${
-                          curveball.budget_change > 0 &&
-                          !curveball.lose_all_budget
-                            ? '+'
-                            : ''
-                        }${
-                          curveball.lose_all_budget
-                            ? 'Party loses all its money'
-                            : numberToUsd(curveball.budget_change)
-                        }`
-                      : ''}
-                    {curveball.poll_change &&
-                    (curveball.budget_change ||
-                      curveball.lose_all_budget)
-                      ? ', '
-                      : ''}
-                    {curveball.poll_change
-                      ? `${getTextWithSynonyms('Poll')}: ${
-                          curveball.poll_change > 0 ? '+' : ''
-                        }${curveball.poll_change}%`
-                      : ''}
-                  </Col>
-                </Row>
+                <span className="cs-action-row cs-action-row--selectable">
+                  <span className="cs-action-row__name">
+                    {curveball.description}
+                  </span>
+                  {meta.length > 0 && (
+                    <span className="cs-action-row__meta">
+                      {meta.join(' · ')}
+                    </span>
+                  )}
+                </span>
               }
               name="curveballs"
               id={curveball.id}
               value={curveball.id}
             />
-          ))}
-        </Col>
-      </Row>
-    </Form>
+          );
+        })}
+        <Button
+          variant="outline-primary"
+          size="sm"
+          className="rounded-pill cs-perform mt-2"
+          type="submit"
+        >
+          Trigger event
+        </Button>
+      </Form>
+    </section>
   );
 };
 

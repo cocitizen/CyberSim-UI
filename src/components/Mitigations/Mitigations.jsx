@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react';
-import { Container, Row, Col, Button, Nav } from 'react-bootstrap';
-import { FiBarChart2 } from 'react-icons/fi';
-import { reduce as _reduce, map as _map } from 'lodash';
+import { Container, Button, Nav } from 'react-bootstrap';
+import { FiBarChart2, FiShield } from 'react-icons/fi';
+import { reduce as _reduce } from 'lodash';
 import { view } from '@risingstack/react-easy-state';
+import classNames from 'classnames';
 
 import { gameStore } from '../GameStore';
 import { useStaticData } from '../StaticDataProvider';
 import MitigationCategory from './MitigationCategory';
 import { numberToUsd } from '../../util';
+import logo from '../../assets/img/cybersim-logo.svg';
+import { gameViewPath } from '../../util/gameSlug';
 
 const Mitigations = view(
   ({
@@ -23,7 +26,8 @@ const Mitigations = view(
       preparationMitigations,
       actions: { toggleMitigation, startSimulation },
     } = gameStore;
-    const { mitigations, getTextWithSynonyms } = useStaticData();
+    const { mitigations, getTextWithSynonyms, scenarioName } =
+      useStaticData();
 
     const mitigationsByCategory = useMemo(
       () =>
@@ -75,98 +79,144 @@ const Mitigations = view(
       [toggledMitigations, mitigationsByCategory],
     );
 
-    return (
-      <>
-        {!isLog && !isInventory && (
-          <div
-            className="py-3 border-primary border-bottom position-sticky bg-white shadow"
-            style={{ top: 0, zIndex: 10 }}
-          >
-            <Container fluid="md">
-              <Row>
-                <Col>
-                  <h3 className="m-0">
-                    <span className="mr-1">
-                      {getTextWithSynonyms('Budget Allocated:')}
-                    </span>
-                    {numberToUsd(allocatedCategoryBudgets.sum)}
-                  </h3>
-                </Col>
-                <Col className="text-right">
-                  <h3 className="m-0">
-                    <span className="mr-1">
-                      {getTextWithSynonyms('Remaining Budget:')}
-                    </span>
-                    {numberToUsd(budget)}
-                  </h3>
-                </Col>
-              </Row>
-            </Container>
+    const categoryNodes = (asCard) =>
+      Object.entries(mitigationsByCategory).map(([key, category], idx) => (
+        <MitigationCategory
+          key={key}
+          name={key}
+          mitigations={category}
+          toggledMitigations={toggledMitigations}
+          allocatedBudget={allocatedCategoryBudgets[key]}
+          toggleMitigation={toggleMitigation}
+          budget={budget}
+          isSummary={isLog}
+          allowSell={allowSell}
+          card={asCard}
+          index={idx}
+        />
+      ));
+
+    // Action Table: a contained "Item inventory" room.
+    if (isInventory) {
+      return (
+        <section
+          className={classNames('cs-card', className)}
+          id="mitigations"
+        >
+          <div className="cs-card__head">
+            <div className="cs-card__heading">
+              <span
+                className="cs-card__icon cs-card__icon--cyan"
+                aria-hidden="true"
+              >
+                <FiShield />
+              </span>
+              <h2 className="cs-section-title">Item inventory</h2>
+            </div>
           </div>
-        )}
+          {categoryNodes(false)}
+        </section>
+      );
+    }
+
+    // Event-log summary (PreparationsLog): just the categories, no buy bars.
+    if (isLog) {
+      return (
         <Container fluid="md" className={className} id="mitigations">
-          {isInventory && (
-            <Row>
-              <Col xs={12}>
-                <h2 className="font-weight-bold mb-1">
-                  {isInventory ? 'ITEM INVENTORY' : 'PURCHASED ITEMS'}
-                </h2>
-              </Col>
-            </Row>
-          )}
-          {_map(mitigationsByCategory, (category, key) => (
-            <MitigationCategory
-              key={key}
-              name={key}
-              mitigations={category}
-              toggledMitigations={toggledMitigations}
-              allocatedBudget={allocatedCategoryBudgets[key]}
-              toggleMitigation={toggleMitigation}
-              budget={budget}
-              isSummary={isLog}
-              allowSell={allowSell}
-            />
-          ))}
+          {categoryNodes(false)}
         </Container>
-        {!isLog && !isInventory && (
-          <div
-            className="py-3 border-primary border-top position-fixed w-100 bg-white shadow-lg"
-            style={{ bottom: 0, zIndex: 10 }}
-          >
-            <Container fluid="md">
-              <Row>
-                <Col xs={8}>
-                  <Button
-                    variant="outline-primary"
-                    className="rounded-pill"
-                    type="button"
-                    disabled={!mitigationsByCategory}
-                    onClick={startSimulation}
-                  >
-                    <h4 className="font-weight-normal mb-0">
-                      SAVE Items and START Simulation
-                    </h4>
-                  </Button>
-                </Col>
-                <Col xs={4} className="d-flex justify-content-end">
-                  <Nav.Link
-                    href={`?gameId=${id}&isProjectorView=true`}
-                    className="btn btn-outline-primary rounded-pill d-flex align-items-center projector-button"
-                    target="_blank"
-                  >
-                    <div>
-                      <FiBarChart2 fontSize="25px" />
+      );
+    }
+
+    // Preparation phase: the buy-items board, wearing the same command-bar
+    // header and instrument status bar as the facilitator Simulation screen.
+    return (
+      <div className="cs-facilitator">
+        <div className="position-sticky simulation-menu bg-white shadow-sm">
+          <div className="cs-commandbar">
+            <Container
+              fluid="md"
+              className="cs-commandbar__inner cs-commandbar__inner--preparation"
+            >
+              <div className="cs-preparation-title">
+                <span>Preparation</span>
+                <strong>Security investments</strong>
+              </div>
+              <div className="cs-commandbar__right">
+                <div className="cs-gamectx">
+                  <div className="cs-gamectx__id">{id}</div>
+                  {scenarioName && (
+                    <div className="cs-gamectx__scenario">
+                      <span>Scenario</span>
+                      <strong>{scenarioName}</strong>
                     </div>
-                    <h4 className="font-weight-normal mb-0 ml-1">
-                      PROJECTOR
-                    </h4>
-                  </Nav.Link>
-                </Col>
-              </Row>
+                  )}
+                </div>
+                <a
+                  href="/"
+                  className="cs-brand cs-brand--lockup"
+                  aria-label="CyberSim home"
+                >
+                  <img src={logo} alt="" />
+                </a>
+              </div>
             </Container>
           </div>
-        )}
-      </>
+          <div className="cs-budgetbar">
+            <Container fluid="md" className="cs-budgetbar__inner">
+              <div className="cs-budgetbar__metrics">
+                <div className="cs-budgetbar__metric">
+                  <span>{getTextWithSynonyms('Budget Allocated')}</span>
+                  <strong>
+                    {numberToUsd(allocatedCategoryBudgets.sum)}
+                  </strong>
+                </div>
+                <div className="cs-budgetbar__metric">
+                  <span>{getTextWithSynonyms('Remaining Budget')}</span>
+                  <strong
+                    className={classNames({
+                      'cs-budgetbar__value--bad': budget < 0,
+                    })}
+                  >
+                    {numberToUsd(budget)}
+                  </strong>
+                </div>
+              </div>
+            </Container>
+          </div>
+        </div>
+
+        <Container fluid="md" className={className} id="mitigations">
+          <div className="cs-buy-grid">{categoryNodes(true)}</div>
+        </Container>
+
+        <div className="cs-statusbar">
+          <Container
+            fluid="md"
+            className="cs-statusbar__inner cs-statusbar__inner--actions"
+          >
+            <div className="cs-statusbar__controls">
+              <Button
+                variant="primary"
+                className="cs-chunky"
+                type="button"
+                disabled={!mitigationsByCategory}
+                onClick={startSimulation}
+              >
+                Save items &amp; start simulation
+              </Button>
+              <Nav.Link
+                href={gameViewPath(id, 'projector')}
+                className="btn btn-light cs-chunky d-flex align-items-center projector-button"
+                target="_blank"
+              >
+                <FiBarChart2 fontSize="20px" />
+                <span className="ml-1">Projector</span>
+              </Nav.Link>
+            </div>
+          </Container>
+        </div>
+      </div>
     );
   },
 );

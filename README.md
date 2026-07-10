@@ -90,7 +90,11 @@ backend. The active scenario is determined by the hostname:
 | `cybersim.app` (bare domain) | env var fallback |
 | `localhost` | env var fallback |
 
-The subdomain is extracted from `window.location.hostname` and passed to the backend when starting or joining a game. The backend uses this slug to load the correct scenario content.
+The subdomain is extracted from `window.location.hostname` and passed to the
+backend when creating a game and when fetching static scenario data. Existing
+games already carry their scenario on the backend, so joining a game with a
+different frontend scenario can mix static data from one scenario with runtime
+state from another.
 
 For the full new-scenario checklist, including Airtable, backend
 configuration, DNS, and import/load steps, see:
@@ -99,13 +103,21 @@ configuration, DNS, and import/load steps, see:
 CyberSim-Backend/docs/scenario-setup.md
 ```
 
-For local development or bare-domain deployments, set the scenario explicitly:
+For local development or bare-domain deployments, set the scenario explicitly on
+the frontend — it is the single source of truth for which scenario you load:
 
 ```
 REACT_APP_SCENARIO_SLUG=cso
 ```
 
-If neither the subdomain nor the env var is set, the UI defaults to `cso`.
+The backend has no scenario variable of its own: it is multi-scenario and binds
+each game to the slug the frontend sends. So make sure `REACT_APP_SCENARIO_SLUG`
+matches the scenario your backend actually has data and games for.
+(`IMPORT_SCENARIO_SLUG` is unrelated — it only tells the backend Airtable import
+script which scenario to import.)
+
+If neither the subdomain nor the env var is set, the UI defaults to `cso` (and
+logs a console warning).
 
 ## Requirements
 
@@ -137,6 +149,18 @@ Set your backend API URL in `.env`, for example:
 
 ```bash
 REACT_APP_API_URL=http://localhost:3001
+```
+
+For local testing against a non-default scenario, set the slug on the frontend
+(the backend has no scenario variable — it binds each game to the slug the
+frontend sends):
+
+```bash
+# CyberSim-UI/.env
+REACT_APP_SCENARIO_SLUG=tnr
+
+# CyberSim-Backend/.env — only when using the Airtable import script
+IMPORT_SCENARIO_SLUG=tnr
 ```
 
 Start the UI:

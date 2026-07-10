@@ -1,47 +1,46 @@
 import React, { useMemo } from 'react';
-import { Row, Col, Card, Badge } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 
 import Log from './Log';
+import { logTypeLabels } from './EventLogs';
 import { useStaticData } from '../StaticDataProvider';
 import { msToMinutesSeconds, numberToUsd } from '../../util';
 
-const SystemRestoreLog = ({ game_timer, type, response_id }) => {
+const SystemRestoreLog = ({ game_timer, type, response_id, action_id }) => {
   const { responses, systems } = useStaticData();
-  const response = useMemo(() => responses[response_id], [
-    responses,
-    response_id,
-  ]);
+  const response = useMemo(
+    () => responses[response_id] || responses[action_id],
+    [responses, response_id, action_id],
+  );
+  const description = response?.description || 'Unknown restore action';
 
   return (
     <Log
       title={
         <div className="d-flex align-items-center">
           {`${msToMinutesSeconds(game_timer)} -`}
-          <Badge
-            pill
-            variant="light"
-            className="py-1 mx-1 text-dark border-dark border"
-          >
-            {type}
-          </Badge>
-          {response.description}
+          <span className="cs-pill cs-pill--muted mx-1">
+            {logTypeLabels[type] || type}
+          </span>
+          {description}
         </div>
       }
     >
       <Card.Body>
         <Row>
-          <Col xs={6}>{response.description}</Col>
+          <Col xs={6}>{description}</Col>
           <Col xs={4}>
             <span className="font-weight-bold">Restores: </span>
             <span className="text-uppercase">
-              {response.systems_to_restore.map(
-                (systemId) => ` ${systems[systemId].name}`,
-              )}
+              {response?.systems_to_restore
+                ?.map((systemId) => systems[systemId]?.name)
+                .filter(Boolean)
+                .join(', ') || 'Unknown'}
             </span>
           </Col>
           <Col xs={2} className="text-right">
             <span className="font-weight-bold">Cost: </span>
-            {numberToUsd(response.cost)}
+            {response ? numberToUsd(response.cost) : 'Unknown'}
           </Col>
         </Row>
       </Card.Body>

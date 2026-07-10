@@ -7,7 +7,7 @@ export default function AARPrepSection({ chains }) {
   return (
     <div className="aar-prep-section">
       <h5 className="aar-section-heading">
-        Events Prevented by Initial Budget Choices
+        Events your preparation prevented
       </h5>
       <div className="aar-timeline">
         {chains.map((chain) => (

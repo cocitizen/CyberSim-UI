@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Row, Col, Card, Badge } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 
 import Log from './Log';
+import { logTypeLabels } from './EventLogs';
 import { useStaticData } from '../StaticDataProvider';
 import { msToMinutesSeconds, numberToUsd } from '../../util';
 
@@ -11,25 +12,26 @@ const BudgetItemLog = ({ game_timer, type, mitigation_id }) => {
     () => mitigations[mitigation_id],
     [mitigations, mitigation_id],
   );
+  const description = mitigation?.description || 'Unknown budget item';
 
   return (
     <Log
       title={
         <div className="d-flex align-items-center">
           {`${msToMinutesSeconds(game_timer)} -`}
-          <Badge pill variant="secondary" className="py-1 mx-1">
-            {type}
-          </Badge>
-          {mitigation.category}
+          <span className="cs-pill cs-pill--muted mx-1">
+            {logTypeLabels[type] || type}
+          </span>
+          {mitigation?.category || 'Unknown'}
         </div>
       }
     >
       <Card.Body>
         <Row>
-          <Col xs={10}>{mitigation.description}</Col>
+          <Col xs={10}>{description}</Col>
           <Col xs={2} className="text-right">
             <span className="font-weight-bold">Cost: </span>
-            {numberToUsd(mitigation.cost)}
+            {mitigation ? numberToUsd(mitigation.cost) : 'Unknown'}
           </Col>
         </Row>
       </Card.Body>

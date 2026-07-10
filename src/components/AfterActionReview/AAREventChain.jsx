@@ -2,6 +2,7 @@ import React from 'react';
 import AAREventCard from './AAREventCard';
 import AARResponseIndicator from './AARResponseIndicator';
 import AARFollowupCard from './AARFollowupCard';
+import { BsBuilding, BsHouseDoor } from 'react-icons/bs';
 
 export default function AAREventChain({ chain }) {
   const { category, followup, responses_made, is_response_correct, response_made_at, custom_response, location } = chain;
@@ -30,21 +31,27 @@ export default function AAREventChain({ chain }) {
   // rely on the follow-up's own state here; we use the parent's category instead.
   const showPreventedFollowup = category === 'prevented' && followup;
 
-  const locationLabel = location === 'hq' ? 'HQ' : location === 'local' ? 'Local' : null;
+  const locationLabel =
+    location === 'hq' ? 'HQ' : location === 'local' ? 'Local' : null;
+  const LocationIcon =
+    location === 'hq'
+      ? BsBuilding
+      : location === 'local'
+      ? BsHouseDoor
+      : null;
   const categoryLabel = chain.handbook_category || null;
 
   return (
     <div className="aar-event-chain">
       <div className="aar-event-chain__labels">
         {locationLabel && (
-          <span className={`aar-event-chain__location-label aar-event-chain__location-label--${location}`}>
+          <span className="cs-aar-tag cs-aar-tag--loc">
+            {LocationIcon && <LocationIcon aria-hidden="true" />}
             {locationLabel}
           </span>
         )}
         {categoryLabel && (
-          <span className="aar-event-chain__category-label">
-            {categoryLabel}
-          </span>
+          <span className="cs-aar-tag">{categoryLabel}</span>
         )}
       </div>
       <AAREventCard chain={chain} />

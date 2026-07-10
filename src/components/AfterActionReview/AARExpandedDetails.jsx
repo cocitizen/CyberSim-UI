@@ -20,7 +20,7 @@ export default function AARExpandedDetails({ chain }) {
     <div className="aar-expanded">
       <div className="aar-expanded__section">
         <p className="aar-expanded__heading">
-          Budget item to prevent event:
+          Budget item that would prevent this:
         </p>
         <ul className="aar-expanded__list">
           {skipper_mitigation ? (
@@ -83,7 +83,7 @@ export default function AARExpandedDetails({ chain }) {
 
       {bullets.length > 0 && (
         <div className="aar-expanded__section">
-          <p className="aar-expanded__heading">Key Takeaways:</p>
+          <p className="aar-expanded__heading">Key takeaways</p>
           <ul className="aar-expanded__list">
             {bullets.map((b, i) => (
               <li key={i}>{b}</li>

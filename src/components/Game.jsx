@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
-import qs from 'query-string';
+import React, { useEffect, useRef } from 'react';
 import { view } from '@risingstack/react-easy-state';
-import { Spinner } from 'react-bootstrap';
+import { Alert, Container, Spinner } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { GameStates } from '../constants';
+import { GameStates, SocketEvents } from '../constants';
 import EnterGame from './EnterGame';
 import Mitigations from './Mitigations/Mitigations';
 import Simulation from './Simulation/Simulation';
@@ -11,18 +11,57 @@ import Projector from './Projector';
 import AfterActionReview from './AfterActionReview/AfterActionReview';
 import { gameStore } from './GameStore';
 import { useStaticData } from './StaticDataProvider';
+import { gameSlugToGameName } from '../util/gameSlug';
 
-const queryParams = qs.parse(window.location.search);
-
-const Game = view(() => {
-  const { state: gameState, socketConnected } = gameStore;
-  const { loading: loadingStaticData } = useStaticData();
+const Game = view(({ view: gameView = 'facilitator' }) => {
+  const { gameSlug } = useParams();
+  const navigate = useNavigate();
+  const joinAttempt = useRef(null);
+  const {
+    id: loadedGameId,
+    state: gameState,
+    socketConnected,
+    scenarioSlug: gameScenarioSlug,
+    scenarioName: gameScenarioName,
+  } = gameStore;
+  const {
+    loading: loadingStaticData,
+    scenarioSlug,
+    scenarioName,
+  } = useStaticData();
 
   useEffect(() => {
     gameStore.ensureSocket();
   }, []);
 
-  if (loadingStaticData || !socketConnected) {
+  useEffect(() => {
+    if (!gameSlug || !socketConnected) return;
+
+    const gameName = gameSlugToGameName(gameSlug);
+    if (loadedGameId === gameName || joinAttempt.current === gameName) {
+      return;
+    }
+
+    joinAttempt.current = gameName;
+    gameStore.actions.enterGame({
+      eventType: SocketEvents.JOINGAME,
+      gameId: gameName,
+      onError: () => navigate('/', { replace: true }),
+    });
+  }, [
+    gameSlug,
+    loadedGameId,
+    navigate,
+    socketConnected,
+  ]);
+
+  const routeGameName = gameSlug
+    ? gameSlugToGameName(gameSlug)
+    : null;
+  const joiningRouteGame =
+    routeGameName && loadedGameId !== routeGameName;
+
+  if (loadingStaticData || !socketConnected || joiningRouteGame) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -37,11 +76,33 @@ const Game = view(() => {
     return <EnterGame />;
   }
 
-  if (queryParams.aar && gameState === GameStates.ASSESSMENT) {
+  if (gameScenarioSlug && gameScenarioSlug !== scenarioSlug) {
+    return (
+      <Container fluid="md" className="mt-5 pt-5">
+        <Alert variant="danger">
+          <Alert.Heading>Scenario mismatch</Alert.Heading>
+          <p>
+            This game belongs to{' '}
+            <strong>
+              {gameScenarioName || gameScenarioSlug}
+            </strong>
+            , but this UI is currently loaded for{' '}
+            <strong>{scenarioName || scenarioSlug}</strong>.
+          </p>
+          <p className="mb-0">
+            Switch the UI/backend local scenario settings or join a game
+            created for the current scenario before continuing.
+          </p>
+        </Alert>
+      </Container>
+    );
+  }
+
+  if (gameView === 'review' && gameState === GameStates.ASSESSMENT) {
     return <AfterActionReview />;
   }
 
-  if (queryParams.isProjectorView) {
+  if (gameView === 'projector') {
     return <Projector />;
   }
 

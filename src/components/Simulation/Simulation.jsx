@@ -19,23 +19,21 @@ const Simulation = () => {
         return <LogsAndThreats />;
       case SimulationTabs.ACTION_TABLE:
         return <ActionTable />;
-      case SimulationTabs.CAMPAIGN_HQ:
-        return <FacilitatorTable activeTab="hq" />;
-      case SimulationTabs.LOCAL_BRANCH:
-        return <FacilitatorTable activeTab="local" />;
+      case SimulationTabs.EVENTS:
+        return <FacilitatorTable />;
       default:
         return 'Unknown page.';
     }
   }, [activeTab]);
 
   return (
-    <>
+    <div className="cs-facilitator">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       <Container fluid="md" className="mb-5 pb-5">
         {body}
       </Container>
       <Footer />
-    </>
+    </div>
   );
 };
 

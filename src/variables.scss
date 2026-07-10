@@ -1,16 +1,80 @@
 // https://getbootstrap.com/docs/4.4/getting-started/theming/
+//
+// CyberSim brand token layer.
+// These values come from the CyberSim brand book + the marketing site's
+// design tokens (cybersim-website/src/assets/css/styles.css :root).
+// Defined BEFORE the bootstrap import in index.scss so Bootstrap's
+// `!default` variables pick these up instead of their own.
 
-$font-family-base: 'Arimo';
+// ---------------------------------------------------------------------------
+// Brand tokens (named, reusable)
+// ---------------------------------------------------------------------------
+$cs-purple: #5745f2; // Midnight Purple — primary brand color
+$cs-purple-dark: #2e257d; // deep purple, for dark sections
+$cs-purple-soft: #efedff; // soft purple tint (card backgrounds)
+$cs-cyan: #27cffc; // Tropical Blue — accent
+$cs-cyan-soft: #e8faff;
+$cs-yellow: #f2d62e; // Yellow Lager — accent / highlight
+$cs-yellow-soft: #fff8cf;
+$cs-coral: #f26e5e; // Red Brick — accent
+$cs-coral-soft: #fbe7e3;
 
+$cs-ink: #3c3c3b; // Dark font — body text + brand "hard shadow"
+$cs-muted: #62626b; // secondary text
+$cs-paper: #fbfaf7; // warm off-white page background
+$cs-line: #d8d5e8; // hairline borders
+
+// ---------------------------------------------------------------------------
+// Map brand tokens onto Bootstrap roles
+// ---------------------------------------------------------------------------
+
+// Chrome (header, buttons, links, nav, focus) is brand purple.
+$primary: $cs-purple;
+// Secondary buttons stay a calm neutral grey.
+$secondary: $cs-muted;
+// Informational accents lean on the brand cyan.
+$info: $cs-cyan;
+
+// IMPORTANT: $success / $warning / $danger are intentionally left at
+// Bootstrap defaults (green / amber / red). The simulation uses these as
+// game-STATUS signals (threats, mitigations, AAR indicators) and users read
+// them as meaning — so they must stay functional, not on-brand.
+
+// Add brand accent colors as theme colors too, so Bootstrap generates the
+// matching utilities (.bg-cyan, .text-coral, .btn-yellow, etc.).
+// Bootstrap merges its defaults UNDER this map, so primary/secondary/success
+// and friends all still exist.
 $theme-colors: (
-  'primary': #707070,
-  'secondary': #007bff,
+  'cyan': $cs-cyan,
+  'yellow': $cs-yellow,
+  'coral': $cs-coral,
+  'purple-dark': $cs-purple-dark,
 );
 
-$font-size-base: 0.9rem;
+// ---------------------------------------------------------------------------
+// Typography
+// ---------------------------------------------------------------------------
+// Exo 2 = display/headings (chunky geometric). PT Sans = body.
+// @font-face declarations live in index.scss.
+$font-family-sans-serif: 'PT Sans', -apple-system, BlinkMacSystemFont,
+  'Segoe UI', Roboto, sans-serif;
+$font-family-base: $font-family-sans-serif;
+$headings-font-family: 'Exo 2', $font-family-sans-serif;
+$headings-font-weight: 800;
+
+$font-size-base: 0.9rem; // unchanged — app is dense, avoid reflow
 $paragraph-margin-bottom: 1rem;
-
-$body-color: #707070;
-
-$headings-font-family: 'Arimo';
 $headings-margin-bottom: 1.5rem;
+
+// ---------------------------------------------------------------------------
+// Surfaces
+// ---------------------------------------------------------------------------
+$body-bg: $cs-paper;
+$body-color: $cs-ink;
+$border-color: $cs-line;
+
+// Slightly rounder than stock Bootstrap, in the spirit of the brand —
+// but measured (the brand's full 1rem radius is reserved for accent cards).
+$border-radius: 0.375rem;
+$border-radius-lg: 0.5rem;
+$border-radius-sm: 0.25rem;
