@@ -30,16 +30,16 @@ Routine implementation choices belong in code and version history. Planned work 
 
 **Consequences:** When the owner of project information is unclear, contributors should look in CyberSim-UI first. Moving information into UI does not make UI authoritative for Backend behavior, website content, or released facilitation materials.
 
-### D-003 — Keep NDI attribution as historical origin, not current affiliation
+### D-003 — Distinguish historical NDI attribution from current affiliation
 
 **Status:** Accepted  
-**Affected repositories:** CyberSim-UI
+**Affected repositories:** All
 
-**Context:** CyberSim originated as a National Democratic Institute (NDI) project; NDI branding is being deprecated project-wide. The UI README's "Origins" section is the only remaining reference.
+**Context:** CyberSim originated as a National Democratic Institute (NDI) project, so NDI may appear legitimately in historical attribution, background, licensing, or other contextual documentation. At the same time, current visual identity and public copy should not accidentally imply an active NDI affiliation where none is intended.
 
-**Decision:** Keep the NDI/NED/Microsoft origin note in the README's "Origins" section as historical attribution. Do not remove it, and do not let it imply CyberSim is a current NDI-branded or NDI-affiliated project.
+**Decision:** Retain accurate and relevant historical or contextual references to NDI, including the NDI/NED/Microsoft origin note in the UI README. Review each reference in context rather than removing it merely because it mentions NDI. New branding, contact information, or copy that implies a current affiliation requires deliberate review.
 
-**Consequences:** A future cleanup pass should not delete this line as a leftover NDI reference — it is deliberate. Any *new* NDI branding (visual assets, copy implying active affiliation, contact info) elsewhere should still be flagged and removed; only this specific historical mention is exempt.
+**Consequences:** Cleanup work should preserve truthful provenance and useful historical context while correcting genuinely misleading current-affiliation signals. The UI README is an example of deliberate attribution, not the sole permitted NDI reference.
 
 ## Open questions
 
