@@ -6,6 +6,10 @@ It provides a structured environment where teams experience realistic scenarios,
 
 This repository contains the CyberSim UI: a React application that provides the interactive simulation interface.
 
+## Cross-Repository Documentation
+
+CyberSim is maintained across UI, Backend, website, and resources repositories. This repository is the default home for system-wide and ambiguously owned project knowledge. See [AGENTS.md](AGENTS.md) for the repository map, [the system backlog](docs/cybersim-backlog.md) for planned and potential work, and [the decisions record](docs/decisions.md) for consequential cross-repository decisions.
+
 ## Origins
 
 The CyberSim facilitation app was originally developed by Rising Stack for the National Democratic Institute (NDI), with support from Microsoft and the National Endowment for Democracy, as part of broader efforts to strengthen civic resilience in the digital age.
