@@ -174,7 +174,11 @@ Reviewed evaluation scope and implementation proposals:
 - Use a separate temporary private RDS test instance, independent credentials,
   and synthetic data. The owner accepts its short-term cost. Do not connect
   tests to production or change production database configuration.
-- Prepare an isolated test frontend on Amplify. The requested test hostname is
+- Prepare an isolated test frontend in a separate Amplify app; the owner is
+  comfortable creating a new app for the experiment. Reuse existing build
+  conventions, with independent test API/domain/deployment settings. Creation
+  and deployment remain part of the reviewed live-trial approval.
+  The requested test hostname is
   `lightsail.cybersim.app`; settle its frontend/API assignment and the second
   hostname before preparing DNS changes. Leave production frontend configuration
   and DNS unchanged.

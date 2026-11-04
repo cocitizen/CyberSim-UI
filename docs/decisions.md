@@ -52,8 +52,9 @@ production adoption, deployment, and cutover remain unapproved.
 the backend with Docker Compose, keeping React on Amplify and PostgreSQL on
 private RDS. Preserve the retired Beanstalk Terraform root separately. Use a
 temporary independent private RDS test instance and an isolated Amplify test
-frontend; leave production infrastructure, data, DNS, and frontend configuration
-unchanged.
+frontend. The owner is comfortable using a new Amplify app for the experiment;
+that is the planned test setup, subject to the live-trial approval. Leave
+production infrastructure, data, DNS, and frontend configuration unchanged.
 
 **Rationale and tradeoff:** Expected usage is usually one active game and at
 most about twelve connected devices. Avoiding a dedicated ALB may reduce costs;
