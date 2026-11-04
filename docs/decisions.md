@@ -43,6 +43,33 @@ Routine implementation choices belong in code and version history. Planned work 
 
 ## Open questions
 
+### Should Lightsail replace the working Beanstalk deployment?
+
+**Status:** Evaluation preparation authorized by the owner on 2026-11-04;
+production adoption, deployment, and cutover remain unapproved.
+
+**Proposal:** Evaluate one modest Lightsail Linux instance running Caddy and
+the backend with Docker Compose, keeping React on Amplify and PostgreSQL on
+private RDS. Preserve the retired Beanstalk Terraform root separately. Use a
+temporary independent private RDS test instance and an isolated Amplify test
+frontend; leave production infrastructure, data, DNS, and frontend configuration
+unchanged.
+
+**Rationale and tradeoff:** Expected usage is usually one active game and at
+most about twelve connected devices. Avoiding a dedicated ALB may reduce costs;
+one host introduces a single failure point and responsibility for patching,
+replacement, certificates, and recovery. Running both deployments during the
+evaluation temporarily adds cost. Routine connection drops are unacceptable;
+test recovery from deliberate maintenance separately from normal stability.
+
+**What's needed to resolve it:** Review the complete running-cost estimate,
+isolated Terraform plan, secrets and state arrangements, host maintenance and
+replacement procedure, real Socket.IO reconnect tests, representative load,
+and database-compatible deployment/rollback runbook. Approve live evaluation
+separately, then decide on production adoption and cutover based on evidence.
+See [the system backlog](cybersim-backlog.md) and Backend
+`infra/aws-lightsail/README.md` for implementation status and next actions.
+
 ### Should static data fetching follow the active game's scenario, not the ambient slug?
 
 **Why it matters:** The frontend resolves two different scenario slugs that nothing currently reconciles: the *ambient* slug used to fetch static reference data (from hostname or `REACT_APP_SCENARIO_SLUG`), and the scenario an *active game* is actually bound to (stored on the game row). When these drift — e.g., a stale env value after a scenario change without an app restart — the UI fetches static data for the wrong scenario while rendering a game bound to a different one, producing dangling ids (systems/roles/`required_systems` resolve to nothing). This was the confirmed root cause of the reskin-era "mismatch" errors.

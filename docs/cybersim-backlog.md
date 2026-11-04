@@ -28,6 +28,30 @@ Notes:
 
 Things that are broken, misleading, or likely to confuse users or maintainers.
 
+### Restore game membership after a Socket.IO reconnect
+
+**Type:** Bug / runtime resilience
+
+**Source:** ECS migration assessment; source and Socket.IO v4 documentation review
+
+**Status:** Needs triage; identified by inspection, not reproduced
+
+**Next actor:** UI contributor
+
+`src/components/GameStore.jsx` registers the handler that emits `JOINGAME` using
+`socket.on('reconnect')`. In Socket.IO v4, reconnection events belong to the
+Manager (`socket.io`), while the Socket's `connect` event fires on both initial
+connection and reconnection. The current handler therefore appears unable to
+restore server-side game membership after a lost connection.
+
+Next action: fix the lifecycle handler and verify that facilitator and projector
+clients rejoin the game, reload current state, and receive subsequent updates
+after restarting a local test backend. Existing tests manually invoke the
+registered handler, so they do not establish that the library emits that event
+on the object being observed. This applies to Beanstalk and any replacement host.
+
+Reference: [Socket.IO client lifecycle documentation](https://socket.io/docs/v4/client-socket-instance/#events).
+
 ### Replace misleading “Backend not reachable” message
 
 **Type:** UX / bug  
@@ -63,6 +87,24 @@ Better behavior:
 
 Improvements to deployment, scenario setup, health checks, imports, hosting, or maintenance workflows.
 
+### Review RDS deletion protection
+
+**Type:** Ops / hardening
+
+**Source:** Read-only AWS teardown safety review, 2026-10-27
+
+**Status:** Needs owner review
+
+**Next actor:** Owner to decide whether to enable deletion protection; Backend
+contributor to implement if authorized.
+
+The existing `cybersim-prod-db` instance has deletion protection disabled and
+seven-day automated backup retention. The Beanstalk experiment destroy plan
+does not manage or delete this database. Consider enabling deletion protection
+as independent hardening. See the Backend
+`infra/aws-elasticbeanstalk/README.md` for the experiment's production-safety
+evidence. This is a historical observation from 2026-10-27, not a fresh check.
+
 ### Add scenario setup validation endpoint
 
 **Type:** Ops / admin  
@@ -92,9 +134,78 @@ Possible checks:
 
 Create `scripts/deploy-eb.sh` to package the backend, create an EB application version, and deploy it to the selected EB environment.
 
-### Add Terraform documentation
+### Prepare an isolated Lightsail deployment alongside Beanstalk
 
-Document the Terraform-managed backend environment, what it creates, what it reuses, and how to safely destroy/recreate the test environment.
+**Type:** Ops / hosting
+
+**Status:** Evaluation preparation authorized 2026-11-04; implementation pending;
+no AWS changes or production cutover authorized
+
+**Next actor:** Backend contributor to implement and locally validate the
+isolated deployment; UI contributor to prepare reconnect recovery and the test
+frontend configuration. Present concrete plans and live-test steps for owner
+approval before deployment.
+
+The owner wants to evaluate a single Lightsail Linux instance running Caddy and
+the existing backend with Docker Compose, retaining Amplify and private RDS.
+Expected load is usually one active game and at most about twelve concurrent
+devices. A deliberate maintenance interruption is different from recurring
+connection drops: normal operation should not cause routine reconnects, and
+noticeable recovery delays require investigation. Resolve and test the reconnect
+issue above before relying on automatic game recovery.
+
+The parallel Terraform-managed Beanstalk experiment was torn down on
+2026-10-27. Production remains on its separate Beanstalk environment. The
+Backend `infra/aws-elasticbeanstalk/README.md` records teardown scope and
+verification. The complete root was renamed from `infra/terraform/`, preserving
+its ignored state, backup, variables, and provider cache. Current local state
+is empty; the backup retains the historical resources. No apply was performed.
+
+Reviewed evaluation scope and implementation proposals:
+
+- Use Backend `infra/aws-lightsail/` as an independent root and state arrangement.
+  Preserve the Beanstalk IaC and never reuse its variables, state, or plans.
+- Use a separate temporary private RDS test instance, independent credentials,
+  and synthetic data. The owner accepts its short-term cost. Do not connect
+  tests to production or change production database configuration.
+- Prepare an isolated test frontend on Amplify. The requested test hostname is
+  `lightsail.cybersim.app`; settle its frontend/API assignment and the second
+  hostname before preparing DNS changes. Leave production frontend configuration
+  and DNS unchanged.
+- Proposed starting size: 2 GB Linux instance, subject to cost and load
+  validation. Use restricted SSH and operator-delivered host secrets rather
+  than persistent AWS credentials on Lightsail. Keep secrets out of Terraform
+  user data, state inputs, images, logs, and version control.
+- Common preparation: verify reconnect/rejoin with real clients across backend
+  restart; explicitly close sockets and database connections on shutdown;
+  separate migrations from serving traffic; review atomic gameplay mutations
+  and retry behavior; harden container build inputs and runtime permissions.
+- Use the existing Jest and Playwright tools for an isolated, synthetic
+  facilitator/projector test covering restart, refresh, rejoin, and subsequent
+  updates. Keep test data separate from production. Deploy a fixed image digest,
+  with a documented rollback and database migration compatibility plan.
+- Terraform should manage new application infrastructure separately from
+  existing shared resources, with private state, explicit teardown boundaries,
+  and a complete running-cost estimate before provisioning.
+- Verify existing shared peering before proposing changes. Keep RDS private,
+  scope ingress narrowly, and account for the instance's changed private address
+  after replacement.
+- Document bootstrap, host maintenance/replacement, pinned application releases,
+  health checks, bounded logs, acceptance/load tests, and database-compatible
+  rollback. Preserve Beanstalk, RDS, and shared resources until a separately
+  approved production cutover and eventual cleanup.
+- Frontend tooling modernization is a separate workstream: React 16.14 and
+  Create React App 5 remain in the lockfile. Assess replacing CRA and upgrading
+  React in distinct changes; neither requires a new rendering architecture.
+
+Companion local branches: `codex/lightsail-deployment` in CyberSim-Backend and
+CyberSim-UI. Repository cleanup preserves the pre-existing documentation edits;
+no pull requests, pushes, deployments, or live changes have been made for this
+work. Backend `infra/README.md` maps roots and
+`infra/aws-lightsail/README.md` records preparation scope. Next action is
+implementation and local validation, followed by review of the infrastructure
+plan and live acceptance procedure. Public website claims and facilitation
+resources are unaffected by this preparation; reassess them before cutover.
 
 ## Admin UX improvements
 
@@ -289,6 +400,19 @@ For now, document this as a manual bootstrapping requirement whenever a new Cybe
 ## Done
 
 Completed or resolved items. Keep short notes here so we remember what changed and why.
+
+### Document and retire the Terraform Beanstalk experiment
+
+**Type:** Docs / ops
+
+**Completed:** 2026-10-27
+
+Documented the experiment's scope and shared dependencies, then destroyed its
+10 Terraform-managed resources with owner approval. Verified production health,
+unchanged API DNS, retained VPC and subnets, shared database identity and access,
+TLS certificate attachment, experiment stack deletion, and empty Terraform
+state. The Backend `infra/aws-elasticbeanstalk/README.md` retains the evidence and marks
+the configuration as historical; applying it would recreate the experiment.
 
 ### Example completed item
 
