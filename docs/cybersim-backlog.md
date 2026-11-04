@@ -189,7 +189,14 @@ Reviewed evaluation scope and implementation proposals:
 - Common preparation: verify reconnect/rejoin with real clients across backend
   restart; explicitly close sockets and database connections on shutdown;
   separate migrations from serving traffic; review atomic gameplay mutations
-  and retry behavior; harden container build inputs and runtime permissions.
+  and retry behavior; review runtime permissions.
+- Owner-confirmed prerequisites: container-build hardening and verified database
+  TLS. Use explicit runtime image inputs, a restricted build context, and
+  synthetic context/layer exclusion checks; verify RDS certificate chains and
+  hostnames with real-driver success/rejection tests and no insecure fallback.
+  The Backend plan owns the detailed checklist and evidence. These improvements
+  must pass before the Lightsail trial release; deploying them to working EB
+  remains a separately reviewed action.
 - Use the existing Jest and Playwright tools for an isolated, synthetic
   facilitator/projector test covering restart, refresh, rejoin, and subsequent
   updates. Keep test data separate from production. Deploy a fixed image digest,
