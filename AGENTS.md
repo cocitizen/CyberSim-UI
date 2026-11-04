@@ -16,6 +16,7 @@ For component-specific truth, use the owning repository. For cross-repository or
 - System overview: `README.md` and `docs/cybersim-architecture.md`
 - System decisions and consequential open questions: `docs/decisions.md`
 - Planned and potential work: `docs/cybersim-backlog.md`
+- Detailed work plans: `docs/plans/` in the owning repository, linked from the system backlog
 - Frontend deployment: `docs/aws-amplify-deployment.md`
 - Backend, scenario, and Airtable operations: the relevant documents in `CyberSim-Backend/docs/`
 
@@ -36,6 +37,17 @@ Conversations and assistant context are temporary workspaces. Before pausing or 
 - Consequential decision or unresolved question: update `docs/decisions.md`.
 - Intended or follow-up work: update `docs/cybersim-backlog.md`.
 - Implementation and verification evidence: leave it in commits and the relevant pull request.
+
+For substantial work, use one descriptive Markdown file under the owning
+repository's `docs/plans/`, combining requirements, implementation steps,
+acceptance checks, and outstanding questions. Keep status and next actions
+current and link the plan from the system backlog without duplicating its
+detailed checklist. Split into a workstream folder only when supporting files
+justify it; small fixes do not require a plan. System-wide or ambiguously owned
+plans belong here in CyberSim-UI. Keep accepted decisions in `docs/decisions.md`
+and operating instructions in the owning repository's deployment/runbook docs.
+When work finishes, mark the plan completed and update those durable references.
+Existing `docs/features/implementation/` documents need not be reorganized.
 
 Preserve conclusions, rationale, blockers, and next actions, not transcripts or routine intermediate reasoning. Verify remembered or assistant-supplied claims against repository or system evidence before making them authoritative.
 

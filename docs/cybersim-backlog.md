@@ -141,7 +141,7 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 **Status:** Evaluation preparation authorized 2026-11-04; implementation pending;
 no AWS changes or production cutover authorized
 
-**Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/aws-lightsail-migration-plan.md)
+**Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
 — draft for owner review, covering baseline inspection, local implementation,
 isolated trial, production readiness, cutover/rollback, and retirement. Live
 trial, production preparation, routing cutover, and retirement have separate

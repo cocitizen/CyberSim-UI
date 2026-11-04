@@ -69,7 +69,7 @@ replacement procedure, real Socket.IO reconnect tests, representative load,
 and database-compatible deployment/rollback runbook. Approve live evaluation
 separately, then decide on production adoption and cutover based on evidence.
 See [the system backlog](cybersim-backlog.md) and the draft
-[Backend migration plan](../../CyberSim-Backend/docs/aws-lightsail-migration-plan.md)
+[Backend migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
 for phases, proposed acceptance targets, separate live-change approvals, and
 next actions. The plan is not an accepted production adoption decision.
 
