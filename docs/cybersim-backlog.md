@@ -141,6 +141,12 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 **Status:** Evaluation preparation authorized 2026-11-04; implementation pending;
 no AWS changes or production cutover authorized
 
+**Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/aws-lightsail-migration-plan.md)
+— draft for owner review, covering baseline inspection, local implementation,
+isolated trial, production readiness, cutover/rollback, and retirement. Live
+trial, production preparation, routing cutover, and retirement have separate
+approval points. Interruption and observation targets are proposals to validate.
+
 **Next actor:** Backend contributor to implement and locally validate the
 isolated deployment; UI contributor to prepare reconnect recovery and the test
 frontend configuration. Present concrete plans and live-test steps for owner
@@ -202,9 +208,10 @@ Companion local branches: `codex/lightsail-deployment` in CyberSim-Backend and
 CyberSim-UI. Repository cleanup preserves the pre-existing documentation edits;
 no pull requests, pushes, deployments, or live changes have been made for this
 work. Backend `infra/README.md` maps roots and
-`infra/aws-lightsail/README.md` records preparation scope. Next action is
-implementation and local validation, followed by review of the infrastructure
-plan and live acceptance procedure. Public website claims and facilitation
+`infra/aws-lightsail/README.md` records preparation scope. The migration plan is
+drafted; next action is its phase 1 baseline/input inventory, followed by local
+implementation/validation and review of the concrete infrastructure plan and
+live acceptance procedure. Public website claims and facilitation
 resources are unaffected by this preparation; reassess them before cutover.
 
 ## Admin UX improvements

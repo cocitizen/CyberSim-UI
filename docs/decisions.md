@@ -67,8 +67,10 @@ isolated Terraform plan, secrets and state arrangements, host maintenance and
 replacement procedure, real Socket.IO reconnect tests, representative load,
 and database-compatible deployment/rollback runbook. Approve live evaluation
 separately, then decide on production adoption and cutover based on evidence.
-See [the system backlog](cybersim-backlog.md) and Backend
-`infra/aws-lightsail/README.md` for implementation status and next actions.
+See [the system backlog](cybersim-backlog.md) and the draft
+[Backend migration plan](../../CyberSim-Backend/docs/aws-lightsail-migration-plan.md)
+for phases, proposed acceptance targets, separate live-change approvals, and
+next actions. The plan is not an accepted production adoption decision.
 
 ### Should static data fetching follow the active game's scenario, not the ambient slug?
 
