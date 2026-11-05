@@ -163,6 +163,12 @@ configuration. The plan now separates completed local tasks from live acceptance
 and later production-only schema/secret checks. Public trial and production steps
 remain separate approvals.
 
+Verification-only Backend helpers now live in `tests/lightsail/`; operator
+commands remain in `scripts/lightsail/`. The Backend operator guide places new
+private working files outside source checkouts and configures local Terraform
+state there. Existing EB private files remain preserved. Confirm an encrypted,
+recoverable backup destination before provisioning.
+
 The owner wants to evaluate a single Lightsail Linux instance running Caddy and
 the existing backend with Docker Compose, retaining Amplify and private RDS.
 Expected load is usually one active game and at most about twelve concurrent
