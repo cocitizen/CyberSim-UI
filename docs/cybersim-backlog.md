@@ -141,7 +141,7 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 
 **Type:** Ops / hosting
 
-**Status:** Local implementation and verification in progress; read-only AWS
+**Status:** Local implementation and proportionate local verification complete; read-only AWS
 inventory and create-only example plan prepared. No AWS changes, uploads,
 deployment, or production cutover authorized or performed.
 
@@ -155,8 +155,8 @@ approval points. Interruption and observation targets are proposals to validate.
 documents the implemented workflow and verification limits. The trial uses a
 separate manual-release Amplify app, not a production app branch or Git token.
 
-**Next actor:** Contributor to finish local verification and dependency-audit
-disposition; owner to supply operator SSH public key/CIDRs and review the
+**Next actor:** Contributor to complete dependency-audit disposition; owner to
+supply operator SSH public key/CIDRs and review the
 regenerated actual plan/artifacts for approval A. Public trial and production
 steps remain separate approvals.
 
@@ -236,6 +236,14 @@ contains eleven creates and no changes/deletes; its reserved SSH CIDR/ephemeral
 key are not deployable inputs. Regenerate it with actual approved access before
 requesting live-trial approval. Public website claims and facilitation
 resources are unaffected by this preparation; reassess them before cutover.
+
+Local implementation commits are Backend `056a3a6` and UI `35c7ab7`. Checks
+passed: 144 Backend tests, 26 UI tests, lint, secret scan, clean image/frontend
+builds, real Compose/Caddy polling/WebSocket workflows and restart readiness,
+verified database TLS and restricted role, actual GameStore reconnect recovery,
+and a short twelve-client check. Detailed evidence and outstanding live checks
+are in the Backend operator guide; no browser, public TLS, cloud bootstrap,
+remote rollback, sustained-load, or soak acceptance is claimed.
 
 ### Complete remaining Backend dependency-audit disposition
 
