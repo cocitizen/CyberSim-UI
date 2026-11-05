@@ -73,6 +73,15 @@ See [the system backlog](cybersim-backlog.md) and the draft
 for phases, proposed acceptance targets, separate live-change approvals, and
 next actions. The plan is not an accepted production adoption decision.
 
+Local implementation now includes the independent trial Terraform root,
+Compose/Caddy, pinned artifact and guarded operator tools, image/TLS hardening,
+and reconnect recovery. The locked provider does not model Lightsail peering;
+the proposed regional enablement is a separately approved CLI prerequisite,
+outside trial destruction. The isolated frontend uses a separate Amplify app
+with manual releases for the evaluation. Review this arrangement and the
+remaining audit/access inputs before live-trial approval. No cloud changes or
+production adoption have occurred.
+
 ### Should static data fetching follow the active game's scenario, not the ambient slug?
 
 **Why it matters:** The frontend resolves two different scenario slugs that nothing currently reconciles: the *ambient* slug used to fetch static reference data (from hostname or `REACT_APP_SCENARIO_SLUG`), and the scenario an *active game* is actually bound to (stored on the game row). When these drift — e.g., a stale env value after a scenario change without an app restart — the UI fetches static data for the wrong scenario while rendering a game bound to a different one, producing dangling ids (systems/roles/`required_systems` resolve to nothing). This was the confirmed root cause of the reskin-era "mismatch" errors.

@@ -12,7 +12,8 @@ describe('GameStore socket handlers', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    mockSocket = { emit: jest.fn(), on: jest.fn() };
+    mockSocket = { emit: jest.fn(), on: jest.fn(), connected: true };
+    mockSocket.timeout = jest.fn(() => mockSocket);
     require('socket.io-client').mockReturnValue(mockSocket);
     require('../util/scenario').getScenarioSlug.mockReturnValue('cso');
     process.env.REACT_APP_API_URL = 'http://localhost:3000';
@@ -34,10 +35,10 @@ describe('GameStore socket handlers', () => {
     return args[args.length - 1];
   }
 
-  describe('RECONNECT', () => {
+  describe('CONNECT and game recovery', () => {
     it('does not emit when gameStore.id is not set', () => {
       gameStore.id = null;
-      getHandler('reconnect')();
+      getHandler('connect')();
       expect(mockSocket.emit).not.toHaveBeenCalled();
     });
 
@@ -45,23 +46,45 @@ describe('GameStore socket handlers', () => {
       gameStore.id = 'game-123';
       jest.spyOn(gameStore, 'setGame');
 
-      getHandler('reconnect')();
+      getHandler('connect')();
 
       const callback = getEmitCallback();
       const fakeGame = { id: 'game-123', systems: [], mitigations: [], injections: [] };
-      callback({ error: null, game: fakeGame });
+      callback(null, { error: null, game: fakeGame });
 
       expect(gameStore.setGame).toHaveBeenCalledWith(fakeGame);
+    });
+
+    it('keeps commands disabled until membership and a snapshot are restored', () => {
+      gameStore.id = 'game-123';
+      getHandler('connect')();
+      expect(gameStore.socketConnected).toBe(false);
+      expect(gameStore.connectionLost).toBe(true);
+      gameStore.actions.pauseSimulation();
+      expect(mockSocket.emit).toHaveBeenCalledTimes(1); // join only, no command
+      getEmitCallback()(null, { game: { id: 'game-123', systems: [], mitigations: [], injections: [] } });
+      expect(gameStore.socketConnected).toBe(true);
+      expect(gameStore.connectionLost).toBe(false);
+    });
+
+    it('ignores an acknowledgement from a connection that has since dropped', () => {
+      gameStore.id = 'game-123';
+      getHandler('connect')();
+      const staleCallback = getEmitCallback();
+      getHandler('disconnect')();
+      staleCallback(null, { game: { id: 'game-123', systems: [], mitigations: [], injections: [] } });
+      expect(gameStore.socketConnected).toBe(false);
+      expect(gameStore.connectionLost).toBe(true);
     });
 
     it('calls popError on failed rejoin', () => {
       gameStore.id = 'game-123';
       jest.spyOn(gameStore, 'popError');
 
-      getHandler('reconnect')();
+      getHandler('connect')();
 
       const callback = getEmitCallback();
-      callback({ error: 'Game not found' });
+      callback(null, { error: 'Game not found' });
 
       expect(gameStore.popError).toHaveBeenCalledWith('Game not found');
     });

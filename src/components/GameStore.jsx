@@ -6,6 +6,8 @@ import { SocketEvents } from '../constants';
 import { getScenarioSlug } from '../util/scenario';
 
 let socket = null;
+let connectionGeneration = 0;
+let rejoinTimer = null;
 
 function getApiUrl() {
   return process.env.REACT_APP_API_URL;
@@ -109,9 +111,49 @@ export const gameStore = store({
       timeout: 5000,
     });
 
+    const restoreMembership = (generation, gameId) => {
+      socket.timeout(5000).emit(
+        SocketEvents.JOINGAME,
+        gameId,
+        null,
+        null,
+        getScenarioSlug(),
+        (timeoutError, result = {}) => {
+          if (
+            generation !== connectionGeneration ||
+            !socket.connected ||
+            gameStore.id !== gameId
+          ) return;
+          if (timeoutError || (result.error && !/game not found/i.test(result.error))) {
+            // Rejoining only reads a snapshot; retrying a game command could
+            // repeat a purchase/action, so commands remain disabled instead.
+            rejoinTimer = setTimeout(() => restoreMembership(generation, gameId), 1000);
+            return;
+          }
+          if (result.error) {
+            gameStore.clearGame();
+            gameStore.popError(result.error);
+          } else if (result.game) {
+            gameStore.setGame(result.game);
+          } else {
+            rejoinTimer = setTimeout(() => restoreMembership(generation, gameId), 1000);
+            return;
+          }
+          gameStore.socketConnected = true;
+          gameStore.connectionLost = false;
+        },
+      );
+    };
+
     socket.on(SocketEvents.CONNECT, () => {
-      gameStore.socketConnected = true;
-      gameStore.connectionLost = false;
+      connectionGeneration += 1;
+      clearTimeout(rejoinTimer);
+      // Socket.IO v4 emits connect on both initial connection and reconnect.
+      // Transport recovery is not game recovery: first restore the room and
+      // authoritative snapshot, then allow commands again.
+      gameStore.socketConnected = !gameStore.id;
+      gameStore.connectionLost = Boolean(gameStore.id);
+      if (gameStore.id) restoreMembership(connectionGeneration, gameStore.id);
     });
 
     socket.on(SocketEvents.CONNECT_ERROR, () => {
@@ -122,30 +164,14 @@ export const gameStore = store({
     });
 
     socket.on(SocketEvents.DISCONNECT, () => {
+      connectionGeneration += 1;
+      clearTimeout(rejoinTimer);
       gameStore.socketConnected = false;
       gameStore.connectionLost = true;
     });
 
     socket.on(SocketEvents.GAMEUPDATED, (g) => gameStore.setGame(g));
 
-    socket.on(SocketEvents.RECONNECT, () => {
-      if (gameStore.id) {
-        socket.emit(
-          SocketEvents.JOINGAME,
-          gameStore.id,
-          null,
-          null,
-          getScenarioSlug(),
-          ({ error, game: g }) => {
-            if (!error) {
-              gameStore.setGame(g);
-            } else {
-              gameStore.popError(error);
-            }
-          },
-        );
-      }
-    });
 
     return socket;
   },
@@ -204,6 +230,11 @@ export const gameStore = store({
         ({ error, game }) => {
           if (!error) {
             gameStore.setGame(game);
+            if (s.connected) {
+              clearTimeout(rejoinTimer);
+              gameStore.socketConnected = true;
+              gameStore.connectionLost = false;
+            }
             if (rememberGameId) localStorage.setItem('gameId', gameId);
             else localStorage.removeItem('gameId');
             if (onSuccess) onSuccess(game);

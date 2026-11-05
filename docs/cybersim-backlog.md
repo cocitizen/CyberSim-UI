@@ -34,21 +34,24 @@ Things that are broken, misleading, or likely to confuse users or maintainers.
 
 **Source:** ECS migration assessment; source and Socket.IO v4 documentation review
 
-**Status:** Needs triage; identified by inspection, not reproduced
+**Status:** Implemented and verified locally; not deployed; browser/live trial
+acceptance remains pending
 
-**Next actor:** UI contributor
+**Next actor:** Operator after approval of the isolated trial
 
-`src/components/GameStore.jsx` registers the handler that emits `JOINGAME` using
-`socket.on('reconnect')`. In Socket.IO v4, reconnection events belong to the
-Manager (`socket.io`), while the Socket's `connect` event fires on both initial
-connection and reconnection. The current handler therefore appears unable to
-restore server-side game membership after a lost connection.
+The former handler used `socket.on('reconnect')`, which does not provide Socket.IO
+v4 Socket lifecycle recovery. `src/components/GameStore.jsx` now rejoins on
+`connect`, reloads the game snapshot before enabling commands, retries only the
+idempotent join/snapshot step, ignores stale acknowledgements, and clears a
+missing game. No game command is automatically replayed during recovery.
 
-Next action: fix the lifecycle handler and verify that facilitator and projector
-clients rejoin the game, reload current state, and receive subsequent updates
-after restarting a local test backend. Existing tests manually invoke the
-registered handler, so they do not establish that the library emits that event
-on the object being observed. This applies to Beanstalk and any replacement host.
+The companion `scripts/verify-reconnect.cjs` exercises the actual UI store and
+real Socket.IO clients against an owned disposable local Backend/database:
+WebSocket and polling restarts, membership/snapshot recovery, subsequent live
+updates, a short twelve-client check, and missing-game recovery passed. This is
+a Node integration harness with browser timing/storage shims, not a browser or
+live-host acceptance result. Next: validate the facilitator/projector flows and
+the agreed recovery/soak targets through the approved Amplify/Lightsail trial.
 
 Reference: [Socket.IO client lifecycle documentation](https://socket.io/docs/v4/client-socket-instance/#events).
 
@@ -138,8 +141,9 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 
 **Type:** Ops / hosting
 
-**Status:** Evaluation preparation authorized 2026-11-04; implementation pending;
-no AWS changes or production cutover authorized
+**Status:** Local implementation and verification in progress; read-only AWS
+inventory and create-only example plan prepared. No AWS changes, uploads,
+deployment, or production cutover authorized or performed.
 
 **Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
 — draft for owner review, covering baseline inspection, local implementation,
@@ -147,10 +151,14 @@ isolated trial, production readiness, cutover/rollback, and retirement. Live
 trial, production preparation, routing cutover, and retirement have separate
 approval points. Interruption and observation targets are proposals to validate.
 
-**Next actor:** Backend contributor to implement and locally validate the
-isolated deployment; UI contributor to prepare reconnect recovery and the test
-frontend configuration. Present concrete plans and live-test steps for owner
-approval before deployment.
+**Operations:** [Backend trial operator guide](../../CyberSim-Backend/docs/aws-lightsail-deployment.md)
+documents the implemented workflow and verification limits. The trial uses a
+separate manual-release Amplify app, not a production app branch or Git token.
+
+**Next actor:** Contributor to finish local verification and dependency-audit
+disposition; owner to supply operator SSH public key/CIDRs and review the
+regenerated actual plan/artifacts for approval A. Public trial and production
+steps remain separate approvals.
 
 The owner wants to evaluate a single Lightsail Linux instance running Caddy and
 the existing backend with Docker Compose, retaining Amplify and private RDS.
@@ -207,6 +215,9 @@ Reviewed evaluation scope and implementation proposals:
 - Verify existing shared peering before proposing changes. Keep RDS private,
   scope ingress narrowly, and account for the instance's changed private address
   after replacement.
+  The read-only baseline found peering disabled; the locked provider does not
+  model Lightsail peering, so the proposed one-time CLI step is explicitly
+  reviewed separately and never undone by trial Terraform destruction.
 - Document bootstrap, host maintenance/replacement, pinned application releases,
   health checks, bounded logs, acceptance/load tests, and database-compatible
   rollback. Preserve Beanstalk, RDS, and shared resources until a separately
@@ -220,10 +231,29 @@ CyberSim-UI. Repository cleanup preserves the pre-existing documentation edits;
 no pull requests, pushes, deployments, or live changes have been made for this
 work. Backend `infra/README.md` maps roots and
 `infra/aws-lightsail/README.md` records preparation scope. The migration plan is
-drafted; next action is its phase 1 baseline/input inventory, followed by local
-implementation/validation and review of the concrete infrastructure plan and
-live acceptance procedure. Public website claims and facilitation
+drafted and the trial code is implemented locally. The authenticated example plan
+contains eleven creates and no changes/deletes; its reserved SSH CIDR/ephemeral
+key are not deployable inputs. Regenerate it with actual approved access before
+requesting live-trial approval. Public website claims and facilitation
 resources are unaffected by this preparation; reassess them before cutover.
+
+### Complete remaining Backend dependency-audit disposition
+
+**Type:** Security / dependencies
+
+**Status:** Requires review before public Lightsail trial; no accepted risk
+
+**Next actor:** Backend contributor and owner
+
+The trial hardening work applied compatible lockfile updates to the HTTP and
+Socket.IO dependency paths, without a major Knex upgrade. The production-only
+audit count fell from 17 (including one critical) to seven: five high and two
+moderate, no critical. These remaining findings involve the legacy Knex/CLI
+dependency tree and require separate applicability/remediation review, including
+any major upgrade. Preserve detailed security investigation privately; do not
+publish operational exploitation details or treat a lower count as acceptance.
+Re-run relevant migration/runtime tests for any further dependency change and
+record the disposition before approval A.
 
 ## Admin UX improvements
 
