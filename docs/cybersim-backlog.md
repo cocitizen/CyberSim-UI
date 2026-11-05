@@ -156,9 +156,12 @@ documents the implemented workflow and verification limits. The trial uses a
 separate manual-release Amplify app, not a production app branch or Git token.
 
 **Next actor:** Contributor to complete dependency-audit disposition; owner to
-supply operator SSH public key/CIDRs and review the
-regenerated actual plan/artifacts for approval A. Public trial and production
-steps remain separate approvals.
+supply operator SSH public key/CIDRs, confirm trial hostnames, state recovery
+location and lifetime, and review the regenerated actual plan/artifacts for
+approval A. Relevant DNS/proxy settings also need checking before test DNS
+configuration. The plan now separates completed local tasks from live acceptance
+and later production-only schema/secret checks. Public trial and production steps
+remain separate approvals.
 
 The owner wants to evaluate a single Lightsail Linux instance running Caddy and
 the existing backend with Docker Compose, retaining Amplify and private RDS.
