@@ -273,25 +273,56 @@ and scenario export/import rehearsal passed. The Backend operator guide records
 build evidence and limits. Nothing has been deployed, and this does not assert
 that the application is free of vulnerabilities.
 
-### Refresh the Backend development toolchain
+### Refresh Backend runtime and development packages
 
 **Type:** Maintenance / security
 
-**Status:** Follow-up; development-only audit findings remain
+**Status:** Backend-only current-package refresh prepared locally; final image verification pending
 
-Compatible targeted patches reduced the full audit from 40 to 31 affected
-packages (four high, 21 moderate, six low, zero critical), measured 2026-11-05.
-The production-only audit is zero. Older Jest, nodemon, and their development
-dependency paths still need a separately tested tooling refresh. They are
-excluded by the production image's `--omit=dev` installation. Do not force
-transitive major overrides or fold unrelated tooling majors into the hosting
-change. Recheck the full audit and local test/lint workflows when preparing this
-work; retain only sanitized verification evidence.
+**Plan:** [Backend dependency refresh](../../CyberSim-Backend/docs/plans/backend-dependency-refresh.md)
+
+The owner authorized the broader Backend refresh on 2026-11-05 and explicitly
+left React/frontend tooling as separate backlog work. Current stable Backend
+packages now include Express 5, Pino 10/pino-http 11, Helmet 8, Yup 1, Jest 30,
+ESLint 10 and Node 26 LTS. Deprecated/redundant middleware and the unused Jest
+lint plugin/TypeScript peer chain are removed. All 159 enabled lint rules are
+retained. Source remains JavaScript; UI package manifests are unchanged.
+
+Node 26 local checks pass the 144-test Backend suite, real Socket.IO reconnect
+workflows, and synthetic old-to-new database/scenario rehearsal. Production
+packages fall from 157 to 148 with zero production audit findings. The full
+audit reports 23 development-only affected packages: 20 moderate, three low,
+zero high/critical (2026-11-06). Keep upstream/applicability review open without
+forcing unsupported transitive majors or downgrading maintained tools just to
+change the audit count. No accepted risk, live release, or production change
+is implied. The Backend plan records package versions and final evidence.
 
 Also investigate the intermittent mocked import-route test failure observed
 during dependency validation (expected 500, observed 404). The isolated route
 suite and fresh full suite passed unchanged; cause is unconfirmed. Preserve the
 assertion and reproduce before changing application behavior or claiming a fix.
+
+### Update React and the frontend build toolchain
+
+**Type:** Maintenance / frontend
+
+**Status:** Backlog; explicitly deferred by the owner on 2026-11-05
+
+**Next actor:** Frontend contributor and owner
+
+The owner wants a maintained current package baseline, including major upgrades
+where needed, but limited the active refresh to Backend. UI remains on React 16,
+Create React App 5, Bootstrap 4/react-bootstrap 1, and older test/build packages.
+Plan a separate React update with a maintained build-tool replacement for the
+deprecated CRA stack, updated router/components/styles/testing, and a current
+Node LTS. Assess react-easy-state compatibility before choosing replacement work.
+Retain static Amplify hosting and existing behavior; a new rendering framework
+or TypeScript source migration is not assumed. Preserve the public environment
+variable/API contract, scenario hostname selection, SPA rewrites, game state and
+reconnect behavior. Validate the full browser facilitator/projector/player and
+admin workflows, visual layout, unit tests, production bundle and isolated
+Amplify trial deployment before any approved production release. Do not push or
+trigger a production Amplify build as part of preparation.
 
 ## Admin UX improvements
 
