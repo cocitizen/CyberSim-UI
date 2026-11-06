@@ -155,8 +155,8 @@ approval points. Interruption and observation targets are proposals to validate.
 documents the implemented workflow and verification limits. The trial uses a
 separate manual-release Amplify app, not a production app branch or Git token.
 
-**Next actor:** Contributor to complete dependency-audit disposition; owner to
-supply operator SSH public key/CIDRs, confirm trial hostnames, state recovery
+**Next actor:** Owner to supply operator SSH public key/CIDRs, confirm trial
+hostnames, state recovery
 location and lifetime, and review the regenerated actual plan/artifacts for
 approval A. Relevant DNS/proxy settings also need checking before test DNS
 configuration. The plan now separates completed local tasks from live acceptance
@@ -258,19 +258,40 @@ remote rollback, sustained-load, or soak acceptance is claimed.
 
 **Type:** Security / dependencies
 
-**Status:** Requires review before public Lightsail trial; no accepted risk
+**Status:** Production findings resolved locally; deployment remains unapproved
 
-**Next actor:** Backend contributor and owner
+**Next actor:** Operator to refresh the audit and review pinned artifacts before approval A
 
-The trial hardening work applied compatible lockfile updates to the HTTP and
-Socket.IO dependency paths, without a major Knex upgrade. The production-only
-audit count fell from 17 (including one critical) to seven: five high and two
-moderate, no critical. These remaining findings involve the legacy Knex/CLI
-dependency tree and require separate applicability/remediation review, including
-any major upgrade. Preserve detailed security investigation privately; do not
-publish operational exploitation details or treat a lower count as acceptance.
-Re-run relevant migration/runtime tests for any further dependency change and
-record the disposition before approval A.
+The initial trial hardening reduced the production audit from 17 findings
+(including one critical) to seven. The owner then authorized a controlled Knex
+0.21.21 to 3.3.0 upgrade and compatible dependency updates. The production audit
+now reports zero findings. Its install removes the old CLI chain and keeps Jest
+type definitions development-only: 157 production packages versus 306 before.
+No application query or schema migration edits were needed. The full Backend
+suite, real reconnect workflows, and a synthetic old-to-new migration-history
+and scenario export/import rehearsal passed. The Backend operator guide records
+build evidence and limits. Nothing has been deployed, and this does not assert
+that the application is free of vulnerabilities.
+
+### Refresh the Backend development toolchain
+
+**Type:** Maintenance / security
+
+**Status:** Follow-up; development-only audit findings remain
+
+Compatible targeted patches reduced the full audit from 40 to 31 affected
+packages (four high, 21 moderate, six low, zero critical), measured 2026-11-05.
+The production-only audit is zero. Older Jest, nodemon, and their development
+dependency paths still need a separately tested tooling refresh. They are
+excluded by the production image's `--omit=dev` installation. Do not force
+transitive major overrides or fold unrelated tooling majors into the hosting
+change. Recheck the full audit and local test/lint workflows when preparing this
+work; retain only sanitized verification evidence.
+
+Also investigate the intermittent mocked import-route test failure observed
+during dependency validation (expected 500, observed 404). The isolated route
+suite and fresh full suite passed unchanged; cause is unconfirmed. Preserve the
+assertion and reproduce before changing application behavior or claiming a fix.
 
 ## Admin UX improvements
 
