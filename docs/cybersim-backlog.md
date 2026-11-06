@@ -277,7 +277,7 @@ that the application is free of vulnerabilities.
 
 **Type:** Maintenance / security
 
-**Status:** Backend-only current-package refresh prepared locally; final image verification pending
+**Status:** Backend-only refresh completed locally on 2026-11-06; no deployment authorized
 
 **Plan:** [Backend dependency refresh](../../CyberSim-Backend/docs/plans/backend-dependency-refresh.md)
 
@@ -295,7 +295,11 @@ audit reports 23 development-only affected packages: 20 moderate, three low,
 zero high/critical (2026-11-06). Keep upstream/applicability review open without
 forcing unsupported transitive majors or downgrading maintained tools just to
 change the audit count. No accepted risk, live release, or production change
-is implied. The Backend plan records package versions and final evidence.
+is implied. The Backend plan records package versions and final evidence. The clean `5e5eed7`
+image passed real Compose/Caddy workflows, backend/proxy credential-canary checks,
+and offline runtime/dependency inspection. All owned disposable resources were
+removed. The local candidate is `/private/tmp/cybersim-backend-current-candidate`;
+rebuild/retain reviewed artifacts before an approved live trial.
 
 Also investigate the intermittent mocked import-route test failure observed
 during dependency validation (expected 500, observed 404). The isolated route
