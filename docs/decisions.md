@@ -82,6 +82,21 @@ with manual releases for the evaluation. Review this arrangement and the
 remaining audit/access inputs before live-trial approval. No cloud changes or
 production adoption have occurred.
 
+**Direction reaffirmed, 2026-11-06:** The owner wants to proceed with the
+Lightsail trial. The discussion of dynamically scalable alternatives does not
+change that trial target. Assess predictable failed-release/host recovery as
+well as cost and normal gameplay stability. Exact live actions still follow
+the migration plan's review/approval points.
+
+ECS on Fargate remains a candidate if managed host operations, availability, or
+dynamic scaling later justify its cost and infrastructure. It can run the
+existing Socket.IO container; a protocol rewrite is not a prerequisite.
+Multiple active tasks would require shared realtime updates, suitable routing,
+safe concurrent game mutations, and deployment/reconnect testing. A possible
+HTTPS-command/SSE redesign is a separate proposal, not an accepted dependency
+of the Lightsail trial or a commitment to rebuild. No ECS implementation or
+production hosting choice is authorized by this discussion.
+
 ### Should static data fetching follow the active game's scenario, not the ambient slug?
 
 **Why it matters:** The frontend resolves two different scenario slugs that nothing currently reconciles: the *ambient* slug used to fetch static reference data (from hostname or `REACT_APP_SCENARIO_SLUG`), and the scenario an *active game* is actually bound to (stored on the game row). When these drift — e.g., a stale env value after a scenario change without an app restart — the UI fetches static data for the wrong scenario while rendering a game bound to a different one, producing dangling ids (systems/roles/`required_systems` resolve to nothing). This was the confirmed root cause of the reskin-era "mismatch" errors.

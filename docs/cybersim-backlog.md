@@ -155,6 +155,12 @@ approval points. Interruption and observation targets are proposals to validate.
 documents the implemented workflow and verification limits. The trial uses a
 separate manual-release Amplify app, not a production app branch or Git token.
 
+The owner reaffirmed the Lightsail trial on 2026-11-06. ECS/Fargate is a future
+dynamic-scaling candidate; the comparison does not change the active trial.
+See the [hosting decision discussion](decisions.md#should-lightsail-replace-the-working-beanstalk-deployment)
+for the unresolved scaling/transport choices. Predictable recovery from a failed
+release and host replacement remains a key trial acceptance check.
+
 **Next actor:** Owner to supply operator SSH public key/CIDRs, confirm trial
 hostnames, state recovery
 location and lifetime, and review the regenerated actual plan/artifacts for
