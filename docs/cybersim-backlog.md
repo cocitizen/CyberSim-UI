@@ -142,7 +142,7 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 **Type:** Ops / hosting
 
 **Status:** Local implementation and proportionate local verification complete; read-only AWS
-inventory and create-only example plan prepared. No AWS changes, uploads,
+inventory refreshed and actual-access create-only saved plan prepared. No AWS changes, uploads,
 deployment, or production cutover authorized or performed.
 
 **Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
@@ -161,13 +161,18 @@ See the [hosting decision discussion](decisions.md#should-lightsail-replace-the-
 for the unresolved scaling/transport choices. Predictable recovery from a failed
 release and host replacement remains a key trial acceptance check.
 
-**Next actor:** Owner to supply operator SSH public key/CIDRs, confirm trial
-hostnames, state recovery
-location and lifetime, and review the regenerated actual plan/artifacts for
+**Next actor:** Owner to confirm trial hostnames, encrypted state recovery
+location and lifetime, and review the saved actual plan/artifacts for
 approval A. Relevant DNS/proxy settings also need checking before test DNS
 configuration. The plan now separates completed local tasks from live acceptance
 and later production-only schema/secret checks. Public trial and production steps
-remain separate approvals.
+remain separate approvals. On 2026-11-06 the owner approved the existing default
+public SSH key and current administrator IPv4 `/32`. The private operator tree
+and independent local backend were initialized without migrating any state;
+Terraform format/validate and inspected planning passed (eleven creates, zero
+updates/deletes/imports). Approved access/firewall and private test-RDS settings
+were checked, and checksum-verified Backend `5e5eed7` and UI `35c7ab7` releases
+were retained privately. No private key was read and nothing was deployed.
 
 Verification-only Backend helpers now live in `tests/lightsail/`; operator
 commands remain in `scripts/lightsail/`. The Backend operator guide places new
@@ -246,10 +251,10 @@ CyberSim-UI. Repository cleanup preserves the pre-existing documentation edits;
 no pull requests, pushes, deployments, or live changes have been made for this
 work. Backend `infra/README.md` maps roots and
 `infra/aws-lightsail/README.md` records preparation scope. The migration plan is
-drafted and the trial code is implemented locally. The authenticated example plan
-contains eleven creates and no changes/deletes; its reserved SSH CIDR/ephemeral
-key are not deployable inputs. Regenerate it with actual approved access before
-requesting live-trial approval. Public website claims and facilitation
+drafted and the trial code is implemented locally. The current authenticated plan
+contains eleven creates and no changes/deletes, using actual approved access;
+earlier placeholder-access plans are historical only. Confirm remaining trial
+inputs and recheck drift/access before live-trial approval. Public website claims and facilitation
 resources are unaffected by this preparation; reassess them before cutover.
 
 Local implementation commits are Backend `056a3a6` and UI `35c7ab7`. Checks
