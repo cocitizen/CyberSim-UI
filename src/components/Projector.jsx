@@ -3,26 +3,24 @@ import { view } from '@risingstack/react-easy-state';
 import classNames from 'classnames';
 import { FiAlertTriangle, FiSun, FiMoon } from 'react-icons/fi';
 
-import { GameStates } from '../constants';
 import { gameStore } from './GameStore';
 import { useStaticData } from './StaticDataProvider';
 import useTimeTaken from '../hooks/useTimeTaken';
 import { msToMinutesSeconds, numberToUsd } from '../util';
-import EventLogs from './EventLogs/EventLogs';
 import logo from '../assets/img/cybersim-logo.svg';
 import logoWhite from '../assets/img/cybersim-logo-white.svg';
 import gremlin from '../assets/img/cocitizen-gremlin.png';
 import { gameViewPath } from '../util/gameSlug';
 
-// TODO: source the win threshold from the game/scenario definition once that
-// field exists in the backend (see project memory). Stubbed for now — change
-// this one line when the real value is available.
-const SUPPORT_WIN_THRESHOLD = 50;
+// TODO: source the win threshold and game length from the scenario definition
+// once those fields exist in the backend (see decision D-004 and
+// docs/plans/scenario-game-settings.md). Stubbed for now.
+const SUPPORT_WIN_THRESHOLD = 60;
+const GAME_LENGTH_MS = 60 * 60 * 1000;
 
 const Projector = view(() => {
   const {
     id,
-    state: gameState,
     poll,
     budget,
     systems: gameSystems,
@@ -48,11 +46,13 @@ const Projector = view(() => {
     });
 
   const elapsed = useTimeTaken();
+  // Use the standard game length, extended only if a scenario schedules
+  // events past it, so the countdown never reaches 0:00 before the last event.
   const totalMs = useMemo(
     () =>
       Object.values(injections || {}).reduce(
         (max, inj) => Math.max(max, inj.trigger_time || 0),
-        0,
+        GAME_LENGTH_MS,
       ),
     [injections],
   );
@@ -102,8 +102,6 @@ const Projector = view(() => {
     () => () => bannerTimer.current && clearTimeout(bannerTimer.current),
     [],
   );
-
-  const isAssessment = gameState === GameStates.ASSESSMENT;
 
   return (
     <div
@@ -186,62 +184,56 @@ const Projector = view(() => {
         </div>
       </div>
 
-      {isAssessment ? (
-        <div className="cs-pj-body cs-pj-body--logs">
-          <EventLogs />
-        </div>
-      ) : (
-        <div className="cs-pj-body">
-          <section className="cs-pj-section">
-            <div className="cs-pj-h">Technical systems</div>
-            <div className="cs-pj-systems">
-              {systemList.map((sys) => {
-                const up = gameSystems[sys.id];
-                return (
-                  <div
-                    key={sys.id}
-                    className={classNames('cs-pj-tile', {
-                      'cs-pj-tile--down': !up,
-                    })}
-                  >
-                    {up ? (
-                      <span className="cs-pj-dot" aria-hidden="true" />
-                    ) : (
-                      <FiAlertTriangle
-                        className="cs-pj-alert"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span>{sys.name}</span>
-                    {!up && (
-                      <strong className="cs-pj-tile__status">Down</strong>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+      <div className="cs-pj-body">
+        <section className="cs-pj-section">
+          <div className="cs-pj-h">Technical systems</div>
+          <div className="cs-pj-systems">
+            {systemList.map((sys) => {
+              const up = gameSystems[sys.id];
+              return (
+                <div
+                  key={sys.id}
+                  className={classNames('cs-pj-tile', {
+                    'cs-pj-tile--down': !up,
+                  })}
+                >
+                  {up ? (
+                    <span className="cs-pj-dot" aria-hidden="true" />
+                  ) : (
+                    <FiAlertTriangle
+                      className="cs-pj-alert"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span>{sys.name}</span>
+                  {!up && (
+                    <strong className="cs-pj-tile__status">Down</strong>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
-          <section className="cs-pj-section cs-pj-section--purchased">
-            <div className="cs-pj-h">Purchased items</div>
-            {purchased.length ? (
-              <div className="cs-pj-inventory">
-                {purchased.map((m) => (
-                  <div
-                    key={m.id}
-                    className="cs-pj-inventory__item"
-                    title={m.description}
-                  >
-                    {m.description}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span className="cs-pj-empty">None yet.</span>
-            )}
-          </section>
-        </div>
-      )}
+        <section className="cs-pj-section cs-pj-section--purchased">
+          <div className="cs-pj-h">Purchased items</div>
+          {purchased.length ? (
+            <div className="cs-pj-inventory">
+              {purchased.map((m) => (
+                <div
+                  key={m.id}
+                  className="cs-pj-inventory__item"
+                  title={m.description}
+                >
+                  {m.description}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="cs-pj-empty">None yet.</span>
+          )}
+        </section>
+      </div>
 
       <div className="cs-pj-footer">
         <div className="cs-pj-footer__inner">
