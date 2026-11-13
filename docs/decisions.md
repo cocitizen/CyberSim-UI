@@ -41,6 +41,17 @@ Routine implementation choices belong in code and version history. Planned work 
 
 **Consequences:** Cleanup work should preserve truthful provenance and useful historical context while correcting genuinely misleading current-affiliation signals. The UI README is an example of deliberate attribution, not the sole permitted NDI reference.
 
+### D-004 — Scenarios define core game settings
+
+**Status:** Accepted (2026-11-13); implementation planned  
+**Affected repositories:** CyberSim-Backend, CyberSim-UI
+
+**Context:** Game length, the support level needed to win, starting budget, and starting support are hardcoded in the UI and Backend. All four are calibrated against a scenario's design: event timings assume a game length, and whether a win threshold is reachable depends on starting support and how much the events move it. A scenario designed around different values would still get the hardcoded ones.
+
+**Decision:** Each scenario defines all four values. The game-creation form pre-fills starting budget and starting support from the scenario and lets facilitators change them for an individual game. Game length cannot be changed per game, because events fire at fixed times. The win threshold also comes only from the scenario unless a need for per-game changes appears.
+
+**Consequences:** Hardcoded values are temporary stubs with defaults that preserve current behavior. Scenario import, saved scenario revisions, and the scenario API must carry the settings. How designers enter them is still open. See the [scenario-defined game settings plan](plans/scenario-game-settings.md).
+
 ## Open questions
 
 ### Should static data fetching follow the active game's scenario, not the ambient slug?
