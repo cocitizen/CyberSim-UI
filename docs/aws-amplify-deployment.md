@@ -109,12 +109,28 @@ In **Amplify → App Settings → Rewrites and Redirects**, use this rule:
 ```
 [
   {
-    "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>",
+    "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json)$)([^.]+$)/>",
     "target": "/index.html",
     "status": "200"
   }
 ]
 ```
+
+Every static asset extension the build emits must be listed. Otherwise the
+file is served as `index.html` (HTTP 200, `text/html`). A missing `woff2`
+once caused exactly this for the brand fonts. To check, request an asset
+that does not exist, such as `/static/media/test.woff2`: it should return
+404, not an HTML page.
+
+Changing this rule does not clear responses CloudFront has already cached,
+which can last up to a year for hashed assets. Redeploy afterwards (push to
+`main`, or `aws amplify start-job --job-type RELEASE`) so Amplify
+invalidates its cache.
+
+The production sites (`city`, `rodrum`, and `beta.cybersim.app`) are served
+by the Amplify app named `CyberSim-UI-v2`. The account also has
+similarly named apps (`CyberSim-UI`, `cybersim-lightsail-test`); confirm the
+app ID with `aws amplify list-domain-associations` before changing rules.
 
 ## Deploy
 

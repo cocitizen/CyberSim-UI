@@ -388,14 +388,33 @@ body {
     box-shadow: none;
   }
 
-  .invalid-feedback {
-    margin-top: 0.4rem;
-    font-weight: 700;
-  }
-
+  // Set directly on the text: the global `.form-group { white-space: nowrap }`
+  // later in this file overrides the field's own `white-space: normal`.
   .form-text {
     margin-top: 0.45rem;
     color: $cs-muted;
+    white-space: normal;
+  }
+}
+
+// Game-name validation error. Uses an icon, bold text, and a larger size
+// than the hint it replaces, so it doesn't rely on color alone.
+.cs-entry-card__error {
+  display: flex;
+  white-space: normal;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #b02a37;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    width: 1.1em;
+    height: 1.1em;
   }
 }
 
