@@ -120,22 +120,19 @@ Better behavior:
 
 Ideas that improve the simulation experience for facilitators, participants, or observers.
 
-### Add per-scenario win/support threshold to the backend
+### Define core game settings per scenario
 
 **Type:** Gameplay / enhancement  
-**Source:** Brand-reskin projector work (2026-06)  
+**Source:** Brand-reskin projector work (2026-06); projector fixes (2026-11)  
 **Priority:** Medium  
 **Effort:** Medium  
-**Status:** Backlog  
+**Status:** Planned  
+**Plan:** [Scenario-defined game settings](plans/scenario-game-settings.md)  
+**Decision:** [D-004](decisions.md#d-004--scenarios-define-core-game-settings)
 
-`Projector.jsx` currently hardcodes `SUPPORT_WIN_THRESHOLD = 50`. The `scenario` table has no win/threshold field, so every scenario shares the same stub value regardless of its actual design.
+`Projector.jsx` currently hardcodes `SUPPORT_WIN_THRESHOLD = 60` and `GAME_LENGTH_MS` (60 minutes; the countdown extends only if a scenario schedules events later than that). The `scenario` table has neither field, so every scenario shares the same stub values regardless of its actual design. Starting budget and starting support are already per-game options on the game-creation form, but their defaults are hardcoded in both the UI and the Backend rather than coming from the scenario.
 
-Needs:
-
-- Backend: migration adding a win/support-threshold field (with a sensible default) to `scenario`; expose it via the scenario data endpoint; support it in the Airtable import.
-- Frontend: replace the `Projector.jsx` stub constant with the value from `StaticDataProvider`.
-
-Also affects: game length has no dedicated field either — it's currently derived from the final event's `trigger_time`. Worth considering alongside this if touched.
+Per D-004, the scenario will define all four values. The plan has the cross-repository steps, acceptance checks, and open questions. The next action is deciding where designers enter the values.
 
 ### Example gameplay idea
 
