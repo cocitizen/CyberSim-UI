@@ -28,16 +28,6 @@ Notes:
 
 Things that are broken, misleading, or likely to confuse users or maintainers.
 
-### Brand fonts fail to load on the Amplify-hosted UI
-
-**Type:** Bug / deployment  
-**Source:** Game-name error investigation (2026-11-13)  
-**Priority:** Medium  
-**Effort:** Small  
-**Status:** Backlog  
-
-On `city.cybersim.app`, all three self-hosted `.woff2` font files return the app's `index.html` (HTTP 200, `text/html`), so every browser falls back to system fonts. The SPA rewrite rule in [aws-amplify-deployment.md](aws-amplify-deployment.md) excludes `woff` but not `woff2` from the rewrite. Fix: add `woff2` to the rule in the Amplify console and in that doc, then confirm a font URL returns `font/woff2`. Check other Amplify-hosted scenario subdomains too.
-
 ### Remaining form fields that flag errors without a visible message
 
 **Type:** UX / accessibility  
@@ -309,6 +299,13 @@ For now, document this as a manual bootstrapping requirement whenever a new Cybe
 ## Done
 
 Completed or resolved items. Keep short notes here so we remember what changed and why.
+
+### Brand fonts fail to load on the Amplify-hosted UI
+
+**Type:** Bug / deployment  
+**Completed:** 2026-11-13  
+
+The SPA rewrite rule excluded `woff` but not `woff2`, so the self-hosted `.woff2` fonts were served as `index.html` and browsers fell back to system fonts. Added `woff2` to the rule on the `CyberSim-UI-v2` Amplify app, redeployed to clear the cached responses, and confirmed `font/woff2` on `city`, `rodrum`, and `beta`. See [aws-amplify-deployment.md](aws-amplify-deployment.md).
 
 ### Example completed item
 
