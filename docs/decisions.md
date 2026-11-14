@@ -45,8 +45,9 @@ Routine implementation choices belong in code and version history. Planned work 
 
 ### Should Lightsail replace the working Beanstalk deployment?
 
-**Status:** Evaluation preparation authorized by the owner on 2026-11-04;
-production adoption, deployment, and cutover remain unapproved.
+**Status:** Evaluation preparation authorized on 2026-11-04; isolated live trial
+approved on 2026-11-09. The owner will run Terraform apply personally.
+Production adoption, deployment, and cutover remain unapproved.
 
 **Proposal:** Evaluate one modest Lightsail Linux instance running Caddy and
 the backend with Docker Compose, keeping React on Amplify and PostgreSQL on
@@ -78,9 +79,22 @@ Compose/Caddy, pinned artifact and guarded operator tools, image/TLS hardening,
 and reconnect recovery. The locked provider does not model Lightsail peering;
 the proposed regional enablement is a separately approved CLI prerequisite,
 outside trial destruction. The isolated frontend uses a separate Amplify app
-with manual releases for the evaluation. Review this arrangement and the
-remaining audit/access inputs before live-trial approval. No cloud changes or
-production adoption have occurred.
+with manual releases for the evaluation. The actual-access plan was refreshed
+and inspected on 2026-11-09: eleven creates, no updates/deletes/imports.
+The operator guide records the saved plan and owner-run peering/apply handoff.
+The owner applied the trial infrastructure, verified on 2026-11-13. Production
+adoption remains undecided. Initial post-apply planning showed zero drift;
+runtime acceptance has not started.
+
+**SSH access policy proposal, 2026-11-13:** The owner's VPN exit IP changes.
+Embedding the public SSH allowlist in cloud-init makes an IP update replace the
+host. The local repair proposes keeping that public restriction in Lightsail
+while UFW denies private/peered SSH, allowing future public allowlist updates
+without host replacement. Adopting it requires one initial trial-host
+replacement and explicit owner review/apply; RDS, Amplify and static IP remain.
+AWS returned no witnessed host keys, so initial trusted host-key enrollment is
+also unresolved. No automatic host-key acceptance or security exception is
+accepted. See the Backend operator guide for the exact plan and verification.
 
 **Direction reaffirmed, 2026-11-06:** The owner wants to proceed with the
 Lightsail trial. The discussion of dynamically scalable alternatives does not

@@ -142,8 +142,10 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 **Type:** Ops / hosting
 
 **Status:** Local implementation and proportionate local verification complete; read-only AWS
-inventory refreshed and actual-access create-only saved plan prepared. No AWS changes, uploads,
-deployment, or production cutover authorized or performed.
+inventory refreshed. The owner applied the isolated trial infrastructure;
+2026-11-13 checks confirmed eleven resources, private encrypted test RDS,
+enabled peering and zero initial drift. Application deployment is blocked on
+SSH access/trust. Production cutover remains unauthorized.
 
 **Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
 — draft for owner review, covering baseline inspection, local implementation,
@@ -161,9 +163,17 @@ See the [hosting decision discussion](decisions.md#should-lightsail-replace-the-
 for the unresolved scaling/transport choices. Predictable recovery from a failed
 release and host replacement remains a key trial acceptance check.
 
-**Next actor:** Owner to confirm trial hostnames, encrypted state recovery
-location and lifetime, and review the saved actual plan/artifacts for
-approval A. Relevant DNS/proxy settings also need checking before test DNS
+**Next actor:** Owner to review the [post-apply SSH repair proposal](../../CyberSim-Backend/docs/aws-lightsail-deployment.md#post-apply-ssh-repair-proposal--2026-11-13)
+and its saved plan, then run any accepted Terraform apply personally. The VPN
+exit IP changed; changing its `/32` in the initial implementation also changes
+bootstrap and replaces the host. The local repair keeps public SSH source
+restrictions in Lightsail, with UFW denying private/peered SSH. It proposes one
+trial host replacement plus firewall/attachment and test-DB ingress updates;
+RDS, Amplify and the static IP are retained. This policy needs owner review.
+AWS returned no witnessed host keys, so trusted initial enrollment remains
+required before secret delivery. Bootstrap and private SQL connectivity have
+not been verified; no unknown key was accepted or secret value retrieved.
+Relevant DNS/proxy settings also need checking before test DNS
 configuration. The plan now separates completed local tasks from live acceptance
 and later production-only schema/secret checks. Public trial and production steps
 remain separate approvals. On 2026-11-06 the owner approved the existing default
@@ -172,13 +182,16 @@ and independent local backend were initialized without migrating any state;
 Terraform format/validate and inspected planning passed (eleven creates, zero
 updates/deletes/imports). Approved access/firewall and private test-RDS settings
 were checked, and checksum-verified Backend `5e5eed7` and UI `35c7ab7` releases
-were retained privately. No private key was read and nothing was deployed.
+were retained privately. Application artifacts remain undeployed.
 
 Verification-only Backend helpers now live in `tests/lightsail/`; operator
 commands remain in `scripts/lightsail/`. The Backend operator guide places new
 private working files outside source checkouts and configures local Terraform
 state there. Existing EB private files remain preserved. Confirm an encrypted,
 recoverable backup destination before provisioning.
+The owner confirmed an existing device backup routine on 2026-11-09. FileVault
+and directory inclusion are verified; backup encryption and restore access
+remain unchecked. Use the existing routine; no new backup service is proposed.
 
 The owner wants to evaluate a single Lightsail Linux instance running Caddy and
 the existing backend with Docker Compose, retaining Amplify and private RDS.
