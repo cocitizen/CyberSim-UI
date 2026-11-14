@@ -3,6 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
 import { useNavigate } from 'react-router-dom';
 import {
+  FiAlertCircle,
   FiArrowRight,
   FiChevronDown,
   FiLogIn,
@@ -148,7 +149,9 @@ const EnterGame = view(() => {
                 return;
               }
               if (!isValidGameName(normalizedGameId)) {
-                setGameIdError('Use letters, numbers, and spaces only.');
+                setGameIdError(
+                  'Use only letters, numbers, and spaces (no hyphens or other punctuation).',
+                );
                 gameIdInputRef.current?.focus();
                 return;
               }
@@ -226,15 +229,29 @@ const EnterGame = view(() => {
                 value={gameId}
                 autoComplete="off"
                 isInvalid={Boolean(gameIdError)}
+                aria-invalid={Boolean(gameIdError)}
+                aria-describedby={gameIdError ? 'GameId-error' : undefined}
               />
-              <Form.Control.Feedback type="invalid">
-                {gameIdError}
-              </Form.Control.Feedback>
-              <Form.Text>
-                {entryMode === 'create'
-                  ? 'Choose a memorable name—you’ll use it to return to this game.'
-                  : 'Enter the name chosen when the game was created.'}
-              </Form.Text>
+              {/* Rendered only when there is an error, rather than using
+                  Bootstrap's always-present Form.Control.Feedback, which is
+                  revealed by a sibling CSS selector that Safari failed to
+                  lay out (the message collapsed to zero height). */}
+              {gameIdError ? (
+                <p
+                  id="GameId-error"
+                  className="cs-entry-card__error"
+                  role="alert"
+                >
+                  <FiAlertCircle aria-hidden="true" />
+                  <span>{gameIdError}</span>
+                </p>
+              ) : (
+                <Form.Text>
+                  {entryMode === 'create'
+                    ? 'Choose a memorable name—you’ll use it to return to this game.'
+                    : 'Enter the name chosen when the game was created.'}
+                </Form.Text>
+              )}
             </Form.Group>
 
             {entryMode === 'create' && (

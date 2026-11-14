@@ -28,6 +28,29 @@ Notes:
 
 Things that are broken, misleading, or likely to confuse users or maintainers.
 
+### Brand fonts fail to load on the Amplify-hosted UI
+
+**Type:** Bug / deployment  
+**Source:** Game-name error investigation (2026-11-13)  
+**Priority:** Medium  
+**Effort:** Small  
+**Status:** Backlog  
+
+On `city.cybersim.app`, all three self-hosted `.woff2` font files return the app's `index.html` (HTTP 200, `text/html`), so every browser falls back to system fonts. The SPA rewrite rule in [aws-amplify-deployment.md](aws-amplify-deployment.md) excludes `woff` but not `woff2` from the rewrite. Fix: add `woff2` to the rule in the Amplify console and in that doc, then confirm a font URL returns `font/woff2`. Check other Amplify-hosted scenario subdomains too.
+
+### Remaining form fields that flag errors without a visible message
+
+**Type:** UX / accessibility  
+**Source:** Game-name error investigation (2026-11-13)  
+**Priority:** Low  
+**Effort:** Small  
+**Status:** Backlog  
+
+The game-name field now renders its own error message, because Bootstrap's `Form.Control.Feedback` (revealed by a sibling CSS selector) collapsed to zero height in Safari. Two similar spots remain:
+
+- `EnterGame.jsx`: the starting budget and starting support fields turn red when empty or 0 but never show a message, and the form doesn't block submission for them.
+- `ScenarioImport.jsx` (admin): the scenario select still uses `Form.Control.Feedback` and may hide its error in Safari.
+
 ### Replace misleading “Backend not reachable” message
 
 **Type:** UX / bug  
