@@ -163,16 +163,15 @@ See the [hosting decision discussion](decisions.md#should-lightsail-replace-the-
 for the unresolved scaling/transport choices. Predictable recovery from a failed
 release and host replacement remains a key trial acceptance check.
 
-**Next actor:** Owner to review the [post-apply SSH repair proposal](../../CyberSim-Backend/docs/aws-lightsail-deployment.md#post-apply-ssh-repair-proposal--2026-11-13)
-and its saved plan, then run any accepted Terraform apply personally. The VPN
-exit IP changed; changing its `/32` in the initial implementation also changes
-bootstrap and replaces the host. The local repair keeps public SSH source
-restrictions in Lightsail, with UFW denying private/peered SSH. It proposes one
-trial host replacement plus firewall/attachment and test-DB ingress updates;
-RDS, Amplify and the static IP are retained. This policy needs owner review.
-AWS returned no witnessed host keys, so trusted initial enrollment remains
-required before secret delivery. Bootstrap and private SQL connectivity have
-not been verified; no unknown key was accepted or secret value retrieved.
+**Next actor:** Owner to review/apply the prepared Session Manager enrollment
+plan and perform one-time enrollment through the AWS browser terminal.
+The owner selected SSM; the earlier narrow-IP repair plans are superseded.
+See the [SSM procedure](../../CyberSim-Backend/docs/aws-lightsail-session-manager.md)
+for the 6-add/1-change/3-destroy plan, one trial-host replacement, dedicated node
+role, secure activation prompts, verified node/key/tunnel checks and final
+console-SSH closure. RDS, Amplify and static IP are retained. All Terraform
+applies remain owner-operated. No new IAM/activation/enrollment or application
+deployment has occurred; native SSM and tunneled access still need live checks.
 Relevant DNS/proxy settings also need checking before test DNS
 configuration. The plan now separates completed local tasks from live acceptance
 and later production-only schema/secret checks. Public trial and production steps

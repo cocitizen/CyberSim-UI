@@ -86,15 +86,27 @@ The owner applied the trial infrastructure, verified on 2026-11-13. Production
 adoption remains undecided. Initial post-apply planning showed zero drift;
 runtime acceptance has not started.
 
-**SSH access policy proposal, 2026-11-13:** The owner's VPN exit IP changes.
-Embedding the public SSH allowlist in cloud-init makes an IP update replace the
-host. The local repair proposes keeping that public restriction in Lightsail
-while UFW denies private/peered SSH, allowing future public allowlist updates
-without host replacement. Adopting it requires one initial trial-host
-replacement and explicit owner review/apply; RDS, Amplify and static IP remain.
-AWS returned no witnessed host keys, so initial trusted host-key enrollment is
-also unresolved. No automatic host-key acceptance or security exception is
-accepted. See the Backend operator guide for the exact plan and verification.
+**Administrative access selected:** The owner chose AWS Systems Manager
+Session Manager after evaluating VPN address changes, public key-only SSH,
+Tailscale and a dedicated bastion. Supersede the earlier IP-based repair plans.
+Use native SSM CLI shells and SSH/SCP inside SSM for releases, with no routine
+inbound SSH. The source no longer includes public administrator IPs.
+
+Lightsail uses a dedicated hybrid service role and one-node/one-hour activation
+created outside Terraform. No activation values enter state, user data or
+images. A temporary AWS-browser-only rule allows first enrollment, then is
+closed after verified node identity, SSM host-key collection and tunneled staging.
+The node role explicitly denies Parameter Store reads and has no application
+secret or command-dispatch permissions. No existing operator identity/policy is
+changed. Retain the existing AWS authentication/MFA controls and review scoped
+operator permissions before production.
+
+The [SSM procedure](../../CyberSim-Backend/docs/aws-lightsail-session-manager.md)
+records the inspected plan, secure prompts, credential tradeoff, tests,
+closure and recovery. This direction is accepted; its concrete Terraform
+changes remain for owner review/apply, and real enrollment/access remain
+unverified. No new role, activation, registered node or application deployment
+has been created by the agent. The owner personally executes Terraform applies.
 
 **Direction reaffirmed, 2026-11-06:** The owner wants to proceed with the
 Lightsail trial. The discussion of dynamically scalable alternatives does not
