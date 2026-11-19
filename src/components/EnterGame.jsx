@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { view } from '@risingstack/react-easy-state';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,39 @@ import {
   normalizeGameName,
 } from '../util/gameSlug';
 
+// Starting conditions are kept as the text typed and checked on submit, so a
+// value is never silently rounded or replaced while someone is editing it.
+// 0 is a valid, deliberate choice for both.
+const validateStartingConditions = (budgetText, pollText) => {
+  const budget = Number(budgetText);
+  const poll = Number(pollText);
+  const isBlank = (text) => String(text).trim() === '';
+
+  return {
+    budget:
+      isBlank(budgetText) || !Number.isInteger(budget) || budget < 0
+        ? 'Enter a whole number, 0 or more.'
+        : '',
+    poll:
+      isBlank(pollText) || !Number.isFinite(poll) || poll < 0 || poll > 100
+        ? 'Enter a number from 0 to 100.'
+        : '',
+  };
+};
+
+const NO_STARTING_ERRORS = { budget: '', poll: '' };
+
+// Rendered only when there is an error, rather than using Bootstrap's
+// always-present Form.Control.Feedback, which is revealed by a sibling CSS
+// selector that Safari failed to lay out (the message collapsed to zero
+// height).
+const FieldError = ({ id, children }) => (
+  <p id={id} className="cs-entry-card__error" role="alert">
+    <FiAlertCircle aria-hidden="true" />
+    <span>{children}</span>
+  </p>
+);
+
 const EnterGame = view(() => {
   const navigate = useNavigate();
   const {
@@ -41,9 +74,26 @@ const EnterGame = view(() => {
   const gameIdInputRef = useRef(null);
 
   const [adjustGameConfig, setAdjustGameConfig] = useState(false);
-  const [initialBudget, setInitialBudget] = useState(6000);
+  const [initialBudget, setInitialBudget] = useState('6000');
   const [initialPollPercentage, setInitialPollPercentage] =
-    useState(55.0);
+    useState('55');
+  const [startingErrors, setStartingErrors] = useState(NO_STARTING_ERRORS);
+  const budgetInputRef = useRef(null);
+  const pollInputRef = useRef(null);
+
+  // Focus is moved after rendering, because the starting-conditions fields
+  // only exist once the submit handler has opened their panel.
+  const [focusTarget, setFocusTarget] = useState(null);
+  useEffect(() => {
+    if (!focusTarget) return;
+    const refs = {
+      gameId: gameIdInputRef,
+      budget: budgetInputRef,
+      poll: pollInputRef,
+    };
+    refs[focusTarget].current?.focus();
+    setFocusTarget(null);
+  }, [focusTarget]);
 
   return (
     <main className="cs-entry">
@@ -138,21 +188,42 @@ const EnterGame = view(() => {
           </header>
 
           <Form
+            // The form checks its own fields; the browser's built-in checks
+            // would otherwise block values that are off the arrow-key step
+            // (e.g. a budget of 6050) with an unstyled popup.
+            noValidate
             onSubmit={(event) => {
               event.preventDefault();
               event.stopPropagation();
 
               const normalizedGameId = normalizeGameName(gameId);
+              let nameError = '';
               if (!normalizedGameId) {
-                setGameIdError('Enter a game name to continue.');
-                gameIdInputRef.current?.focus();
-                return;
+                nameError = 'Enter a game name to continue.';
+              } else if (!isValidGameName(normalizedGameId)) {
+                nameError =
+                  'Use only letters, numbers, and spaces (no hyphens or other punctuation).';
               }
-              if (!isValidGameName(normalizedGameId)) {
-                setGameIdError(
-                  'Use only letters, numbers, and spaces (no hyphens or other punctuation).',
-                );
-                gameIdInputRef.current?.focus();
+
+              const conditionErrors =
+                entryMode === 'create'
+                  ? validateStartingConditions(
+                      initialBudget,
+                      initialPollPercentage,
+                    )
+                  : NO_STARTING_ERRORS;
+              const hasConditionError = Boolean(
+                conditionErrors.budget || conditionErrors.poll,
+              );
+
+              setGameIdError(nameError);
+              setStartingErrors(conditionErrors);
+
+              if (nameError || hasConditionError) {
+                if (hasConditionError) setAdjustGameConfig(true);
+                if (nameError) setFocusTarget('gameId');
+                else if (conditionErrors.budget) setFocusTarget('budget');
+                else setFocusTarget('poll');
                 return;
               }
 
@@ -163,8 +234,8 @@ const EnterGame = view(() => {
                     : SocketEvents.JOINGAME,
                 gameId: normalizedGameId,
                 ...(entryMode === 'create' && {
-                  initialBudget,
-                  initialPollPercentage,
+                  initialBudget: Number(initialBudget),
+                  initialPollPercentage: Number(initialPollPercentage),
                 }),
                 onSuccess: (game) =>
                   navigate(
@@ -201,6 +272,7 @@ const EnterGame = view(() => {
                   setEntryMode('join');
                   setAdjustGameConfig(false);
                   setGameIdError('');
+                  setStartingErrors(NO_STARTING_ERRORS);
                 }}
               >
                 Join a game
@@ -232,19 +304,8 @@ const EnterGame = view(() => {
                 aria-invalid={Boolean(gameIdError)}
                 aria-describedby={gameIdError ? 'GameId-error' : undefined}
               />
-              {/* Rendered only when there is an error, rather than using
-                  Bootstrap's always-present Form.Control.Feedback, which is
-                  revealed by a sibling CSS selector that Safari failed to
-                  lay out (the message collapsed to zero height). */}
               {gameIdError ? (
-                <p
-                  id="GameId-error"
-                  className="cs-entry-card__error"
-                  role="alert"
-                >
-                  <FiAlertCircle aria-hidden="true" />
-                  <span>{gameIdError}</span>
-                </p>
+                <FieldError id="GameId-error">{gameIdError}</FieldError>
               ) : (
                 <Form.Text>
                   {entryMode === 'create'
@@ -287,22 +348,32 @@ const EnterGame = view(() => {
                     {getTextWithSynonyms('Starting budget')}
                   </Form.Label>
                   <Form.Control
+                    ref={budgetInputRef}
                     type="number"
                     placeholder={getTextWithSynonyms('Budget')}
                     size="sm"
                     onChange={(event) => {
-                      const newValue = !event.target.value.length
-                        ? ''
-                        : parseInt(event.target.value, 10);
-
-                      setInitialBudget(newValue);
+                      setInitialBudget(event.target.value);
+                      setStartingErrors((errors) => ({
+                        ...errors,
+                        budget: '',
+                      }));
                     }}
                     value={initialBudget}
                     step={100}
                     min={0}
-                    isInvalid={!initialBudget}
+                    isInvalid={Boolean(startingErrors.budget)}
+                    aria-invalid={Boolean(startingErrors.budget)}
+                    aria-describedby={
+                      startingErrors.budget ? 'Budget-error' : undefined
+                    }
                     autoComplete="off"
                   />
+                  {startingErrors.budget && (
+                    <FieldError id="Budget-error">
+                      {startingErrors.budget}
+                    </FieldError>
+                  )}
                 </Form.Group>
 
                 <Form.Group controlId="PollPercentage">
@@ -312,24 +383,34 @@ const EnterGame = view(() => {
                     )}
                   </Form.Label>
                   <Form.Control
+                    ref={pollInputRef}
                     type="number"
                     placeholder={getTextWithSynonyms(
                       'Poll percentage',
                     )}
                     onChange={(event) => {
-                      const newValue = !event.target.value.length
-                        ? ''
-                        : parseFloat(event.target.value);
-
-                      setInitialPollPercentage(newValue);
+                      setInitialPollPercentage(event.target.value);
+                      setStartingErrors((errors) => ({
+                        ...errors,
+                        poll: '',
+                      }));
                     }}
                     value={initialPollPercentage}
                     autoComplete="off"
                     step={0.5}
-                    max={200}
+                    max={100}
                     min={0}
-                    isInvalid={!initialPollPercentage}
+                    isInvalid={Boolean(startingErrors.poll)}
+                    aria-invalid={Boolean(startingErrors.poll)}
+                    aria-describedby={
+                      startingErrors.poll ? 'PollPercentage-error' : undefined
+                    }
                   />
+                  {startingErrors.poll && (
+                    <FieldError id="PollPercentage-error">
+                      {startingErrors.poll}
+                    </FieldError>
+                  )}
                 </Form.Group>
               </div>
             )}

@@ -28,19 +28,6 @@ Notes:
 
 Things that are broken, misleading, or likely to confuse users or maintainers.
 
-### Remaining form fields that flag errors without a visible message
-
-**Type:** UX / accessibility  
-**Source:** Game-name error investigation (2026-11-13)  
-**Priority:** Low  
-**Effort:** Small  
-**Status:** Backlog  
-
-The game-name field now renders its own error message, because Bootstrap's `Form.Control.Feedback` (revealed by a sibling CSS selector) collapsed to zero height in Safari. Two similar spots remain:
-
-- `EnterGame.jsx`: the starting budget and starting support fields turn red when empty or 0 but never show a message, and the form doesn't block submission for them.
-- `ScenarioImport.jsx` (admin): the scenario select still uses `Form.Control.Feedback` and may hide its error in Safari.
-
 ### Replace misleading “Backend not reachable” message
 
 **Type:** UX / bug  
@@ -299,6 +286,13 @@ For now, document this as a manual bootstrapping requirement whenever a new Cybe
 ## Done
 
 Completed or resolved items. Keep short notes here so we remember what changed and why.
+
+### Remaining form fields that flag errors without a visible message
+
+**Type:** UX / accessibility  
+**Completed:** 2026-11-14  
+
+The starting budget and starting support fields on the game entry form turned red without a message and didn't block submission. An empty value was also sent to the Backend as an empty value instead of a number. They now use the same visible error as the game-name field: budget must be a whole number of 0 or more, support from 0 to 100, and 0 is allowed for both. A failed submit reopens Starting conditions and focuses the first problem. The form also switches off the browser's built-in checks, so off-step values such as 6050 are accepted. In `ScenarioImport.jsx`, the hidden feedback was unused (the Backend never returns a per-field scenario error) and was removed.
 
 ### Brand fonts fail to load on the Amplify-hosted UI
 
