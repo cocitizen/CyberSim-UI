@@ -169,7 +169,6 @@ export default function ScenarioImport({ password }) {
                 onChange={onChange}
                 disabled={scenariosLoading}
                 style={{ fontSize: '1.125rem' }}
-                isInvalid={errors?.scenarioSlug}
               >
                 {availableScenarios.length > 1 && (
                   <option value="">
@@ -183,9 +182,6 @@ export default function ScenarioImport({ password }) {
                 ))}
               </Form.Control>
             )}
-            <Form.Control.Feedback type="invalid" tooltip>
-              {errors?.scenarioSlug}
-            </Form.Control.Feedback>
           </Form.Group>
 
           <Row className="my-4">

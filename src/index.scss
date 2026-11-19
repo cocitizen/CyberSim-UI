@@ -531,6 +531,10 @@ body {
     border-color: $cs-line;
     background: #fff;
   }
+  // Restores the invalid border that the neutral border above overrides.
+  .form-control.is-invalid {
+    border-color: #dc3545;
+  }
 }
 
 .cs-entry-card__advanced + .cs-entry-card__actions {
