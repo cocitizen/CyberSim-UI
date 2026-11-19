@@ -141,149 +141,90 @@ Create `scripts/deploy-eb.sh` to package the backend, create an EB application v
 
 **Type:** Ops / hosting
 
-**Status:** Local implementation and proportionate local verification complete; read-only AWS
-inventory refreshed. The owner applied the isolated trial infrastructure;
-2026-11-13 checks confirmed eleven resources, private encrypted test RDS,
-enabled peering and zero initial drift. Application deployment is blocked on
-SSH access/trust. Production cutover remains unauthorized.
+**Status:** Isolated trial deployed; gameplay and operational acceptance pending.
+On 2026-11-19 the owner reported the frontend running. Independent public checks
+returned HTTP 200 for the Amplify page and its JavaScript bundle, and verified
+HTTPS API health returned `{"status":"ok"}`. These checks do not establish
+facilitator/player behavior or Socket.IO reliability. Production cutover remains
+unauthorized; working EB, production DNS/frontend and production RDS are unchanged.
 
 **Plan:** [Backend Lightsail migration plan](../../CyberSim-Backend/docs/plans/lightsail-migration.md)
-— draft for owner review, covering baseline inspection, local implementation,
-isolated trial, production readiness, cutover/rollback, and retirement. Live
-trial, production preparation, routing cutover, and retirement have separate
-approval points. Interruption and observation targets are proposals to validate.
+owns the detailed implementation, acceptance and production approval checklist.
+The [Backend operator guide](../../CyberSim-Backend/docs/aws-lightsail-deployment.md)
+owns credentials, releases and recovery; [frontend deployment](aws-amplify-deployment.md#isolated-lightsail-trial)
+owns the separate manual-release Amplify flow.
 
-**Operations:** [Backend trial operator guide](../../CyberSim-Backend/docs/aws-lightsail-deployment.md)
-documents the implemented workflow and verification limits. The trial uses a
-separate manual-release Amplify app, not a production app branch or Git token.
+**Next actor:** Commit/recover the reviewed local work and integrate current UI
+`origin/main` before building the next acceptance frontend. The deployed
+`35c7ab7` predates projector/form-error fixes; a refreshed remote comparison found
+eight missing mainline commits. Resolve overlapping docs without undoing Done
+items, then run affected UI tests/lint/build and have the owner deploy a new
+pinned frontend. Branch publication is a separate owner decision. Afterward, the
+owner runs a complete synthetic game with separate facilitator and
+player/projector sessions, then checks refresh and network-interruption
+rejoin with subsequent updates. Record results in the plan. Follow with the
+proposed twelve-client load/observation exercises and owner-operated restart,
+deploy/rollback and host-replacement rehearsals before production preparation.
+Agree a short trial review/cleanup date and review actual billing.
 
-The owner reaffirmed the Lightsail trial on 2026-11-06. ECS/Fargate is a future
-dynamic-scaling candidate; the comparison does not change the active trial.
-See the [hosting decision discussion](decisions.md#should-lightsail-replace-the-working-beanstalk-deployment)
-for the unresolved scaling/transport choices. Predictable recovery from a failed
-release and host replacement remains a key trial acceptance check.
+Current trial: 2 GB Lightsail host with Caddy/backend Compose, private temporary
+RDS with synthetic `lightsail` data, and a standalone Amplify app. API:
+`https://api-lightsail.cybersim.app`; frontend:
+`https://lightsail.d2cjzpyvq3fv5r.amplifyapp.com`. Custom frontend
+`https://lightsail.cybersim.app` is also serving after the owner-created Amplify
+domain association and Cloudflare records; that association is outside Terraform.
+Shared peering is outside disposable state. The existing EB IaC and private state are preserved
+under Backend `infra/aws-elasticbeanstalk/`; working production EB is separate.
 
-**Next actor:** Owner to review/apply the prepared Session Manager enrollment
-plan and perform one-time enrollment through the AWS browser terminal.
-The owner selected SSM; the earlier narrow-IP repair plans are superseded.
-See the [SSM procedure](../../CyberSim-Backend/docs/aws-lightsail-session-manager.md)
-for the 6-add/1-change/3-destroy plan, one trial-host replacement, dedicated node
-role, secure activation prompts, verified node/key/tunnel checks and final
-console-SSH closure. RDS, Amplify and static IP are retained. All Terraform
-applies remain owner-operated. No new IAM/activation/enrollment or application
-deployment has occurred; native SSM and tunneled access still need live checks.
-Relevant DNS/proxy settings also need checking before test DNS
-configuration. The plan now separates completed local tasks from live acceptance
-and later production-only schema/secret checks. Public trial and production steps
-remain separate approvals. On 2026-11-06 the owner approved the existing default
-public SSH key and current administrator IPv4 `/32`. The private operator tree
-and independent local backend were initialized without migrating any state;
-Terraform format/validate and inspected planning passed (eleven creates, zero
-updates/deletes/imports). Approved access/firewall and private test-RDS settings
-were checked, and checksum-verified Backend `5e5eed7` and UI `35c7ab7` releases
-were retained privately. Application artifacts remain undeployed.
+SSM administration is verified with public SSH closed. Pinned migrations,
+fixture loading and the direct-pg/app-Knex authentication/TLS/restricted-role
+probe passed under owner operation. Initial bootstrap, SSM version-selection,
+Docker image-identity and credential-alignment problems were repaired; rationale
+and limits remain in the Backend guide/plan. All Terraform applies and remote
+host commands/transfers remain owner-operated. No agent upload, deployment,
+production mutation, push or external communication occurred. The runbooks now consolidate the fresh-host SSM path and resolved setup
+traps; the probe uses verified current RDS metadata for new DB endpoints. Fresh
+cold-start/full replacement remains untested. Additional scenario loading is
+deferred until after this documentation/staging handoff. Review follow-up adds
+owner-file cleanup, grants without password reset, host maintenance/reboot and
+Caddy update procedures, and fixture regeneration after schema changes. These
+source changes have not been installed on the current host. The SSM advanced-tier
+cost concern was checked: account setting is `standard`; AWS removed that tier
+in June 2026 and now charges per hybrid session/command.
 
-Verification-only Backend helpers now live in `tests/lightsail/`; operator
-commands remain in `scripts/lightsail/`. The Backend operator guide places new
-private working files outside source checkouts and configures local Terraform
-state there. Existing EB private files remain preserved. Confirm an encrypted,
-recoverable backup destination before provisioning.
-The owner confirmed an existing device backup routine on 2026-11-09. FileVault
-and directory inclusion are verified; backup encryption and restore access
-remain unchecked. Use the existing routine; no new backup service is proposed.
+Common preparation includes explicit container inputs/context exclusions,
+verified database CA/hostname checks, dependency updates and reconnect handling.
+Local evidence includes 144 Backend tests, 26 UI tests, lint, secret scan, clean
+builds, Compose/Caddy polling/WebSocket workflows, real-driver TLS rejection
+checks, reconnect recovery and a short twelve-client check. Subsequent operator
+helpers pass 50 offline tests and synthetic probe checks. These local checks do
+not replace hosted game/load/recovery acceptance.
 
-The owner wants to evaluate a single Lightsail Linux instance running Caddy and
-the existing backend with Docker Compose, retaining Amplify and private RDS.
-Expected load is usually one active game and at most about twelve concurrent
-devices. A deliberate maintenance interruption is different from recurring
-connection drops: normal operation should not cause routine reconnects, and
-noticeable recovery delays require investigation. Resolve and test the reconnect
-issue above before relying on automatic game recovery.
+Expected usage is usually one active game and at most twelve devices. Recurring
+noticeable reconnects during normal games are unacceptable; measure recovery
+separately from planned maintenance. Production adoption, cutover and EB cleanup
+require separate reviews and approvals. ECS/Fargate remains a possible future
+scaling option, with no change to this trial. Frontend React/CRA modernization
+remains separate backlog work.
 
-The parallel Terraform-managed Beanstalk experiment was torn down on
-2026-10-27. Production remains on its separate Beanstalk environment. The
-Backend `infra/aws-elasticbeanstalk/README.md` records teardown scope and
-verification. The complete root was renamed from `infra/terraform/`, preserving
-its ignored state, backup, variables, and provider cache. Current local state
-is empty; the backup retains the historical resources. No apply was performed.
-
-Reviewed evaluation scope and implementation proposals:
-
-- Use Backend `infra/aws-lightsail/` as an independent root and state arrangement.
-  Preserve the Beanstalk IaC and never reuse its variables, state, or plans.
-- Use a separate temporary private RDS test instance, independent credentials,
-  and synthetic data. The owner accepts its short-term cost. Do not connect
-  tests to production or change production database configuration.
-- Prepare an isolated test frontend in a separate Amplify app; the owner is
-  comfortable creating a new app for the experiment. Reuse existing build
-  conventions, with independent test API/domain/deployment settings. Creation
-  and deployment remain part of the reviewed live-trial approval.
-  The requested test hostname is
-  `lightsail.cybersim.app`; settle its frontend/API assignment and the second
-  hostname before preparing DNS changes. Leave production frontend configuration
-  and DNS unchanged.
-- Proposed starting size: 2 GB Linux instance, subject to cost and load
-  validation. Use restricted SSH and operator-delivered host secrets rather
-  than persistent AWS credentials on Lightsail. Keep secrets out of Terraform
-  user data, state inputs, images, logs, and version control.
-- Common preparation: verify reconnect/rejoin with real clients across backend
-  restart; explicitly close sockets and database connections on shutdown;
-  separate migrations from serving traffic; review atomic gameplay mutations
-  and retry behavior; review runtime permissions.
-- Owner-confirmed prerequisites: container-build hardening and verified database
-  TLS. Use explicit runtime image inputs, a restricted build context, and
-  synthetic context/layer exclusion checks; verify RDS certificate chains and
-  hostnames with real-driver success/rejection tests and no insecure fallback.
-  The Backend plan owns the detailed checklist and evidence. These improvements
-  must pass before the Lightsail trial release; deploying them to working EB
-  remains a separately reviewed action.
-- Use the existing Jest and Playwright tools for an isolated, synthetic
-  facilitator/projector test covering restart, refresh, rejoin, and subsequent
-  updates. Keep test data separate from production. Deploy a fixed image digest,
-  with a documented rollback and database migration compatibility plan.
-- Terraform should manage new application infrastructure separately from
-  existing shared resources, with private state, explicit teardown boundaries,
-  and a complete running-cost estimate before provisioning.
-- Verify existing shared peering before proposing changes. Keep RDS private,
-  scope ingress narrowly, and account for the instance's changed private address
-  after replacement.
-  The read-only baseline found peering disabled; the locked provider does not
-  model Lightsail peering, so the proposed one-time CLI step is explicitly
-  reviewed separately and never undone by trial Terraform destruction.
-- Document bootstrap, host maintenance/replacement, pinned application releases,
-  health checks, bounded logs, acceptance/load tests, and database-compatible
-  rollback. Preserve Beanstalk, RDS, and shared resources until a separately
-  approved production cutover and eventual cleanup.
-- Frontend tooling modernization is a separate workstream: React 16.14 and
-  Create React App 5 remain in the lockfile. Assess replacing CRA and upgrading
-  React in distinct changes; neither requires a new rendering architecture.
-
-Companion local branches: `codex/lightsail-deployment` in CyberSim-Backend and
-CyberSim-UI. Repository cleanup preserves the pre-existing documentation edits;
-no pull requests, pushes, deployments, or live changes have been made for this
-work. Backend `infra/README.md` maps roots and
-`infra/aws-lightsail/README.md` records preparation scope. The migration plan is
-drafted and the trial code is implemented locally. The current authenticated plan
-contains eleven creates and no changes/deletes, using actual approved access;
-earlier placeholder-access plans are historical only. Confirm remaining trial
-inputs and recheck drift/access before live-trial approval. Public website claims and facilitation
-resources are unaffected by this preparation; reassess them before cutover.
-
-Local implementation commits are Backend `056a3a6` and UI `35c7ab7`. Checks
-passed: 144 Backend tests, 26 UI tests, lint, secret scan, clean image/frontend
-builds, real Compose/Caddy polling/WebSocket workflows and restart readiness,
-verified database TLS and restricted role, actual GameStore reconnect recovery,
-and a short twelve-client check. Detailed evidence and outstanding live checks
-are in the Backend operator guide; no browser, public TLS, cloud bootstrap,
-remote rollback, sustained-load, or soak acceptance is claimed.
+Companion local branches: `codex/lightsail-deployment` in Backend and UI; no
+pushes or pull requests. Remote refs were refreshed: Backend is 18 commits ahead
+of `origin/main`; UI is 16 ahead and 8 behind, before these staged changes.
+There is no off-device Git branch copy yet; the existing device backup is not a
+verified Git recovery test. Private operator state/artifacts live outside source
+checkouts and use the owner's existing FileVault/device backup arrangement;
+backup encryption/restore access remain to verify. Public website claims and
+facilitation resources are unchanged; reassess before production cutover.
 
 ### Complete remaining Backend dependency-audit disposition
 
 **Type:** Security / dependencies
 
-**Status:** Production findings resolved locally; deployment remains unapproved
+**Status:** Production-dependency findings resolved in the trial release; working
+production EB is unchanged. Remaining development-tool disposition stays tracked.
 
-**Next actor:** Operator to refresh the audit and review pinned artifacts before approval A
+**Next actor:** Operator to refresh the audit for the next reviewed release and
+production preparation; historical counts are not current audit evidence.
 
 The initial trial hardening reduced the production audit from 17 findings
 (including one critical) to seven. The owner then authorized a controlled Knex

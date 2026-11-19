@@ -54,7 +54,7 @@ the backend with Docker Compose, keeping React on Amplify and PostgreSQL on
 private RDS. Preserve the retired Beanstalk Terraform root separately. Use a
 temporary independent private RDS test instance and an isolated Amplify test
 frontend. The owner is comfortable using a new Amplify app for the experiment;
-that is the planned test setup, subject to the live-trial approval. Leave
+that is the implemented test setup under isolated-trial approval. Leave
 production infrastructure, data, DNS, and frontend configuration unchanged.
 
 **Rationale and tradeoff:** Expected usage is usually one active game and at
@@ -74,45 +74,41 @@ See [the system backlog](cybersim-backlog.md) and the draft
 for phases, proposed acceptance targets, separate live-change approvals, and
 next actions. The plan is not an accepted production adoption decision.
 
-Local implementation now includes the independent trial Terraform root,
-Compose/Caddy, pinned artifact and guarded operator tools, image/TLS hardening,
-and reconnect recovery. The locked provider does not model Lightsail peering;
-the proposed regional enablement is a separately approved CLI prerequisite,
-outside trial destruction. The isolated frontend uses a separate Amplify app
-with manual releases for the evaluation. The actual-access plan was refreshed
-and inspected on 2026-11-09: eleven creates, no updates/deletes/imports.
-The operator guide records the saved plan and owner-run peering/apply handoff.
-The owner applied the trial infrastructure, verified on 2026-11-13. Production
-adoption remains undecided. Initial post-apply planning showed zero drift;
-runtime acceptance has not started.
+**Trial implementation and evidence:** The owner provisioned the independent
+trial root and separate private RDS/manual-release Amplify app, then completed
+SSM enrollment, pinned migrations, restricted app-role setup, synthetic loading
+and backend/frontend deployment. API health and frontend delivery pass with
+verified HTTPS; custom frontend `lightsail.cybersim.app` is working. Full hosted
+gameplay, stability/load and recovery acceptance remain open. The
+[Backend runbook](../../CyberSim-Backend/docs/aws-lightsail-deployment.md) owns
+current setup commands/evidence; do not reapply historical saved plans.
 
 **Administrative access selected:** The owner chose AWS Systems Manager
-Session Manager after evaluating VPN address changes, public key-only SSH,
-Tailscale and a dedicated bastion. Supersede the earlier IP-based repair plans.
-Use native SSM CLI shells and SSH/SCP inside SSM for releases, with no routine
-inbound SSH. The source no longer includes public administrator IPs.
+Session Manager after changing VPN addresses made IP-based SSH troublesome.
+Use native CLI shells and SSH/SCP **inside SSM**, keeping strict host-key checks
+and the existing operator SSH key. Routine public inbound access is only 80/443;
+no bastion, Tailscale or administrator-IP rule is needed for this trial.
 
-Lightsail uses a dedicated hybrid service role and one-node/one-hour activation
-created outside Terraform. No activation values enter state, user data or
-images. A temporary AWS-browser-only rule allows first enrollment, then is
-closed after verified node identity, SSM host-key collection and tunneled staging.
-The node role explicitly denies Parameter Store reads and has no application
-secret or command-dispatch permissions. No existing operator identity/policy is
-changed. Retain the existing AWS authentication/MFA controls and review scoped
-operator permissions before production.
+Lightsail uses a dedicated hybrid managed-node role, not an EC2 instance profile.
+A one-node/one-hour activation is created outside Terraform and consumed through
+hidden prompts during temporary AWS-browser-only SSH access. Verify node identity,
+collect the host key through authenticated SSM and prove tunneled staging, then
+retire the activation and close console SSH through a reviewed plan. The node
+role denies Parameter Store reads and has no application-secret/command-dispatch
+permissions. Keep activation and root-owned managed-node credentials out of
+Terraform/user data/images and away from application containers. Retain existing
+operator login/MFA; review scoped operator permissions before production.
 
-The [SSM procedure](../../CyberSim-Backend/docs/aws-lightsail-session-manager.md)
-records the inspected plan, secure prompts, credential tradeoff, tests,
-closure and recovery. This direction is accepted; its concrete Terraform
-changes remain for owner review/apply, and real enrollment/access remain
-unverified. No new role, activation, registered node or application deployment
-has been created by the agent. The owner personally executes Terraform applies.
+The owner personally runs **all Terraform applies and remote host commands/file
+transfers**, including SSM Run Command, shells and SSH/SCP. The agent prepares
+local changes, checks and reviewable plans. This access direction is accepted
+for the trial; it does not accept production adoption or an availability SLA.
+The [SSM guide](../../CyberSim-Backend/docs/aws-lightsail-session-manager.md)
+owns enrollment, closure, recovery and credential/logging tradeoffs.
 
-**Direction reaffirmed, 2026-11-06:** The owner wants to proceed with the
-Lightsail trial. The discussion of dynamically scalable alternatives does not
-change that trial target. Assess predictable failed-release/host recovery as
-well as cost and normal gameplay stability. Exact live actions still follow
-the migration plan's review/approval points.
+**Future scaling:** The owner reaffirmed the Lightsail trial while considering
+managed scalable alternatives. Assess predictable failed-release/host recovery
+as well as cost and normal gameplay stability before choosing production hosting.
 
 ECS on Fargate remains a candidate if managed host operations, availability, or
 dynamic scaling later justify its cost and infrastructure. It can run the
